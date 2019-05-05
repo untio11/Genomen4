@@ -1,19 +1,12 @@
 package GameState;
 
 public class Tile extends Entity {
-    public enum TileType {
-        TREE,
-        FLOOR,
-        WATER // Etc...
-    }
 
     private TileType type;
     private float height;
-    private boolean accessible;
 
     public boolean isAccessible() {
-        // This might need to be extended later.
-        return accessible;
+        return type.isAccessible(type);
     }
 
     public float getHeight() {
@@ -25,23 +18,26 @@ public class Tile extends Entity {
     }
 
     /**
-     * Default construction creates a floor tile of height 0 that is accessible
+     * Constructor for a tile required a type and a height.
      */
-    Tile() {
-        this.type = TileType.FLOOR;
-        this.height = 0;
-        this.accessible = true;
+    Tile(TileType t, int height) {
+        this.type = t;
+        this.height = height;
     }
 
-    /**
-     * Initialize the tile with the following properties.
-     * @param type The type of tile.
-     * @param height The visual height of the tile.
-     * @param accessible Whether an entity can enter this tile.
-     */
-    Tile(TileType type, float height, boolean accessible) {
-        this.type = type;
-        this.height = height;
-        this.accessible = accessible;
+    @Override
+    public String toString() {
+        switch (type) {
+            case GRASS:
+                return "Grass";
+            case SAND:
+                return "Sand";
+            case WATER:
+                return "Water";
+            case TREE:
+                return "Tree";
+            default:
+                return "Shore";
+        }
     }
 }

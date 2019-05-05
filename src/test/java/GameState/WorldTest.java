@@ -1,3 +1,5 @@
+package GameState;
+
 import GameState.Tile;
 import GameState.World;
 import org.junit.Assert;
