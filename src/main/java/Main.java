@@ -12,9 +12,11 @@ import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
 public class Main {
-
     // The window handle
     private long window;
+    private boolean fullscreen;
+    private int xpos;
+    private int ypos;
 
     public void run() {
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
@@ -42,7 +44,6 @@ public class Main {
 
         // Configure GLFW
         glfwDefaultWindowHints(); // optional, the current window hints are already the default
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 
         // Create the window
@@ -53,8 +54,20 @@ public class Main {
 
         // Setup a key callback. It will be called every time a key is pressed, repeated or released.
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-            if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
+            if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE ) {
                 glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
+            } else if (key == GLFW_KEY_F11 && action == GLFW_RELEASE) {
+                final long current_monitor = glfwGetPrimaryMonitor();
+                final GLFWVidMode mode = glfwGetVideoMode(current_monitor);
+
+                if (fullscreen) {
+                    glfwSetWindowMonitor(window, NULL, xpos, ypos, 300, 300, mode.refreshRate());
+                } else {
+                    glfwSetWindowMonitor(window, current_monitor, 0,0, mode.width(), mode.height(), mode.refreshRate());
+                }
+
+                fullscreen = !fullscreen;
+            }
         });
 
         // Get the thread stack and push a new frame
@@ -69,10 +82,13 @@ public class Main {
             GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
             // Center the window
+            xpos = (vidmode.width() - pWidth.get(0)) / 2;
+            ypos = (vidmode.height() - pHeight.get(0)) / 2;
+
             glfwSetWindowPos(
                     window,
-                    (vidmode.width() - pWidth.get(0)) / 2,
-                    (vidmode.height() - pHeight.get(0)) / 2
+                    xpos,
+                    ypos
             );
         } // the stack frame is popped automatically
 
@@ -80,9 +96,6 @@ public class Main {
         glfwMakeContextCurrent(window);
         // Enable v-sync
         glfwSwapInterval(1);
-
-        // Make the window visible
-        glfwShowWindow(window);
     }
 
     private void loop() {
@@ -112,5 +125,4 @@ public class Main {
     public static void main(String[] args) {
         new Main().run();
     }
-
 }
