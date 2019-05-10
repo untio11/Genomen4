@@ -45,9 +45,10 @@ public class Main {
         // Configure GLFW
         glfwDefaultWindowHints(); // optional, the current window hints are already the default
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
+        glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_TRUE); // The window will minimize when out of focus and in full screen
 
         // Create the window
-        window = glfwCreateWindow(300, 300, "Hello World!", NULL, NULL);
+        window = glfwCreateWindow(300, 300, "Genomen 4", NULL, NULL);
         if ( window == NULL ) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
@@ -67,6 +68,19 @@ public class Main {
                 }
 
                 fullscreen = !fullscreen;
+            }
+        });
+
+        // Make the OpenGL context current
+        glfwMakeContextCurrent(window);
+        // Enable v-sync
+        glfwSwapInterval(1);
+        glfwSetWindowSizeLimits(window, 720, 480, 1920, 1080);
+
+        glfwSetWindowPosCallback(window, (long window, int new_posx, int new_posy) -> {
+            if (new_posx > 0 && new_posy > 0) { // Don't update when going fullscreen (Hacky, but it works)
+                this.xpos = new_posx;
+                this.ypos = new_posy;
             }
         });
 
@@ -91,27 +105,36 @@ public class Main {
                     ypos
             );
         } // the stack frame is popped automatically
-
-        // Make the OpenGL context current
-        glfwMakeContextCurrent(window);
-        // Enable v-sync
-        glfwSwapInterval(1);
     }
 
     private void loop() {
-        // This line is critical for LWJGL's interoperation with GLFW's
-        // OpenGL context, or any context that is managed externally.
-        // LWJGL detects the context that is current in the current thread,
-        // creates the GLCapabilities instance and makes the OpenGL
-        // bindings available for use.
-        GL.createCapabilities();
+        boolean done = false;
 
-        // Set the clear color
-        glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
+
 
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
         while ( !glfwWindowShouldClose(window) ) {
+            // This line is critical for LWJGL's interoperation with GLFW's
+            // OpenGL context, or any context that is managed externally.
+            // LWJGL detects the context that is current in the current thread,
+            // creates the GLCapabilities instance and makes the OpenGL
+            // bindings available for use.
+            GL.createCapabilities();
+
+            // Set the clear color
+            glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
+
+
+            if (!done && GL.getCapabilities().OpenGL43) {
+                System.out.println("We can do compute shaders!");
+                String renderer = glGetString(GL_RENDERER);
+                String openGLVersion = glGetString(GL_VERSION);
+                System.out.println("Renderer: " + renderer + "\nVersion: " + openGLVersion);
+                done = true;
+            }
+
+            // We also want a render call here or something
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
             glfwSwapBuffers(window); // swap the color buffers
