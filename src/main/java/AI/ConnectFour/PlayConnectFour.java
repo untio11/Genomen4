@@ -95,7 +95,11 @@ public class PlayConnectFour extends JFrame {
     }
 
     private ConnectFourPlayer getCurrentPlayer() {
-        if(currentPlayer == 0) {
+        return this.getPlayer(currentPlayer);
+    }
+
+    private ConnectFourPlayer getPlayer(int playerId) {
+        if(playerId == 0) {
             return player1;
         }
         return player2;
@@ -214,6 +218,21 @@ public class PlayConnectFour extends JFrame {
         for (EndGameListener listener : endGameListeners) {
             listener.gameEnded(player);
         }
+    }
+
+    protected ConnectFourPlayer getWinner() {
+        boolean winPlayer1 = this.checkWinningCondition(this.currentPlayer);
+        if (winPlayer1) {
+            return this.getCurrentPlayer();
+        }
+        int otherPlayer = (this.currentPlayer + 1) % 2;
+        boolean winPlayer2 = this.checkWinningCondition(otherPlayer);
+        if (winPlayer2) {
+            return this.getPlayer(otherPlayer);
+        }
+
+        // The game is a draw, return null
+        return null;
     }
 
     public boolean checkMove(int x, int y) {

@@ -26,7 +26,7 @@ public class ConnectFourTrainerTest {
 
     @Test
     public void playCompetition() {
-        int players = 2;
+        int players = 5;
         ConnectFourTrainer trainer = new ConnectFourTrainer(players);
 
         trainer.init();

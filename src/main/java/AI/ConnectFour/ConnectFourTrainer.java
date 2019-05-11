@@ -59,6 +59,15 @@ public class ConnectFourTrainer extends AIGameTrainer<AIConnectFourPlayer, PlayC
         game.renderGUI();
         game.start();
 
+        AIConnectFourPlayer winningPlayer = (AIConnectFourPlayer) game.getWinner();
+
+        if (winningPlayer != null) {
+            // The game is not a draw, since there is a winning player
+            int score = 1;
+
+            this.setResults(winningPlayer, score);
+        }
+
         System.out.println("Game done");
     }
 }
