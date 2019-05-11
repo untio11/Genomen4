@@ -1,10 +1,14 @@
 package GameState;
 
+import org.lwjgl.system.CallbackI;
+
 public class Entity {
-    private Position<Float> position;
-    private Position<Integer> tilePosition;
-    private Position<Float> offset;
+    private Position<Float> position = new Position(0,0);
+    private Position<Integer> tilePosition = new Position(0,0);;
+    private Position<Float> offset = new Position(0,0);;
     private int size;
+
+
 
     public Position<Integer> getDiscretePosition() {
         return new Position<>(Math.round(position.getX()), Math.round(position.getY()));
@@ -22,7 +26,7 @@ public class Entity {
         return offset.copy();
     }
 
-    public void setPosition(float x, float y) {
+    public void setEntityPosition(float x, float y) {
         position.setPosition(x,y);
     }
 

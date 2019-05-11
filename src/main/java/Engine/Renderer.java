@@ -17,7 +17,7 @@ public class Renderer {
     public void  clear() {
         for (int x = 0; x < pW; x++) {
             for (int y = 0; y < pH; y++) {
-                window.setPixel(x, y, 0);
+                window.setPixel(x, y, 0xffffffff);
             }
         }
     }

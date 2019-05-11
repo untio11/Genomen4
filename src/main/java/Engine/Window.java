@@ -20,8 +20,10 @@ public class Window {
     public Window(int width, int height, int scale) {
         this.width = width;
         this.height = height;
+
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         p = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+
         canvas = new Canvas();
         Dimension s = new Dimension((width * scale), (height * scale));
         canvas.setPreferredSize(s);
@@ -47,6 +49,8 @@ public class Window {
         }
         p[x + y * width] = value;
     }
+
+
 
     public void draw() {
         g.drawImage(image,0, 0, canvas.getWidth(), canvas.getHeight(), null);

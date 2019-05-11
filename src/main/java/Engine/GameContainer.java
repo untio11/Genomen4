@@ -1,19 +1,24 @@
 package Engine;
 
+import GameState.Player;
 import GameState.World;
+
+import java.util.ResourceBundle;
 
 public class GameContainer implements Runnable{
 
     private World world;
     private Window window;
+    private Renderer renderer;
 
     private final double UPDATE_CAP = 1.0 / 60.0;
     private boolean running = false;
     private Thread thread = new Thread(this);
 
-    public GameContainer(World world, Window window) {
+    public GameContainer(World world, Window window, Renderer renderer) {
         this.world = world;
         this.window = window;
+        this.renderer = renderer;
     }
 
     public void start() {
@@ -23,6 +28,7 @@ public class GameContainer implements Runnable{
     @Override
     public void run() {
         running = true;
+        int i = 0;
 
         boolean render;
 
@@ -61,8 +67,12 @@ public class GameContainer implements Runnable{
             }
 
             if (render) {
+
                 //clear scene
+                renderer.clear();
                 //render scene
+                renderer.drawRect(10,1 + i,16,16,0xff00ffff);
+                i++;
                 //display fps
                 //display scene
                 window.draw();
@@ -78,9 +88,14 @@ public class GameContainer implements Runnable{
     }
 
     public static void main(String[] args) {
+
         World world = new World(5,4);
-        Window window = new Window(100,200,3);
-        GameContainer gc = new GameContainer(world, window);
+        world.createFather();
+        world.createKidnapper();
+        world.randomTiles();
+        Window window = new Window(300,200,3);
+        Renderer renderer = new Renderer(window);
+        GameContainer gc = new GameContainer(world, window, renderer);
         gc.start();
     }
 }
