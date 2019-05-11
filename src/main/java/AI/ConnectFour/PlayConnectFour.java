@@ -8,7 +8,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class PlayConnectFour extends JFrame {
 
@@ -21,22 +23,69 @@ public class PlayConnectFour extends JFrame {
 
     private JButton[] gridButtons;
 
-    public PlayConnectFour() {
+    private List<EndGameListener> endGameListeners = new ArrayList<>();
+
+    public PlayConnectFour(boolean headless) {
+
+        if (headless) {
+            System.setProperty("java.awt.headless", "true");
+        }
+
         this.setSize(350, 400);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        this.setVisible(true);
+        this.setVisible(!headless);
         this.setResizable(true);
 
-        player1 = new HumanConnectFourPlayer(this, 1);
-        player2 = new RandomConnectFourPlayer(this, 2);
+        player1 = new HumanConnectFourPlayer();
+        player2 = new RandomConnectFourPlayer();
 
         gridButtons = new JButton[size*size];
+
+        this.addEndGameListener(new EndGameListener() {
+            @Override
+            public void gameEnded(int winningPlayer) {
+                System.out.println("Winning condition for player: " + winningPlayer);
+            }
+        });
     }
 
     public static void main(String[] args) {
-        PlayConnectFour game = new PlayConnectFour();
+        boolean headless = false;
+        PlayConnectFour game = new PlayConnectFour(headless);
+        ConnectFourPlayer random1 = new RandomConnectFourPlayer();
+        ConnectFourPlayer random2 = new RandomConnectFourPlayer();
+        game.setPlayer1(random1);
+        game.setPlayer2(random2);
+
+
+
+//        game.addEndGameListener(new EndGameListener() {
+//            @Override
+//            public void gameEnded(int winningPlayer) {
+//
+//            }
+//        });
+
         game.renderGUI();
         game.start();
+    }
+
+    private void setPlayer1(ConnectFourPlayer player) {
+        player1 = player;
+        player1.setGame(this);
+        player1.setPlayerId(1);
+        player1.init();
+    }
+
+    private void setPlayer2(ConnectFourPlayer player) {
+        player2 = player;
+        player2.setGame(this);
+        player2.setPlayerId(2);
+        player2.init();
+    }
+
+    private void addEndGameListener(EndGameListener listener) {
+        endGameListeners.add(listener);
     }
 
     private void renderGUI() {
@@ -160,8 +209,7 @@ public class PlayConnectFour extends JFrame {
         boolean win = this.checkWinningCondition(player);
 
         if (win) {
-            System.out.println("Winning condition for player: " + player);
-            this.endGame();
+            this.endGame(player);
         } else {
             this.requestNextMove();
         }
@@ -176,9 +224,13 @@ public class PlayConnectFour extends JFrame {
         currentPlayer.requestMove(state);
     }
 
-    protected void endGame() {
+    protected void endGame(int player) {
         for (JButton button : gridButtons) {
             button.setEnabled(false);
+        }
+
+        for (EndGameListener listener : endGameListeners) {
+            listener.gameEnded(player);
         }
     }
 
@@ -206,6 +258,10 @@ public class PlayConnectFour extends JFrame {
             ConnectFourPlayer player = getCurrentPlayer();
             player.performMove(index);
         }
+    }
+
+    private abstract class EndGameListener {
+        public abstract void gameEnded(int winningPlayer);
     }
 
 }

@@ -4,8 +4,14 @@ import AI.ConnectFour.PlayConnectFour;
 
 public class HumanConnectFourPlayer extends ConnectFourPlayer {
 
-    public HumanConnectFourPlayer(PlayConnectFour game, int player) {
-        super(game, player);
+    public HumanConnectFourPlayer() {
+        super();
+
+    }
+
+    @Override
+    public void init() {
+
     }
 
     @Override

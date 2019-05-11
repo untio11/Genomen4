@@ -6,8 +6,13 @@ import java.util.Random;
 
 public class RandomConnectFourPlayer extends ConnectFourPlayer {
 
-    public RandomConnectFourPlayer(PlayConnectFour game, int player) {
-        super(game, player);
+    public RandomConnectFourPlayer() {
+        super();
+    }
+
+    @Override
+    public void init() {
+
     }
 
     @Override
