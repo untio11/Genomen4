@@ -7,7 +7,7 @@ public class Entity {
         return new Position<>(Math.round(position.getX()), Math.round(position.getY()));
     }
 
-    public Position<Float> getPosition() {
+    /*public Position<Float> getPosition() {
         return position.copy();
-    }
+    }*/
 }
