@@ -11,6 +11,8 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
+import java.util.Random;
+
 public class AIConnectFourPlayer extends ConnectFourPlayer {
 
     private static final int seed = 1234;
@@ -53,7 +55,17 @@ public class AIConnectFourPlayer extends ConnectFourPlayer {
 
     @Override
     public void requestMove(int[][] board) {
+        Random r = new Random();
 
+        int x = r.nextInt(game.boardSize());
+        int y = r.nextInt(game.boardSize());
+
+        while (!game.checkMove(x, y)) {
+            x = r.nextInt(game.boardSize());
+            y = r.nextInt(game.boardSize());
+        }
+
+        game.doMove(x, y, player);
     }
 
     @Override
