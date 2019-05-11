@@ -23,4 +23,14 @@ public class ConnectFourTrainerTest {
         trainer.init();
         Assert.assertEquals(expectedCompetitions, trainer.getCompetition().size());
     }
+
+    @Test
+    public void playCompetition() {
+        int players = 2;
+        ConnectFourTrainer trainer = new ConnectFourTrainer(players);
+
+        trainer.init();
+        trainer.playCompetition();
+
+    }
 }

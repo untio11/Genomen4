@@ -11,7 +11,7 @@ public class AIGameTrainerTest {
     @Test
     public void createPlayers() {
         int expectedPlayers = 100;
-        AIGameTrainer trainer = new AIGameTrainer<Integer>(expectedPlayers) {
+        AIGameTrainer trainer = new AIGameTrainer<Integer, Integer>(expectedPlayers) {
             @Override
             protected Integer createPlayer() {
                 return 1;
@@ -20,6 +20,16 @@ public class AIGameTrainerTest {
             @Override
             protected List<Pair<Integer, Integer>> createCompetition(List<Integer> players) {
                 return null;
+            }
+
+            @Override
+            protected Integer createGame(Pair<Integer, Integer> players) {
+                return null;
+            }
+
+            @Override
+            protected void playGame(Integer game) {
+
             }
         };
 

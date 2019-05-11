@@ -40,13 +40,6 @@ public class PlayConnectFour extends JFrame {
         player2 = new RandomConnectFourPlayer();
 
         gridButtons = new JButton[size*size];
-
-        this.addEndGameListener(new EndGameListener() {
-            @Override
-            public void gameEnded(int winningPlayer) {
-                System.out.println("Winning condition for player: " + winningPlayer);
-            }
-        });
     }
 
     public static void main(String[] args) {
@@ -57,38 +50,29 @@ public class PlayConnectFour extends JFrame {
         game.setPlayer1(random1);
         game.setPlayer2(random2);
 
-
-
-//        game.addEndGameListener(new EndGameListener() {
-//            @Override
-//            public void gameEnded(int winningPlayer) {
-//
-//            }
-//        });
-
         game.renderGUI();
         game.start();
     }
 
-    private void setPlayer1(ConnectFourPlayer player) {
+    void setPlayer1(ConnectFourPlayer player) {
         player1 = player;
         player1.setGame(this);
         player1.setPlayerId(1);
         player1.init();
     }
 
-    private void setPlayer2(ConnectFourPlayer player) {
+    void setPlayer2(ConnectFourPlayer player) {
         player2 = player;
         player2.setGame(this);
         player2.setPlayerId(2);
         player2.init();
     }
 
-    private void addEndGameListener(EndGameListener listener) {
+    void addEndGameListener(EndGameListener listener) {
         endGameListeners.add(listener);
     }
 
-    private void renderGUI() {
+    void renderGUI() {
         JPanel mainPanel = new JPanel(new BorderLayout());
         JPanel game = new JPanel(new GridLayout(size, size));
 
@@ -124,7 +108,7 @@ public class PlayConnectFour extends JFrame {
         return "X";
     }
 
-    private void start() {
+    void start() {
         ConnectFourPlayer currentPlayer = this.getCurrentPlayer();
         int[][] state = this.getBoardState();
         currentPlayer.requestMove(state);
@@ -158,8 +142,6 @@ public class PlayConnectFour extends JFrame {
 
     private boolean checkWinningCondition(int player) {
         int[][] state = this.getBoardState();
-
-        System.out.println(boardToString(state));
 
         // Source: https://stackoverflow.com/a/38211417
 
@@ -253,15 +235,13 @@ public class PlayConnectFour extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("Placed on index: " + index);
-
             ConnectFourPlayer player = getCurrentPlayer();
             player.performMove(index);
         }
     }
 
-    private abstract class EndGameListener {
-        public abstract void gameEnded(int winningPlayer);
+    interface EndGameListener {
+        void gameEnded(int winningPlayer);
     }
 
 }

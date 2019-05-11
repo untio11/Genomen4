@@ -5,7 +5,7 @@ import util.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AIGameTrainer<A> {
+public abstract class AIGameTrainer<A, B> {
 
     private List<A> players;
     private List<Pair<A, A>> competition;
@@ -20,6 +20,13 @@ public abstract class AIGameTrainer<A> {
     public void init() {
         this.createPlayers(players);
         competition = this.createCompetition(players);
+    }
+
+    public void playCompetition() {
+        for (Pair<A, A> players : competition) {
+            B game = this.createGame(players);
+            this.playGame(game);
+        }
     }
 
     protected void createPlayers(List<A> players) {
@@ -39,4 +46,8 @@ public abstract class AIGameTrainer<A> {
     protected abstract A createPlayer();
 
     protected abstract List<Pair<A, A>> createCompetition(List<A> players);
+
+    protected abstract B createGame(Pair<A, A> players);
+
+    protected abstract void playGame(B game);
 }

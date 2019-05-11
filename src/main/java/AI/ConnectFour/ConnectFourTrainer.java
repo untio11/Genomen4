@@ -7,7 +7,7 @@ import util.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConnectFourTrainer extends AIGameTrainer<AIConnectFourPlayer> {
+public class ConnectFourTrainer extends AIGameTrainer<AIConnectFourPlayer, PlayConnectFour> {
 
     public ConnectFourTrainer(int nPlayers) {
         super(nPlayers);
@@ -37,5 +37,28 @@ public class ConnectFourTrainer extends AIGameTrainer<AIConnectFourPlayer> {
         }
 
         return competition;
+    }
+
+    @Override
+    protected PlayConnectFour createGame(Pair<AIConnectFourPlayer, AIConnectFourPlayer> players) {
+        PlayConnectFour game = new PlayConnectFour(true);
+        game.setPlayer1(players.getFirst());
+        game.setPlayer2(players.getSecond());
+
+        game.addEndGameListener(winningPlayer -> {
+            System.out.println("Winning player for game is: " + winningPlayer);
+        });
+
+        return game;
+    }
+
+    @Override
+    protected void playGame(PlayConnectFour game) {
+        System.out.println("Game start");
+
+        game.renderGUI();
+        game.start();
+
+        System.out.println("Game done");
     }
 }
