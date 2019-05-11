@@ -1,23 +1,25 @@
 package GameState;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 public class MapGenerator {
 
     private int worldHeight;
     private int worldWidth;
     private Tile map[][];
+    private int startRow;
+    private int startWidthOffset;
 
     public Tile[][] generate(int width, int height) {
 
         worldWidth = width;
         worldHeight = height;
+        startWidthOffset = 10;
+        startRow = (int) Math.floor(height/2);
 
         map = new Tile[width][height];
 
+        //First fill all edges of the map (will be water by the bayesian)
         for (int r = 0; r < width; ++r) {
             for (int c = 0; c < height; ++c) {
                 if (isWorldEdge(r, c)) {
@@ -26,7 +28,13 @@ public class MapGenerator {
             }
         }
 
-        //First fill a skeleton of the map to increase randomness
+        //Then define the starting point of the chaser and the escapee
+        map[(int) Math.floor(height/2)][startWidthOffset] = new Tile(TileType.GRASS, 0,
+                new int[] {startRow, startWidthOffset}, calcHeuristic(startRow, startWidthOffset));
+        map[startRow][width - startWidthOffset] = new Tile(TileType.GRASS, 0,
+                new int[] {startRow, width - startWidthOffset}, calcHeuristic(startRow, width - startWidthOffset));
+
+        //Then fill a skeleton of the map to increase randomness
         for (int r = 0; r < width; r = r + 3) {
             for (int c = 0; c < height; c = c + 3) {
                 map[r][c] = getBayesianTile(r, c);
@@ -51,26 +59,29 @@ public class MapGenerator {
             }
         }
 
+        if (mapValid()) {
+            return map;
+        } else {
+            return generate(width, height);
+        }
 
-
-        return map;
     }
 
     private Tile getBayesianTile(int r, int c) {
         if (isWorldEdge(r, c)) {
-            return new Tile(TileType.WATER, 0);
+            return new Tile(TileType.WATER, 0, new int[] {r, c}, calcHeuristic(r, c));
         }
 
         double chance[] = getChanceDistribution2(r, c);
         double random = Math.random();
         if (random <= chance[0]) {
-            return  new Tile(TileType.GRASS, 0);
+            return  new Tile(TileType.GRASS, 0, new int[] {r, c}, calcHeuristic(r, c));
         } else if (random <= chance[0] + chance[1]) {
-            return new Tile(TileType.SAND, 0);
+            return new Tile(TileType.SAND, 0, new int[] {r, c}, calcHeuristic(r, c));
         } else if (random <= chance[0] + chance[1] + chance[2] ) {
-            return new Tile(TileType.TREE, 0);
+            return new Tile(TileType.TREE, 0, new int[] {r, c}, calcHeuristic(r, c));
         } else {
-            return new Tile(TileType.WATER, 0);
+            return new Tile(TileType.WATER, 0, new int[] {r, c}, calcHeuristic(r, c));
         }
 
     }
@@ -107,7 +118,7 @@ public class MapGenerator {
      * A double array containing the neighbours of a tile, in the order North, East, South, West.
      * @param r row of the tile
      * @param c column of the tile
-     * @return TileType[] containing all TileTypes this tile is connected to.
+     * @return int[][] containing all neighbours of the coordinates
      * @throws IllegalArgumentException if tile if at world edge. These tiles are not interesting anyway, always water.
      */
     private int[][] neighbours(int r, int c) {
@@ -208,5 +219,86 @@ public class MapGenerator {
 
         return chanceMap.get(keyToLookFor);
     }
+
+    private boolean mapValid() {
+        int pathLength = aStarPath();
+        System.out.println("Path found! Length: " + pathLength);
+        return pathLength > worldWidth * 1.1 && calculateAccessibleTerrain() > 0.7;
+    }
+
+    private int aStarPath() {
+        Comparator<Tile> comparator = new HeuristicComparator();
+        PriorityQueue<Tile> openQueue =
+                new PriorityQueue<Tile>(10, comparator);
+        ArrayList<Tile> closedList = new ArrayList<>();
+        Tile source = map[startRow][startWidthOffset];
+        source.setgCost(0);
+        openQueue.add(source);
+        while (openQueue.size() != 0) {
+            Tile q = openQueue.remove();
+            for (Tile t : getTileNeighbours(q)) {
+
+                //Check if tile is accessible. If not, skip this tile.
+                if (!t.isAccessible()) {
+                    continue;
+                }
+
+                t.setParent(q);
+                //Check if goal
+                if (Arrays.equals(t.getCoordinates(), new int[] {startRow, worldWidth - startWidthOffset})) {
+                    System.out.println("Path found!");
+                    return q.getgCost() + 1;
+                }
+
+                int newGCost = q.getgCost() + 1;
+                int newFScore = t.getgCost() + t.getHeuristic();
+
+                if (openQueue.contains(t) && t.getfScore() < newFScore) {
+                    continue;
+                }
+
+                if (closedList.contains(t)) {
+                    continue;
+                }
+
+                t.setgCost(newGCost);
+                t.setfScore(newFScore);
+                openQueue.add(t);
+            }
+            closedList.add(q);
+        }
+        System.out.println("No Path found!");
+        return -1;
+    }
+
+    private double calculateAccessibleTerrain() {
+
+        return 1.0;
+    }
+
+    private int calcHeuristic(int r, int c) {
+        return (int) (Math.abs(r - startRow) + Math.abs(worldWidth - 2 * startWidthOffset));
+    }
+
+    private Tile[] getTileNeighbours(Tile tile) {
+        int row = tile.getRow();
+        int column = tile.getColumn();
+        ArrayList<Tile> neighbours = new ArrayList<>();
+        if (row - 1 >= 0) {
+            neighbours.add(map[row - 1][column]);
+        }
+        if (column + 1 < worldWidth) {
+            neighbours.add(map[row][column + 1]);
+        }
+        if (row + 1 < worldHeight) {
+            neighbours.add(map[row + 1][column]);
+        }
+        if (column - 1 >= 0) {
+            neighbours.add(map[row][column - 1]);
+        }
+
+        return neighbours.toArray(new Tile[0]);
+    }
+
 
 }
