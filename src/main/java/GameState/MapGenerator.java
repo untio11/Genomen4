@@ -60,6 +60,7 @@ public class MapGenerator {
         }
 
         if (mapValid()) {
+            fixMap();
             return map;
         } else {
             return generate(width, height);
@@ -274,6 +275,49 @@ public class MapGenerator {
     private double calculateAccessibleTerrain() {
 
         return 1.0;
+    }
+
+    private void fixMap() {
+        //create the bayesian network
+        Map<Integer, TileType> shoreMap = new HashMap<>();
+        shoreMap.put(0, TileType.WATER);
+        shoreMap.put(1, TileType.SHORE_D);
+        shoreMap.put(10, TileType.SHORE_T);
+        shoreMap.put(11, TileType.SHORE_TD);
+        shoreMap.put(100, TileType.SHORE_R);
+        shoreMap.put(101, TileType.SHORE_RD);
+        shoreMap.put(110, TileType.SHORE_RT);
+        shoreMap.put(111, TileType.SHORE_RTD);
+        shoreMap.put(1000, TileType.SHORE_L);
+        shoreMap.put(1001, TileType.SHORE_LD);
+        shoreMap.put(1010, TileType.SHORE_LT);
+        shoreMap.put(1011, TileType.SHORE_LTD);
+        shoreMap.put(1100, TileType.SHORE_LR);
+        shoreMap.put(1101, TileType.SHORE_LRD);
+        shoreMap.put(1110, TileType.SHORE_LRT);
+        shoreMap.put(1111, TileType.SHORE_LRTD);
+
+
+        for (int r = 0; r < worldWidth; ++r) {
+            for (int c = 0; c < worldHeight; ++c) {
+                if (map[r][c].getType() == TileType.WATER) {
+                    int shore = 0;
+                    if (r + 1 < worldHeight && map[r+1][c].isAccessible()) {
+                        shore += 1;
+                    }
+                    if (r - 1 >= 0 && map[r-1][c].isAccessible()) {
+                        shore += 10;
+                    }
+                    if (c + 1 < worldWidth && map[r][c+1].isAccessible()) {
+                        shore += 100;
+                    }
+                    if (c - 1 >= 0 && map[r][c-1].isAccessible()) {
+                        shore += 1000;
+                    }
+                    map[r][c] = new Tile(shoreMap.get(shore), 0, new int[] {r, c}, calcHeuristic(r, c));
+                }
+            }
+        }
     }
 
     private int calcHeuristic(int r, int c) {
