@@ -182,6 +182,19 @@ public class PlayConnectFour extends JFrame {
         return false;
     }
 
+    private boolean checkPossibleMove() {
+        int[][] state = this.getBoardState();
+
+        for (int y = 0; y < size; y++) {
+            for (int x = 0; x < size; x++) {
+                if (state[y][x] == 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public void doMove(int x, int y, int player) {
         if (!checkMove(x, y)) {
             throw new RuntimeException("Move not checked");
@@ -196,7 +209,9 @@ public class PlayConnectFour extends JFrame {
 
         if (win) {
             this.endGame(player);
-        } else {
+        } else if (!this.checkPossibleMove()) {
+            this.endGame(0);
+        }else {
             this.requestNextMove();
         }
     }
