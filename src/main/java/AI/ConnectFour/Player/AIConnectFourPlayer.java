@@ -1,6 +1,5 @@
 package AI.ConnectFour.Player;
 
-import AI.ConnectFour.PlayConnectFour;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.distribution.UniformDistribution;

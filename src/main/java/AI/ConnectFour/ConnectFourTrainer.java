@@ -2,9 +2,13 @@ package AI.ConnectFour;
 
 import AI.AIGameTrainer;
 import AI.ConnectFour.Player.AIConnectFourPlayer;
+import AI.ConnectFour.Player.ConnectFourPlayer;
+import AI.ConnectFour.Player.HumanConnectFourPlayer;
 import util.Pair;
 
+import javax.swing.*;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class ConnectFourTrainer extends AIGameTrainer<AIConnectFourPlayer, PlayConnectFour> {
@@ -14,8 +18,23 @@ public class ConnectFourTrainer extends AIGameTrainer<AIConnectFourPlayer, PlayC
     }
 
     public static void main(String[] args) {
-        ConnectFourTrainer trainer = new ConnectFourTrainer(100);
+        int players = 5;
+        ConnectFourTrainer trainer = new ConnectFourTrainer(players);
+
         trainer.init();
+        trainer.playCompetition();
+        LinkedHashMap<AIConnectFourPlayer, Integer> sortedPlayers = trainer.evaluatePlayers();
+
+        // Play against the best player
+        final PlayConnectFour game = new PlayConnectFour(false);
+        ConnectFourPlayer human = new HumanConnectFourPlayer();
+        game.setPlayer1(human);
+        game.setPlayer2(sortedPlayers.entrySet().iterator().next().getKey());
+
+        SwingUtilities.invokeLater(() -> {
+            game.renderGUI();
+            game.start();
+        });
     }
 
     @Override
