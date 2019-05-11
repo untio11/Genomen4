@@ -15,6 +15,17 @@ public class World {
         this.data = new Tile[height][width];
     }
 
+    public boolean getCollision(int x, int y) {
+        if (x < 0 || x >= tile_width || y < 0 || y >= tile_width) {
+            return true;
+        }
+        return data[x][y].isAccessible();
+    }
+
+    public boolean getPlayerCollision() {
+        return false;
+    }
+
     public Tile[][] getTiles() {
         return this.data;
     }

@@ -4,6 +4,7 @@ public class Entity {
     private Position<Float> position;
     private Position<Integer> tilePosition;
     private Position<Float> offset;
+    private int size;
 
     public Position<Integer> getDiscretePosition() {
         return new Position<>(Math.round(position.getX()), Math.round(position.getY()));
@@ -31,5 +32,9 @@ public class Entity {
 
     public void setOffset(float x, float y) {
         offset.setPosition(x,y);
+    }
+
+    public void setSize(int size) {
+        this.size = size;
     }
 }
