@@ -1,7 +1,10 @@
 package AI.ConnectFour;
 
+import AI.ConnectFour.Player.AIConnectFourPlayer;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.LinkedHashMap;
 
 public class ConnectFourTrainerTest {
 
@@ -32,5 +35,15 @@ public class ConnectFourTrainerTest {
         trainer.init();
         trainer.playCompetition();
 
+    }
+
+    @Test
+    public void evaluatePlayers() {
+        int players = 5;
+        ConnectFourTrainer trainer = new ConnectFourTrainer(players);
+
+        trainer.init();
+        trainer.playCompetition();
+        LinkedHashMap<AIConnectFourPlayer, Integer> sortedPlayers = trainer.evaluatePlayers();
     }
 }

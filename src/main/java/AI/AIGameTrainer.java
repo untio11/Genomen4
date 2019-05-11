@@ -2,10 +2,8 @@ package AI;
 
 import util.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class AIGameTrainer<A, B> {
 
@@ -43,6 +41,13 @@ public abstract class AIGameTrainer<A, B> {
         }
 
         System.out.println("Best Score: " + bestScore);
+    }
+
+    public LinkedHashMap<A, Integer> evaluatePlayers() {
+        // Sort the players based on the score
+         return playerScores.entrySet().stream()
+                .sorted((Map.Entry.<A, Integer>comparingByValue().reversed()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
     protected void createPlayers(List<A> players) {
