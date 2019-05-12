@@ -1,11 +1,13 @@
-package AI;
+package AI.Trainer;
 
 import util.Pair;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public abstract class AIGameTrainer<A, B> {
+public abstract class AIGameTrainer<A extends TrainerAIPlayer, B> {
 
     private List<A> players;
     private List<Pair<A, A>> competition;
@@ -40,6 +42,9 @@ public abstract class AIGameTrainer<A, B> {
             }
         }
 
+        String fileName = this.getName() + "-" + bestScore;
+        this.savePlayer(bestPlayer, fileName);
+
         System.out.println("Best Score: " + bestScore);
     }
 
@@ -70,6 +75,18 @@ public abstract class AIGameTrainer<A, B> {
         int oldScore = playerScores.get(player);
         playerScores.put(player, oldScore + score);
     }
+
+    protected void savePlayer(A player, String fileName) {
+        File f = new File("res/" + fileName + ".net");
+
+        try {
+            player.saveNetwork(f);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected abstract String getName();
 
     protected abstract A createPlayer();
 

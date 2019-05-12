@@ -1,6 +1,6 @@
 package AI.ConnectFour;
 
-import AI.AIGameTrainer;
+import AI.Trainer.AIGameTrainer;
 import AI.ConnectFour.Player.AIConnectFourPlayer;
 import AI.ConnectFour.Player.ConnectFourPlayer;
 import AI.ConnectFour.Player.HumanConnectFourPlayer;
@@ -17,8 +17,13 @@ public class ConnectFourTrainer extends AIGameTrainer<AIConnectFourPlayer, PlayC
         super(nPlayers);
     }
 
+    @Override
+    protected String getName() {
+        return "connect-four";
+    }
+
     public static void main(String[] args) {
-        int players = 5;
+        int players = 100;
         ConnectFourTrainer trainer = new ConnectFourTrainer(players);
 
         trainer.init();
@@ -73,8 +78,6 @@ public class ConnectFourTrainer extends AIGameTrainer<AIConnectFourPlayer, PlayC
 
     @Override
     protected void playGame(PlayConnectFour game) {
-        System.out.println("Game start");
-
         game.renderGUI();
         game.start();
 
@@ -86,7 +89,5 @@ public class ConnectFourTrainer extends AIGameTrainer<AIConnectFourPlayer, PlayC
 
             this.setResults(winningPlayer, score);
         }
-
-        System.out.println("Game done");
     }
 }

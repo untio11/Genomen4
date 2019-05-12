@@ -1,5 +1,6 @@
 package AI.ConnectFour;
 
+import AI.ConnectFour.Player.AIConnectFourPlayer;
 import AI.ConnectFour.Player.ConnectFourPlayer;
 import AI.ConnectFour.Player.HumanConnectFourPlayer;
 import AI.ConnectFour.Player.RandomConnectFourPlayer;
@@ -8,6 +9,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,8 +48,13 @@ public class PlayConnectFour extends JFrame {
     public static void main(String[] args) {
         boolean headless = false;
         PlayConnectFour game = new PlayConnectFour(headless);
-        ConnectFourPlayer random1 = new RandomConnectFourPlayer();
-        ConnectFourPlayer random2 = new RandomConnectFourPlayer();
+        ConnectFourPlayer random1 = new HumanConnectFourPlayer();
+        AIConnectFourPlayer random2 = new AIConnectFourPlayer();
+        try {
+            random2.loadNetwork(new File("res/connect-four-98.net"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         game.setPlayer1(random1);
         game.setPlayer2(random2);
 
