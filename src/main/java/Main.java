@@ -15,6 +15,8 @@ import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 
 import java.nio.*;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
@@ -28,7 +30,7 @@ public class Main{
     private final int width = 600;
     private final int length = 600;
 
-    private boolean[] pressedKeys;
+    private Set<Integer> pressedKeys = new HashSet<>();
 
     public void run() {
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
@@ -113,7 +115,7 @@ public class Main{
         ModelTexture texture = new ModelTexture(loader.loadTexture("stallTexture"));
         TexturedModel texturedModel = new TexturedModel(model, texture);
 
-        Player player = new Player(texturedModel, new Vector3f(0,0,-20), 90, 180, 0, 1);
+        Player player = new Player(texturedModel, new Vector3f(0,0,0), 0, 0, 0, 1);
 
         Camera camera = new Camera();
 
@@ -122,7 +124,22 @@ public class Main{
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
         while ( !glfwWindowShouldClose(window) ) {
-
+            for(int keyPressed : pressedKeys) {
+                switch (keyPressed) {
+                    case GLFW_KEY_W:
+                        camera.moveUp();
+                        break;
+                    case GLFW_KEY_S:
+                        camera.moveDown();
+                        break;
+                    case GLFW_KEY_A:
+                        camera.moveLeft();
+                        break;
+                    case GLFW_KEY_D:
+                        camera.moveRight();
+                        break;
+                }
+            }
 
 //            renderer.prepare();
 //            shader.start();
@@ -152,19 +169,34 @@ public class Main{
         glfwSetInputMode(window, GLFW_STICKY_KEYS, 1);
         // Setup a key callback. It will be called every time a key is pressed, repeated or released.
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-            if (action == GLFW_REPEAT) {
+            if(action == GLFW_PRESS) {
                 switch (key) {
                     case GLFW_KEY_W:
-                        //camera.moveUp();
+                        pressedKeys.add(GLFW_KEY_W);
                         break;
                     case GLFW_KEY_S:
-                        //camera.moveDown();
+                        pressedKeys.add(GLFW_KEY_S);
                         break;
                     case GLFW_KEY_A:
-                        //camera.moveLeft();
+                        pressedKeys.add(GLFW_KEY_A);
                         break;
                     case GLFW_KEY_D:
-                        //camera.moveRight();
+                        pressedKeys.add(GLFW_KEY_D);
+                        break;
+                }
+            } else if(action == GLFW_RELEASE) {
+                switch (key) {
+                    case GLFW_KEY_W:
+                        pressedKeys.remove(GLFW_KEY_W);
+                        break;
+                    case GLFW_KEY_S:
+                        pressedKeys.remove(GLFW_KEY_S);
+                        break;
+                    case GLFW_KEY_A:
+                        pressedKeys.remove(GLFW_KEY_A);
+                        break;
+                    case GLFW_KEY_D:
+                        pressedKeys.remove(GLFW_KEY_D);
                         break;
                 }
             }

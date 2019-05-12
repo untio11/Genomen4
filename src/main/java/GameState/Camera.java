@@ -4,17 +4,17 @@ import org.joml.Vector3f;
 
 public class Camera {
 
-    private Vector3f position = new Vector3f(0,0,0);
-    private float pitch;
+    private Vector3f position = new Vector3f(0,20,0);
+    private float pitch = 90f;
     private float yaw;
     private float roll;
 
     public void moveUp() {
-        position.y += 0.05f;
+        position.z -= 0.05f;
     }
 
     public void moveDown() {
-        position.y -= 0.05f;
+        position.z += 0.05f;
     }
 
     public void moveLeft() {
