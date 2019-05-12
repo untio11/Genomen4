@@ -3,6 +3,7 @@ import GameState.Player;
 import Models.RawModel;
 import Models.TexturedModel;
 import RenderEngine.Loader;
+import RenderEngine.MasterRenderer;
 import RenderEngine.OBJLoader;
 import RenderEngine.Renderer;
 import Shaders.StaticShader;
@@ -105,8 +106,8 @@ public class Main{
         GL.createCapabilities();
 
         Loader loader = new Loader();
-        StaticShader shader = new StaticShader();
-        Renderer renderer = new Renderer(shader);
+        //StaticShader shader = new StaticShader();
+        //Renderer renderer = new Renderer(shader);
 
         RawModel model = OBJLoader.loadObjModel("stall", loader);
         ModelTexture texture = new ModelTexture(loader.loadTexture("stallTexture"));
@@ -116,16 +117,21 @@ public class Main{
 
         Camera camera = new Camera();
 
+        MasterRenderer renderer = new MasterRenderer();
+
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
         while ( !glfwWindowShouldClose(window) ) {
 
 
-            renderer.prepare();
-            shader.start();
-            shader.loadViewMatrix(camera);
-            renderer.render(player, shader);
-            shader.stop();
+//            renderer.prepare();
+//            shader.start();
+//            shader.loadViewMatrix(camera);
+//            renderer.render(player, shader);
+//            shader.stop();
+
+            renderer.processEntity(player);
+            renderer.render(player, camera);
 
             //already done in renderer class
             //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
@@ -136,7 +142,8 @@ public class Main{
             // invoked during this call.
             glfwPollEvents();
         }
-        shader.cleanUp();
+//        shader.cleanUp();
+        renderer.cleanUp();
         loader.cleanUp();
     }
 
