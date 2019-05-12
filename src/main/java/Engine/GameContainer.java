@@ -11,7 +11,7 @@ public class GameContainer implements Runnable {
     private Thread thread = new Thread(this);
 
     private int width, height;
-    private float scale = 3;
+    private float scale = 1;
 
     private Window window;
     private Renderer renderer;
@@ -88,7 +88,7 @@ public class GameContainer implements Runnable {
     }
 
     public static void main(String[] args) {
-        World world = new World(10, 10);
+        World world = new World(100, 100);
         GameContainer gc = new GameContainer(world);
         gc.start();
     }

@@ -26,7 +26,7 @@ public class Renderer {
     }
 
     public void renderPlayer(Player player) {
-        int color = player.isKidnapper() ? 0xffffffff : 0xffffffff;
+        int color = player.isKidnapper() ? 0xff000000 : 0xff000000;
         drawRect((int) player.getPosX(), (int) player.getPosY(), player.getWidth() - 1, player.getHeight() - 1, color);
     }
 
