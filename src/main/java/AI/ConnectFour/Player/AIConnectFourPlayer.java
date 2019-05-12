@@ -1,5 +1,6 @@
 package AI.ConnectFour.Player;
 
+import AI.ConnectFour.PlayConnectFour;
 import AI.Trainer.TrainerAIPlayer;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -42,13 +43,13 @@ public class AIConnectFourPlayer extends ConnectFourPlayer implements TrainerAIP
                 .miniBatch(false)
                 .list()
                 .layer(new DenseLayer.Builder()
-                        .nIn(game.boardSize()*game.boardSize())
-                        .nOut(game.boardSize()*game.boardSize())
+                        .nIn(PlayConnectFour.SIZE*PlayConnectFour.SIZE)
+                        .nOut(PlayConnectFour.SIZE*PlayConnectFour.SIZE)
                         .activation(Activation.TANH)
                         .weightInit(new UniformDistribution(-1, 1))
                         .build())
                 .layer(new OutputLayer.Builder(LossFunctions.LossFunction.L2)
-                        .nOut(game.boardSize()*game.boardSize())
+                        .nOut(PlayConnectFour.SIZE*PlayConnectFour.SIZE)
                         .activation(Activation.SOFTMAX)
 //                        .weightInit(WeightInit.DISTRIBUTION)
                         .weightInit(new UniformDistribution(0, 1))
@@ -65,8 +66,8 @@ public class AIConnectFourPlayer extends ConnectFourPlayer implements TrainerAIP
         // Determine the placement by the AI with the board as input
         int index = this.determinePlace(board);
 
-        int y = index / game.boardSize();
-        int x = index % game.boardSize();
+        int y = index / PlayConnectFour.SIZE;
+        int x = index % PlayConnectFour.SIZE;
 
         if (game.checkMove(x, y)) {
             game.doMove(x, y, player);
@@ -89,15 +90,15 @@ public class AIConnectFourPlayer extends ConnectFourPlayer implements TrainerAIP
 
     private INDArray boardToINDArray(int[][] board) {
         float[] processedBoard = this.processBoard(board);
-        INDArray input2 = Nd4j.create(processedBoard, new int[]{1, game.boardSize()*game.boardSize()});
+        INDArray input2 = Nd4j.create(processedBoard, new int[]{1, PlayConnectFour.SIZE*PlayConnectFour.SIZE});
         return input2;
     }
 
     private float[] processBoard(int[][] board) {
-        float[] processed = new float[game.boardSize()*game.boardSize()];
-        for (int y = 0; y < game.boardSize(); y++) {
-            for (int x = 0; x < game.boardSize(); x++) {
-                int i = y * game.boardSize() + x;
+        float[] processed = new float[PlayConnectFour.SIZE*PlayConnectFour.SIZE];
+        for (int y = 0; y < PlayConnectFour.SIZE; y++) {
+            for (int x = 0; x < PlayConnectFour.SIZE; x++) {
+                int i = y * PlayConnectFour.SIZE + x;
                 processed[i] = this.normalizeBoardValue(board[y][x]);
             }
         }
@@ -117,12 +118,12 @@ public class AIConnectFourPlayer extends ConnectFourPlayer implements TrainerAIP
 
     private void placeRandom() {
         Random r = new Random();
-        int x = r.nextInt(game.boardSize());
-        int y = r.nextInt(game.boardSize());
+        int x = r.nextInt(PlayConnectFour.SIZE);
+        int y = r.nextInt(PlayConnectFour.SIZE);
 
         while (!game.checkMove(x, y)) {
-            x = r.nextInt(game.boardSize());
-            y = r.nextInt(game.boardSize());
+            x = r.nextInt(PlayConnectFour.SIZE);
+            y = r.nextInt(PlayConnectFour.SIZE);
         }
 
         game.doMove(x, y, player);

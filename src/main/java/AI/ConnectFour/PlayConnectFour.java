@@ -17,7 +17,7 @@ import java.util.List;
 
 public class PlayConnectFour extends JFrame {
 
-    private static final int size = 7;
+    public static final int SIZE = 7;
 
     private ConnectFourPlayer player1;
     private ConnectFourPlayer player2;
@@ -42,7 +42,7 @@ public class PlayConnectFour extends JFrame {
         player1 = new HumanConnectFourPlayer();
         player2 = new RandomConnectFourPlayer();
 
-        gridButtons = new JButton[size*size];
+        gridButtons = new JButton[SIZE*SIZE];
     }
 
     public static void main(String[] args) {
@@ -82,13 +82,13 @@ public class PlayConnectFour extends JFrame {
 
     void renderGUI() {
         JPanel mainPanel = new JPanel(new BorderLayout());
-        JPanel game = new JPanel(new GridLayout(size, size));
+        JPanel game = new JPanel(new GridLayout(SIZE, SIZE));
 
         this.add(mainPanel);
 
         mainPanel.add(game, BorderLayout.SOUTH);
 
-        for (int i = 0; i < size*size; i++) {
+        for (int i = 0; i < SIZE*SIZE; i++) {
 
             gridButtons[i] = new JButton();
             gridButtons[i].setText(" ");
@@ -127,11 +127,11 @@ public class PlayConnectFour extends JFrame {
     }
 
     private int[][] getBoardState() {
-        int[][] state = new int[size][size];
+        int[][] state = new int[SIZE][SIZE];
 
-        for (int i = 0; i < size*size; i++) {
-            int x = i % size;
-            int y = i / size;
+        for (int i = 0; i < SIZE*SIZE; i++) {
+            int x = i % SIZE;
+            int y = i / SIZE;
             String text = gridButtons[i].getText();
             switch(text) {
                 case "O":
@@ -158,31 +158,31 @@ public class PlayConnectFour extends JFrame {
         // Source: https://stackoverflow.com/a/38211417
 
         // verticalCheck
-        for (int i = 0; i<size-3 ; i++ ){
-            for (int j = 0; j<size; j++){
+        for (int i = 0; i<SIZE-3 ; i++ ){
+            for (int j = 0; j<SIZE; j++){
                 if (state[i][j] == player && state[i+1][j] == player && state[i+2][j] == player && state[i+3][j] == player){
                     return true;
                 }
             }
         }
         // horizontalCheck
-        for (int j = 0; j<size-3 ; j++ ){
-            for (int i = 0; i<size; i++){
+        for (int j = 0; j<SIZE-3 ; j++ ){
+            for (int i = 0; i<SIZE; i++){
                 if (state[i][j] == player && state[i][j+1] == player && state[i][j+2] == player && state[i][j+3] == player){
                     return true;
                 }
             }
         }
         // ascendingDiagonalCheck
-        for (int j=3; j<size; j++){
-            for (int i=0; i<size-3; i++){
+        for (int j=3; j<SIZE; j++){
+            for (int i=0; i<SIZE-3; i++){
                 if (state[i][j] == player && state[i+1][j-1] == player && state[i+2][j-2] == player && state[i+3][j-3] == player)
                     return true;
             }
         }
         // descendingDiagonalCheck
-        for (int j=3; j<size; j++){
-            for (int i=3; i<size; i++){
+        for (int j=3; j<SIZE; j++){
+            for (int i=3; i<SIZE; i++){
                 if (state[i][j] == player && state[i-1][j-1] == player && state[i-2][j-2] == player && state[i-3][j-3] == player)
                     return true;
             }
@@ -193,8 +193,8 @@ public class PlayConnectFour extends JFrame {
     private boolean checkPossibleMove() {
         int[][] state = this.getBoardState();
 
-        for (int y = 0; y < size; y++) {
-            for (int x = 0; x < size; x++) {
+        for (int y = 0; y < SIZE; y++) {
+            for (int x = 0; x < SIZE; x++) {
                 if (state[y][x] == 0) {
                     return true;
                 }
@@ -208,7 +208,7 @@ public class PlayConnectFour extends JFrame {
             throw new RuntimeException("Move not checked");
         }
 
-        int index = y * size + x;
+        int index = y * SIZE + x;
         String playerSign = this.getPlayerSign(player);
         gridButtons[index].setText(playerSign);
 
@@ -264,7 +264,7 @@ public class PlayConnectFour extends JFrame {
     }
 
     public int boardSize() {
-        return this.size;
+        return this.SIZE;
     }
 
     private class MyActionListener implements ActionListener {
