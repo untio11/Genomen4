@@ -1,84 +1,56 @@
 package GameState;
 
 public class World {
-    private int width;
-    private int height;
-    private float tile_width; // Used for rendering
-    private Tile[][] data; // Stores the actual world data.
-    private LightSource[] lights; // Store the lights for stuff
+    public static final int TS = 16;
+    private int tileW, tileH;
+    private Tile[][] data;
     private Player father;
     private Player kidnapper;
 
-    public World(int width, int height) {
-        this.width = width;
-        this.height = height;
-        this.data = new Tile[width][height];
-    }
 
-    public void createFather() {
-        father = new Player(1,1, false, (int) tile_width);
-    }
+    public World(int tileW, int tileH) {
+        this.tileW = tileW;
+        this.tileH = tileH;
+        //todo: place players in position
+        kidnapper = new Player(1, 2, true, this);
+        father = new Player(8, 6, false, this);
 
-    public void createKidnapper() {
-        father = new Player(2,2, true, (int) tile_width);
-    }
-
-    public void setGrass(int x, int y) {
-        Tile grass = new Tile(TileType.GRASS, (int) tile_width);
-        data[x][y] = grass;
-    }
-
-    public void setTree(int x, int y) {
-        Tile tree = new Tile(TileType.TREE, (int) tile_width);
-        data[x][y] = tree;
-    }
-
-    public void randomTiles() {
-        Tile grass = new Tile(TileType.GRASS, (int) tile_width);
-        Tile tree = new Tile(TileType.TREE, (int) tile_width);
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                setGrass(x,y);
-            }
-        }
-        for (int i = 0; i < width; i++) {
-            setTree(i,0);
-            setTree(i, height - 1);
-        }
-        for (int i = 0; i < height; i++) {
-            setTree(0,i);
-            setTree(width - 1, i);
-        }
+        MapGenerator mg = new MapGenerator();
+        data = mg.generate(tileW, tileH);
     }
 
     public boolean getCollision(int x, int y) {
-        if (x < 0 || x >= tile_width || y < 0 || y >= tile_width) {
+        if (x < 0 || x >= tileW || y < 0 || y >= tileH) {
             return true;
         }
-        return data[x][y].isAccessible();
+        return !data[x][y].isAccessible();
     }
 
-    public boolean getPlayerCollision() {
-        return false;
+    public boolean isPlayerCollision() {
+        return !(father.getPosX() > kidnapper.getPosX() + kidnapper.getWidth() ||
+                father.getPosY() > kidnapper.getPosY() + kidnapper.getHeight() ||
+                kidnapper.getPosX() > father.getPosX() + father.getWidth() ||
+                kidnapper.getPosY() > father.getPosY() + father.getHeight());
     }
 
-    public Tile[][] getTiles() {
-        return this.data;
+    public TileType getTileType(int x, int y) {
+        return data[x][y].getType();
     }
 
-    public int getHeight() {
-        return height;
+    public int getTileW() {
+        return tileW;
     }
 
-    public int getWidth() {
-        return width;
+    public int getTileH() {
+        return tileH;
     }
 
-    public float getTileWidth() {
-        return tile_width;
+    public Player getFather() {
+        return father;
     }
 
-    public LightSource[] getLights() {
-        return lights;
+    public Player getKidnapper() {
+        return kidnapper;
     }
+
 }

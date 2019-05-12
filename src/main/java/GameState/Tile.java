@@ -1,6 +1,6 @@
 package GameState;
 
-public class Tile extends Entity {
+public class Tile {
 
     private TileType type;
     private float height;

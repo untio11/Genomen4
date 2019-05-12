@@ -1,39 +1,45 @@
 package Engine;
 
-import GameState.Player;
 import GameState.World;
 
-import java.util.ResourceBundle;
+import java.awt.event.KeyEvent;
 
-public class GameContainer implements Runnable{
-
-    private World world;
-    private Window window;
-    private Renderer renderer;
+public class GameContainer implements Runnable {
 
     private final double UPDATE_CAP = 1.0 / 60.0;
     private boolean running = false;
     private Thread thread = new Thread(this);
 
-    public GameContainer(World world, Window window, Renderer renderer) {
+    private int width, height;
+    private float scale = 3;
+
+    private Window window;
+    private Renderer renderer;
+    private World world;
+    private KeyController c1, c2;
+
+    public GameContainer(World world) {
         this.world = world;
-        this.window = window;
-        this.renderer = renderer;
+        width = World.TS * (world.getTileW());
+        height = World.TS * (world.getTileH());
     }
 
     public void start() {
+        window = new Window(width, height, scale);
+        renderer = new Renderer(window, world);
+        c1 = new KeyController(window, world.getKidnapper());
+        c2 = new KeyController(window, world.getFather());
+        c2.setKeys(KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT);
         thread.run();
     }
 
-    @Override
     public void run() {
         running = true;
-        int i = 0;
 
         boolean render;
 
         double firstTime;
-        double lastTime = System.nanoTime() / 1000000000.0;
+        double lastTime = System.nanoTime() / 1e9d;
         double passedTime;
         double unprocessedTime = 0;
 
@@ -44,7 +50,7 @@ public class GameContainer implements Runnable{
         while (running) {
             render = false;
 
-            firstTime = System.nanoTime() / 1000000000.0;
+            firstTime = System.nanoTime() / 1e9d;
             passedTime = firstTime - lastTime;
             lastTime = firstTime;
 
@@ -56,8 +62,8 @@ public class GameContainer implements Runnable{
                 unprocessedTime -= UPDATE_CAP;
                 render = true;
 
-                //update input
-                //update model
+                c1.update(UPDATE_CAP);
+                c2.update(UPDATE_CAP);
 
                 if (frameTime >= 1.0) {
                     frameTime = 0;
@@ -67,15 +73,9 @@ public class GameContainer implements Runnable{
             }
 
             if (render) {
-
-                //clear scene
                 renderer.clear();
-                //render scene
-                renderer.drawRect(10,1 + i,16,16,0xff00ffff);
-                i++;
-                //display fps
-                //display scene
-                window.draw();
+                renderer.render();
+                window.update();
                 frames++;
             } else {
                 try {
@@ -88,14 +88,8 @@ public class GameContainer implements Runnable{
     }
 
     public static void main(String[] args) {
-
-        World world = new World(5,4);
-        world.createFather();
-        world.createKidnapper();
-        world.randomTiles();
-        Window window = new Window(300,200,3);
-        Renderer renderer = new Renderer(window);
-        GameContainer gc = new GameContainer(world, window, renderer);
+        World world = new World(10, 10);
+        GameContainer gc = new GameContainer(world);
         gc.start();
     }
 }

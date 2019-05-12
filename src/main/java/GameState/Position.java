@@ -5,13 +5,23 @@ package GameState;
  * @param <T> The type of position
  */
 public class Position<T extends Number> {
-    private T x;
-    private T y;
+    public T x;
+    protected T y;
 
     public void setPosition(T x, T y) {
         this.x = x;
         this.y = y;
     }
+
+    public void setX(T x) {
+        this.x = x;
+    }
+
+    public void setY(T y) {
+        this.x = y;
+    }
+
+
 
     public T getX() {
         return x;
@@ -21,7 +31,7 @@ public class Position<T extends Number> {
         return y;
     }
 
-    Position(T x, T y) {
+    public Position(T x, T y) {
         setPosition(x, y);
     }
 

@@ -3,10 +3,10 @@ package GameState;
 import org.lwjgl.system.CallbackI;
 
 public class Entity {
-    private Position<Float> position = new Position(0,0);
-    private Position<Integer> tilePosition = new Position(0,0);;
-    private Position<Float> offset = new Position(0,0);;
-    private int size;
+    protected Position<Float> position = new Position(0,0);
+    protected Position<Integer> tilePosition = new Position(0,0);
+    protected Position<Float> offset = new Position(0,0);
+    protected int size;
 
 
 

@@ -11,21 +11,18 @@ public class Window {
     private JFrame frame;
     private BufferedImage image;
     private int[] p;
+    private int pW, pH;
     private Canvas canvas;
     private BufferStrategy bs;
     private Graphics g;
-    private int width;
-    private int height;
 
-    public Window(int width, int height, int scale) {
-        this.width = width;
-        this.height = height;
-
+    public Window(int width, int height, float scale) {
+        pW = width;
+        pH = height;
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         p = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
-
         canvas = new Canvas();
-        Dimension s = new Dimension((width * scale), (height * scale));
+        Dimension s = new Dimension((int) (width * scale), (int) (height * scale));
         canvas.setPreferredSize(s);
         canvas.setMaximumSize(s);
         canvas.setMinimumSize(s);
@@ -43,30 +40,27 @@ public class Window {
         g = bs.getDrawGraphics();
     }
 
-    public void setPixel(int x, int y, int value) {
-        if (x < 0 || y < 0 || x >= width || y >= height || ((value >> 24) & 0xff) == 0) {
-            return;
-        }
-        p[x + y * width] = value;
-    }
-
-
-
-    public void draw() {
-        g.drawImage(image,0, 0, canvas.getWidth(), canvas.getHeight(), null);
+    public void update() {
+        g.drawImage(image, 0, 0, canvas.getWidth(), canvas.getHeight(), null);
         bs.show();
     }
 
-    public int getWidth() {
-        return width;
+    public void setPixel(int x, int y, int value) {
+        if (x < 0 || y < 0 || x >= pW || y >= pH || ((value >> 24) & 0xff) == 0) {
+            return;
+        }
+        p[x + y * pW] = value;
     }
 
-    public int getHeight() {
-        return height;
+    public int getPW() {
+        return pW;
+    }
+
+    public int getPH() {
+        return pH;
     }
 
     public Canvas getCanvas() {
         return canvas;
     }
 }
-

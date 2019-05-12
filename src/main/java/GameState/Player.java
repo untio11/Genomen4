@@ -1,41 +1,128 @@
 package GameState;
 
-public class Player extends Entity {
+public class Player {
+
     private float speed;
+    private int tileX, tileY;
+    private float offX, offY;
+    private float posX, posY;
+    private int width, height;
     private boolean kidnapper;
-    World world;
-    int tileWidth;
+    private World world;
 
     public Player(int posX, int posY, boolean kidnapper, World world) {
-        this.tileWidth = (int) world.getTileWidth();
-        this.kidnapper = kidnapper;
-        this.speed = kidnapper ? 80: 100;
-        setEntityPosition(tileWidth*posX, tileWidth*posY);
-        setTilePosition(posX, posY);
-        setOffset(0, 0);
-        setSize(tileWidth);
         this.world = world;
+        this.kidnapper = kidnapper;
+        speed = kidnapper ? 90 : 100;
+
+        this.tileX = posX;
+        this.tileY = posY;
+        this.offX = 0;
+        this.offY = 0;
+        this.posX = posX * World.TS;
+        this.posY = posY * World.TS;
+        //todo allow for different size
+        this.width = World.TS;
+        this.height = World.TS;
     }
 
-    public void moveLeft(float dt) {
-        float offX = getOffset().getX();
-        float offY = getOffset().getY();
-
-        if (gm.getCollision(tileX - 1,tileY) || gm.getCollision(tileX - 1,tileY + (int) Math.signum((int) offY))) {
+    public void moveLeft(double dt) {
+        if (world.getCollision(tileX - 1, tileY) || world.getCollision(tileX - 1, tileY + (int) Math.signum((int) offY))) {
             if (offX > 0) {
-                offX -= dt*speed;
-                if (offX <0) {
+                offX -= dt * speed;
+                if (offX < 0) {
                     offX = 0;
                 }
             } else {
                 offX = 0;
             }
         } else {
-            offX -= dt*speed;
+            offX -= dt * speed;
         }
-        if (offX < -16 /2) {
+        while (offX < -World.TS / 2) {
             tileX--;
-            offX += 16;
+            offX += World.TS;
         }
+        posX = tileX * World.TS + offX;
+    }
+
+    public void moveRight(double dt) {
+        if (world.getCollision(tileX + 1, tileY) || world.getCollision(tileX + 1, tileY + (int) Math.signum((int) offY))) {
+            if (offX < 0) {
+                offX += dt * speed;
+                if (offX > 0) {
+                    offX = 0;
+                }
+            } else {
+                offX = 0;
+            }
+        } else {
+            offX += dt * speed;
+        }
+        while (offX > World.TS / 2) {
+            tileX++;
+            offX -= World.TS;
+        }
+        posX = tileX * World.TS + offX;
+    }
+
+    public void moveUp(double dt) {
+        if (world.getCollision(tileX, tileY - 1) || world.getCollision(tileX + (int) Math.signum((int) offX), tileY - 1)) {
+            if (offY > 0) {
+                offY -= dt * speed;
+                if (offY < 0) {
+                    offY = 0;
+                }
+            } else {
+                offY = 0;
+            }
+        } else {
+            offY -= dt * speed;
+        }
+        while (offY < -World.TS / 2) {
+            tileY--;
+            offY += World.TS;
+        }
+        posY = tileY * World.TS + offY;
+    }
+
+    public void moveDown(double dt) {
+        if (world.getCollision(tileX, tileY + 1) || world.getCollision(tileX + (int) Math.signum((int) offX), tileY + 1)) {
+            if (offY < 0) {
+                offY += dt * speed;
+                if (offY > 0) {
+                    offY = 0;
+                }
+            } else {
+                offY = 0;
+            }
+        } else {
+            offY += dt * speed;
+        }
+        while (offY > World.TS / 2) {
+            tileY++;
+            offY -= World.TS;
+        }
+        posY = tileY * World.TS + offY;
+    }
+
+    public float getPosX() {
+        return posX;
+    }
+
+    public float getPosY() {
+        return posY;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public boolean isKidnapper() {
+        return kidnapper;
     }
 }
