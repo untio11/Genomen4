@@ -1,21 +1,26 @@
 package terrains;
 
+import GameState.Tile;
+import GameState.TileType;
 import Models.RawModel;
 import RenderEngine.Loader;
 import Textures.ModelTexture;
+import Textures.TerrainTexturePack;
 
 public class Terrain {
 
-    private static final float SIZE = 800;
+    private static final float SIZE = 10;
     private static final int VERTEX_COUNT = 128;
 
     private float x;
     private float z;
     private RawModel model;
-    private ModelTexture texture;
+    private TerrainTexturePack texturePack;
+    private Tile[][] tilemap;
 
-    public Terrain(int gridX, int gridZ, Loader loader, ModelTexture texture) {
-        this.texture = texture;
+    public Terrain(int gridX, int gridZ, Loader loader, TerrainTexturePack texturePack, Tile[][] tilemap) {
+        this.texturePack = texturePack;
+        this.tilemap = tilemap;
         this.x = gridX * SIZE;
         this.z = gridZ * SIZE;
         this.model = generateTerrain(loader);
@@ -33,15 +38,34 @@ public class Terrain {
         return model;
     }
 
-    public ModelTexture getTexture() {
-        return texture;
+    public TerrainTexturePack getTexturePack() {
+        return texturePack;
+    }
+
+    public Tile[][] getTilemap() {
+        return tilemap;
+    }
+
+    private int[][] tilemapToInt() {
+        int intMap[][] = new int[tilemap.length][tilemap.length];
+        for(int r=0; r<tilemap.length; r++) {
+            for(int c=0; c<tilemap.length; c++) {
+                if(tilemap[r][c].getType()== TileType.WATER){
+                    intMap[r][c] = 0;
+                }
+                if(tilemap[r][c].getType()== TileType.SAND){
+                    intMap[r][c] = 1;
+                }
+            }
+        }
+        return intMap;
     }
 
     private RawModel generateTerrain(Loader loader){
         int count = VERTEX_COUNT * VERTEX_COUNT;
         float[] vertices = new float[count * 3];
         float[] normals = new float[count * 3];
-        float[] textureCoords = new float[count*2];
+        float[] textureCoords = new float[count * 2];
         int[] indices = new int[6*(VERTEX_COUNT-1)*(VERTEX_COUNT-1)];
         int vertexPointer = 0;
         for(int i=0;i<VERTEX_COUNT;i++){

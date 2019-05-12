@@ -1,18 +1,20 @@
 import GameState.Camera;
+import GameState.MapGenerator;
 import GameState.Player;
 import Models.RawModel;
 import Models.TexturedModel;
 import RenderEngine.Loader;
 import RenderEngine.MasterRenderer;
 import RenderEngine.OBJLoader;
-import RenderEngine.Renderer;
-import Shaders.StaticShader;
 import Textures.ModelTexture;
+import Textures.TerrainTexture;
+import Textures.TerrainTexturePack;
 import org.joml.Vector3f;
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
+import terrains.Terrain;
 
 import java.nio.*;
 import java.util.HashSet;
@@ -109,13 +111,26 @@ public class Main{
 
         Loader loader = new Loader();
         //StaticShader shader = new StaticShader();
-        //Renderer renderer = new Renderer(shader);
+        //PlayerRenderer renderer = new PlayerRenderer(shader);
+
+        //************Terrain Texture Stuff*******
+        TerrainTexture waterTexture = new TerrainTexture(loader.loadTexture("water"));
+        TerrainTexture sandTexture = new TerrainTexture(loader.loadTexture("sand"));
+
+        TerrainTexturePack texturePack = new TerrainTexturePack(waterTexture, sandTexture);
+        //****************************************
+
 
         RawModel model = OBJLoader.loadObjModel("stall", loader);
         ModelTexture texture = new ModelTexture(loader.loadTexture("stallTexture"));
         TexturedModel texturedModel = new TexturedModel(model, texture);
 
         Player player = new Player(texturedModel, new Vector3f(0,0,0), 0, 0, 0, 1);
+
+        MapGenerator mapGenerator = new MapGenerator();
+        mapGenerator.generate(3, 3);
+
+        Terrain terrain = new Terrain(0,0,loader,texturePack, mapGenerator.getMap());
 
         Camera camera = new Camera();
 
@@ -147,7 +162,8 @@ public class Main{
 //            renderer.render(player, shader);
 //            shader.stop();
 
-            renderer.processEntity(player);
+            renderer.processTerrain(terrain);
+            renderer.processPlayer(player);
             renderer.render(player, camera);
 
             //already done in renderer class
