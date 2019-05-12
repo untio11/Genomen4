@@ -10,6 +10,9 @@ public class GeneticAlgorithm<A extends TrainerAIPlayer> {
 
     private AIGameTrainer<A, ?> trainer;
 
+    private float mutateProbability = 0.05f;
+    private float mutatePercentage = 0.1f;
+
     public GeneticAlgorithm(AIGameTrainer<A, ?> trainer) {
         this.trainer = trainer;
     }
@@ -37,7 +40,7 @@ public class GeneticAlgorithm<A extends TrainerAIPlayer> {
             Map<String, INDArray> childTable = this.crossover(p1Table, p2Table);
 
             // -> Mutation
-            // TODO: Finish mutation
+            this.mutate(childTable);
 
             A childPlayer = trainer.createPlayer(childTable);
 
@@ -88,13 +91,27 @@ public class GeneticAlgorithm<A extends TrainerAIPlayer> {
 
     private INDArray crossoverINDArray(INDArray a1, INDArray a2) {
         INDArray mask = Nd4j.zeros(a1.shape());
-        createRandomMask(mask);
+        createRandomMask(mask, 0.5f);
         return a1.putWhereWithMask(mask, a2);
     }
 
-    private INDArray createRandomMask(INDArray mask) {
+    private void mutate(Map<String, INDArray> paramTable) {
+        for (String key : paramTable.keySet()) {
+            this.mutateINDArray(paramTable.get(key));
+        }
+    }
+
+    private void mutateINDArray(INDArray a) {
+        INDArray mask = Nd4j.zeros(a.shape());
+        createRandomMask(mask, mutateProbability);
+        INDArray rand = Nd4j.rand(a.shape());
+        rand.muli(mutatePercentage);
+        a.addi(rand);
+    }
+
+    private INDArray createRandomMask(INDArray mask, float probability) {
         INDArray source = Nd4j.create(new float[] {0, 1});
-        INDArray probs = Nd4j.create(new float[] {0.5f, 0.5f});
+        INDArray probs = Nd4j.create(new float[] {1 - probability, probability});
         Nd4j.choice(source, probs, mask);
         return mask;
     }
