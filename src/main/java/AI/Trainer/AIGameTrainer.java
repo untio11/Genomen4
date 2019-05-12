@@ -1,5 +1,6 @@
 package AI.Trainer;
 
+import org.nd4j.linalg.api.ndarray.INDArray;
 import util.Pair;
 
 import java.io.File;
@@ -12,21 +13,55 @@ public abstract class AIGameTrainer<A extends TrainerAIPlayer, B> {
     private List<A> players;
     private List<Pair<A, A>> competition;
     private Map<A, Integer> playerScores;
+    private GeneticAlgorithm<A> geneticAlgorithm;
 
     private final int nPlayers;
+    private final int iterations;
 
-    public AIGameTrainer(int nPlayers) {
+
+    public AIGameTrainer(int nPlayers, int iterations) {
         this.nPlayers = nPlayers;
+        this.iterations = iterations;
         players = new ArrayList<>();
         playerScores = new HashMap<>();
+        geneticAlgorithm = new GeneticAlgorithm<>(this);
     }
 
     public void init() {
         this.createPlayers(players);
-        competition = this.createCompetition(players);
     }
 
-    public void playCompetition() {
+    public void runGeneticAlgorithm() {
+        // Assume that the trainer has already been initialized and that players and a competition exist
+        // Iterate over the genetic algorithm for a specified number of iterations
+        for (int i = 0; i < this.iterations; i++) {
+            // Create the competition
+            competition = this.createCompetition(players);
+
+            // Run the competition
+            this.playCompetition();
+
+            // Determine the best players
+            LinkedHashMap<A, Integer> sortedPlayers = this.evaluatePlayers();
+
+            // Skip generating new players if this is the last iteration
+            if (i + 1 == this.iterations) {
+                continue;
+            }
+
+            players = geneticAlgorithm.performPlayerEvolution(sortedPlayers);
+            playerScores = new HashMap<>();
+            for (A player : players) {
+                playerScores.put(player, 0);
+            }
+        }
+
+        // Save the best players so that they can be used again later
+
+
+    }
+
+    protected void playCompetition() {
         for (Pair<A, A> players : competition) {
             B game = this.createGame(players);
             this.playGame(game);
@@ -42,7 +77,9 @@ public abstract class AIGameTrainer<A extends TrainerAIPlayer, B> {
             }
         }
 
-        String fileName = this.getName() + "-" + bestScore;
+        Date date = new Date();
+
+        String fileName = date.getTime() + "-" + this.getName() + "-" + bestScore;
         this.savePlayer(bestPlayer, fileName);
 
         System.out.println("Best Score: " + bestScore);
@@ -89,6 +126,8 @@ public abstract class AIGameTrainer<A extends TrainerAIPlayer, B> {
     protected abstract String getName();
 
     protected abstract A createPlayer();
+
+    protected abstract A createPlayer(Map<String, INDArray> paramTable);
 
     protected abstract List<Pair<A, A>> createCompetition(List<A> players);
 

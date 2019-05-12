@@ -4,17 +4,19 @@ import AI.Trainer.AIGameTrainer;
 import AI.ConnectFour.Player.AIConnectFourPlayer;
 import AI.ConnectFour.Player.ConnectFourPlayer;
 import AI.ConnectFour.Player.HumanConnectFourPlayer;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import util.Pair;
 
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ConnectFourTrainer extends AIGameTrainer<AIConnectFourPlayer, PlayConnectFour> {
 
-    public ConnectFourTrainer(int nPlayers) {
-        super(nPlayers);
+    public ConnectFourTrainer(int nPlayers, int iterations) {
+        super(nPlayers, iterations);
     }
 
     @Override
@@ -23,11 +25,11 @@ public class ConnectFourTrainer extends AIGameTrainer<AIConnectFourPlayer, PlayC
     }
 
     public static void main(String[] args) {
-        int players = 100;
-        ConnectFourTrainer trainer = new ConnectFourTrainer(players);
+        int players = 50;
+        ConnectFourTrainer trainer = new ConnectFourTrainer(players, 30);
 
         trainer.init();
-        trainer.playCompetition();
+        trainer.runGeneticAlgorithm();
         LinkedHashMap<AIConnectFourPlayer, Integer> sortedPlayers = trainer.evaluatePlayers();
 
         // Play against the best player
@@ -45,6 +47,14 @@ public class ConnectFourTrainer extends AIGameTrainer<AIConnectFourPlayer, PlayC
     @Override
     protected AIConnectFourPlayer createPlayer() {
         return new AIConnectFourPlayer();
+    }
+
+    @Override
+    protected AIConnectFourPlayer createPlayer(Map<String, INDArray> paramTable) {
+        AIConnectFourPlayer player = new AIConnectFourPlayer();
+        player.init();
+        player.getNetwork().setParamTable(paramTable);
+        return player;
     }
 
     @Override
