@@ -1,11 +1,9 @@
-package RenderEngine;
+package Graphics.RenderEngine;
 
-import GameState.Entity;
 import GameState.Player;
-import Models.RawModel;
-import Models.TexturedModel;
-import Shaders.StaticShader;
-import Textures.ModelTexture;
+import Graphics.Models.RawModel;
+import Graphics.Models.TexturedModel;
+import Graphics.Shaders.StaticShader;
 import Toolbox.Maths;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;

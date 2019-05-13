@@ -1,8 +1,8 @@
-package terrains;
+package Graphics.Terrains;
 
-import Models.RawModel;
-import RenderEngine.Loader;
-import Textures.ModelTexture;
+import Graphics.Models.RawModel;
+import Graphics.RenderEngine.Loader;
+import Graphics.Textures.ModelTexture;
 
 public class Terrain {
 

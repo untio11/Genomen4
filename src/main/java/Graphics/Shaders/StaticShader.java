@@ -1,4 +1,4 @@
-package Shaders;
+package Graphics.Shaders;
 
 import GameState.Camera;
 import Toolbox.Maths;
@@ -6,8 +6,8 @@ import org.joml.Matrix4f;
 
 public class StaticShader extends ShaderProgram{
 
-    private static final String VERTEX_FILE = "src/main/java/Shaders/vertexShader.txt";
-    private static final String FRAGMENT_FILE = "src/main/java/Shaders/fragmentShader.txt";
+    private static final String VERTEX_FILE = "src/main/java/Graphics/Shaders/vertexShader.txt";
+    private static final String FRAGMENT_FILE = "src/main/java/Graphics/Shaders/fragmentShader.txt";
 
     private int location_transformationMatrix;
     private int location_projectionMatrix;

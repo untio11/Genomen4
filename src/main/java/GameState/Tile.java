@@ -4,7 +4,6 @@ public class Tile extends Entity {
 
     private TileType type;
     private float height;
-    private int[] coordinates;
     private int heuristic;
     private int gCost;
     private int fScore;
@@ -22,20 +21,16 @@ public class Tile extends Entity {
         return type;
     }
 
-    public int[] getCoordinates() {
-        return coordinates;
-    }
-
     public int getHeuristic() {
         return heuristic;
     }
 
     public int getRow() {
-        return coordinates[0];
+        return position.getY().intValue();
     }
 
     public int getColumn() {
-        return coordinates[1];
+        return position.getX().intValue();
     }
 
     public int getgCost() {
@@ -68,7 +63,7 @@ public class Tile extends Entity {
     Tile(TileType t, int height, int[] coordinates, int heuristic) {
         this.type = t;
         this.height = height;
-        this.coordinates = coordinates;
+        this.position = new Position<>((float) coordinates[1], (float) coordinates[0]); // row -> y, column -> x
         this.heuristic = heuristic;
     }
 

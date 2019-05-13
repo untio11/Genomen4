@@ -1,4 +1,4 @@
-package Models;
+package Graphics.Models;
 
 public class RawModel {
 

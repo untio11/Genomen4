@@ -1,6 +1,6 @@
-package RenderEngine;
+package Graphics.RenderEngine;
 
-import Models.RawModel;
+import Graphics.Models.RawModel;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 

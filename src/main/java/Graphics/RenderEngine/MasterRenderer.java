@@ -1,10 +1,9 @@
-package RenderEngine;
+package Graphics.RenderEngine;
 
 import GameState.Camera;
-import GameState.Entity;
 import GameState.Player;
-import Models.TexturedModel;
-import Shaders.StaticShader;
+import Graphics.Models.TexturedModel;
+import Graphics.Shaders.StaticShader;
 
 import java.util.ArrayList;
 import java.util.HashMap;

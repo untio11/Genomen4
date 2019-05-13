@@ -1,4 +1,4 @@
-package Textures;
+package Graphics.Textures;
 
 public class ModelTexture {
 

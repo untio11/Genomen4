@@ -1,9 +1,9 @@
 package GameState;
 
-import Models.TexturedModel;
+import Graphics.Models.TexturedModel;
 import org.joml.Vector3f;
 
-public class Player extends Entity {
+public class Player {
 
     private TexturedModel model;
     private Vector3f position;
@@ -41,7 +41,7 @@ public class Player extends Entity {
     }
 
     public Vector3f getPosition() {
-        return position;
+        return new Vector3f(position.x, position.y, 0);
     }
 
     public void setPosition(Vector3f position) {
