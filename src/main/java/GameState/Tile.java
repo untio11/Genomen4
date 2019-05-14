@@ -1,10 +1,9 @@
 package GameState;
 
-public class Tile extends Entity {
-
+public class Tile {
+    private Position position;
     private TileType type;
     private float height;
-    private int[] coordinates;
     private int heuristic;
     private int gCost;
     private int fScore;
@@ -22,20 +21,16 @@ public class Tile extends Entity {
         return type;
     }
 
-    public int[] getCoordinates() {
-        return coordinates;
-    }
-
     public int getHeuristic() {
         return heuristic;
     }
 
     public int getRow() {
-        return coordinates[0];
+        return position.y;
     }
 
     public int getColumn() {
-        return coordinates[1];
+        return position.x;
     }
 
     public int getgCost() {
@@ -68,7 +63,7 @@ public class Tile extends Entity {
     Tile(TileType t, int height, int[] coordinates, int heuristic) {
         this.type = t;
         this.height = height;
-        this.coordinates = coordinates;
+        this.position = new Position(coordinates[1], coordinates[0]); // row -> y, column -> x
         this.heuristic = heuristic;
     }
 

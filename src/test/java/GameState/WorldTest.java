@@ -1,7 +1,5 @@
 package GameState;
 
-import GameState.Tile;
-import GameState.World;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;

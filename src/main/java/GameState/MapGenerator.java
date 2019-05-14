@@ -11,7 +11,6 @@ public class MapGenerator {
     private int startWidthOffset;
 
     public Tile[][] generate(int width, int height) {
-
         worldWidth = width;
         worldHeight = height;
         startWidthOffset = 10;
@@ -247,7 +246,7 @@ public class MapGenerator {
 
                 t.setParent(q);
                 //Check if goal
-                if (Arrays.equals(t.getCoordinates(), new int[] {startRow, worldWidth - startWidthOffset})) {
+                if (t.getRow() == startRow && t.getColumn() == worldWidth - startWidthOffset)  {
                     System.out.println("Path found!");
                     return q.getgCost() + 1;
                 }

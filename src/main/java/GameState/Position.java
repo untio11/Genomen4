@@ -1,31 +1,14 @@
 package GameState;
 
 /**
- * Represents a location in the world.
- * @param <T> The type of position
+ * A simple little class for keeping track of discrete x and y coordinates
  */
-public class Position<T extends Number> {
-    private T x;
-    private T y;
+public class Position {
+    public int x;
+    public int y;
 
-    public void setPosition(T x, T y) {
+    public Position(int x, int y) {
         this.x = x;
         this.y = y;
-    }
-
-    public T getX() {
-        return x;
-    }
-
-    public T getY() {
-        return y;
-    }
-
-    Position(T x, T y) {
-        setPosition(x, y);
-    }
-
-    Position<T> copy() {
-        return new Position<>(this.x, this.y);
     }
 }
