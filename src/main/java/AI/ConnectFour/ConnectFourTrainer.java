@@ -26,7 +26,7 @@ public class ConnectFourTrainer extends AIGameTrainer<AIConnectFourPlayer, PlayC
 
     public static void main(String[] args) {
         int players = 50;
-        ConnectFourTrainer trainer = new ConnectFourTrainer(players, 30);
+        ConnectFourTrainer trainer = new ConnectFourTrainer(players, 100);
 
         trainer.init();
         trainer.runGeneticAlgorithm();
@@ -95,7 +95,15 @@ public class ConnectFourTrainer extends AIGameTrainer<AIConnectFourPlayer, PlayC
 
         if (winningPlayer != null) {
             // The game is not a draw, since there is a winning player
-            int score = 1;
+            int score = 0;
+
+            // Add the cell count as the base score for winning the game
+            int cellCount = PlayConnectFour.SIZE * PlayConnectFour.SIZE;
+            score += cellCount;
+
+            // Assign bonus points if the game ended quickly
+            int freeCells = game.getFreeCells();
+            score += freeCells;
 
             this.setResults(winningPlayer, score);
         }

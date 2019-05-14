@@ -203,6 +203,21 @@ public class PlayConnectFour extends JFrame {
         return false;
     }
 
+    public int getFreeCells() {
+        int[][] state = this.getBoardState();
+        int count = 0;
+
+        for (int y = 0; y < SIZE; y++) {
+            for (int x = 0; x < SIZE; x++) {
+                if (state[y][x] == 0) {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+
     public void doMove(int x, int y, int player) {
         if (!checkMove(x, y)) {
             throw new RuntimeException("Move not checked");
