@@ -8,7 +8,7 @@ import org.joml.Vector3f;
 public class Camera extends Entity {
     public Camera(Vector3f position) {
         super(position);
-        this.rotX = 90f;
+        this.rotation.x = 90f;
     }
 
     public Camera() {
@@ -32,14 +32,14 @@ public class Camera extends Entity {
     }
 
     public float getPitch() {
-        return this.rotX;
+        return this.rotation.x;
     }
 
     public float getYaw() {
-        return this.rotZ;
+        return this.rotation.z;
     }
 
     public float getRoll() {
-        return this.rotY;
+        return this.rotation.y;
     }
 }

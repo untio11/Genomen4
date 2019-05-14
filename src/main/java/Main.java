@@ -21,7 +21,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
-public class Main{
+public class Main {
 
     // The window handle
     private long window;
@@ -51,17 +51,20 @@ public class Main{
         GLFWErrorCallback.createPrint(System.err).set();
 
         // Initialize GLFW. Most GLFW functions will not work before doing this.
-        if ( !glfwInit() )
+        if (!glfwInit())
             throw new IllegalStateException("Unable to initialize GLFW");
 
         // Configure GLFW
         glfwDefaultWindowHints(); // optional, the current window hints are already the default
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
+        glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_TRUE); // The window will minimize when out of focus and in full screen
+        // We need at least openGL version 4.3 for the compute shaders.
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
         // Create the window
-        window = glfwCreateWindow(width, length, "Hello World!", NULL, NULL);
-        if ( window == NULL ) {
+        window = glfwCreateWindow(width, length, "Genomen 4", NULL, NULL);
+        if (window == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
 
@@ -69,7 +72,7 @@ public class Main{
         checkInput();
 
         // Get the thread stack and push a new frame
-        try ( MemoryStack stack = stackPush() ) {
+        try (MemoryStack stack = stackPush()) {
             IntBuffer pWidth = stack.mallocInt(1); // int*
             IntBuffer pHeight = stack.mallocInt(1); // int*
 
@@ -91,13 +94,9 @@ public class Main{
         glfwMakeContextCurrent(window);
         // Enable v-sync
         glfwSwapInterval(1);
-
-        // Make the window visible
-        glfwShowWindow(window);
     }
 
     private void loop() {
-
         // This line is critical for LWJGL's interoperation with GLFW's
         // OpenGL context, or any context that is managed externally.
         // LWJGL detects the context that is current in the current thread,
@@ -106,62 +105,22 @@ public class Main{
         GL.createCapabilities();
 
         Loader loader = new Loader();
-        //StaticShader shader = new StaticShader();
-        //Renderer renderer = new Renderer(shader);
-
         RawModel model = OBJLoader.loadObjModel("stall", loader);
         ModelTexture texture = new ModelTexture(loader.loadTexture("stallTexture"));
         TexturedModel texturedModel = new TexturedModel(model, texture);
 
-        Player player = new Player(texturedModel, new Vector3f(0,0,0), 0, 0, 0, 1);
+        Player player = new Player(texturedModel, new Vector3f(0, 0, 0), 0, 0, 0, 1);
 
-        Camera camera = new Camera();
-
+        Camera camera = new Camera(new Vector3f(5f, 5f, 5f));
         MasterRenderer renderer = new MasterRenderer();
 
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
-        while ( !glfwWindowShouldClose(window) ) {
-            for(int keyPressed : pressedKeys) {
-                switch (keyPressed) {
-                    case GLFW_KEY_W:
-                        camera.moveUp();
-                        break;
-                    case GLFW_KEY_S:
-                        camera.moveDown();
-                        break;
-                    case GLFW_KEY_A:
-                        camera.moveLeft();
-                        break;
-                    case GLFW_KEY_D:
-                        camera.moveRight();
-                        break;
-                    case GLFW_KEY_UP:
-                        camera.increaseRotation(-0.5f, 0, 0);
-                        break;
-                    case GLFW_KEY_DOWN:
-                        camera.increaseRotation(0.5f, 0, 0);
-                        break;
-                    case GLFW_KEY_LEFT:
-                        camera.increaseRotation(0, 0, -0.5f);
-                        break;
-                    case GLFW_KEY_RIGHT:
-                        camera.increaseRotation(0, 0, 0.5f);
-                        break;
-                }
-            }
-
-//            renderer.prepare();
-//            shader.start();
-//            shader.loadViewMatrix(camera);
-//            renderer.render(player, shader);
-//            shader.stop();
+        while (!glfwWindowShouldClose(window)) {
+            handleInput(camera);
 
             renderer.processEntity(player);
             renderer.render(player, camera);
-
-            //already done in renderer class
-            //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
             glfwSwapBuffers(window); // swap the color buffers
 
@@ -169,7 +128,7 @@ public class Main{
             // invoked during this call.
             glfwPollEvents();
         }
-//        shader.cleanUp();
+
         renderer.cleanUp();
         loader.cleanUp();
     }
@@ -179,14 +138,46 @@ public class Main{
         glfwSetInputMode(window, GLFW_STICKY_KEYS, 1);
         // Setup a key callback. It will be called every time a key is pressed, repeated or released.
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-            if(action == GLFW_PRESS) {
+            if (action == GLFW_PRESS) {
                 pressedKeys.add(key);
-            } else if(action == GLFW_RELEASE) {
+            } else if (action == GLFW_RELEASE) {
                 pressedKeys.remove(key);
             }
-            if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
-                glfwSetWindowShouldClose(window, true);
         });
+    }
+
+    private void handleInput(Camera camera) {
+        for (int keyPressed : pressedKeys) {
+            switch (keyPressed) {
+                case GLFW_KEY_W:
+                    camera.moveUp();
+                    break;
+                case GLFW_KEY_S:
+                    camera.moveDown();
+                    break;
+                case GLFW_KEY_A:
+                    camera.moveLeft();
+                    break;
+                case GLFW_KEY_D:
+                    camera.moveRight();
+                    break;
+                case GLFW_KEY_UP:
+                    camera.increaseRotation(-0.5f, 0, 0);
+                    break;
+                case GLFW_KEY_DOWN:
+                    camera.increaseRotation(0.5f, 0, 0);
+                    break;
+                case GLFW_KEY_LEFT:
+                    camera.increaseRotation(0, 0, -0.5f);
+                    break;
+                case GLFW_KEY_RIGHT:
+                    camera.increaseRotation(0, 0, 0.5f);
+                    break;
+                case GLFW_KEY_ESCAPE:
+                    glfwSetWindowShouldClose(window, true);
+                    break;
+            }
+        }
     }
 
     public static void main(String[] args) {

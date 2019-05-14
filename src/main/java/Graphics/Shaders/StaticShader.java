@@ -4,7 +4,7 @@ import GameState.Entities.Camera;
 import Toolbox.Maths;
 import org.joml.Matrix4f;
 
-public class StaticShader extends ShaderProgram{
+public class StaticShader extends ShaderProgram {
 
     private static final String VERTEX_FILE = "src/main/java/Graphics/Shaders/vertexShader.txt";
     private static final String FRAGMENT_FILE = "src/main/java/Graphics/Shaders/fragmentShader.txt";

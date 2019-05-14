@@ -15,7 +15,7 @@ public class MasterRenderer {
     private StaticShader shader = new StaticShader();
     private Renderer renderer = new Renderer(shader);
 
-    private Map<TexturedModel, List<Player>> entities = new HashMap<TexturedModel, List<Player>>();
+    private Map<TexturedModel, List<Player>> entities = new HashMap<>();
 
     public void render(Player player, Camera camera) {
         renderer.prepare();

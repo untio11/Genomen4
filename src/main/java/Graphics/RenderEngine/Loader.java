@@ -18,7 +18,6 @@ import static org.lwjgl.stb.STBImage.stbi_failure_reason;
 import static org.lwjgl.stb.STBImage.stbi_load;
 
 public class Loader {
-
     private List<Integer> vaos = new ArrayList<>();
     private List<Integer> vbos = new ArrayList<>();
     private List<Integer> textures = new ArrayList<>();
@@ -26,11 +25,11 @@ public class Loader {
     public RawModel loadToVAO(float[] positions, float[] textureCoords, float[] normals, int[] indices) {
         int vaoID = createVAO();
         bindIndicesBuffer(indices);
-        storeDataInAttributeList(0, 3,  positions);
-        storeDataInAttributeList(1, 2,  textureCoords);
+        storeDataInAttributeList(0, 3, positions);
+        storeDataInAttributeList(1, 2, textureCoords);
         storeDataInAttributeList(2, 3, normals);
         unbindVAO();
-        return new RawModel(vaoID,indices.length);
+        return new RawModel(vaoID, indices.length);
     }
 
     public int loadTexture(String fileName) {
@@ -43,9 +42,9 @@ public class Loader {
             IntBuffer h = stack.mallocInt(1);
             IntBuffer comp = stack.mallocInt(1);
 
-            image = stbi_load("res/"+fileName+".png", w, h, comp, 4);
+            image = stbi_load("res/" + fileName + ".png", w, h, comp, 4);
             if (image == null) {
-                System.out.println("Failed to load texture file: "+fileName+"\n" +
+                System.out.println("Failed to load texture file: " + fileName + "\n" +
                         stbi_failure_reason()
                 );
             }
@@ -64,13 +63,13 @@ public class Loader {
     }
 
     public void cleanUp() {
-        for (int vao:vaos) {
+        for (int vao : vaos) {
             GL30.glDeleteVertexArrays(vao);
         }
-        for (int vbo:vbos) {
+        for (int vbo : vbos) {
             GL15.glDeleteBuffers(vbo);
         }
-        for (int texture:textures) {
+        for (int texture : textures) {
             GL15.glDeleteTextures(texture);
         }
     }
