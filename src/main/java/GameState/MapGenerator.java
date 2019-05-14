@@ -196,7 +196,7 @@ public class MapGenerator {
 
         //create the bayesian network
         Map<Integer, double[]> chanceMap = new HashMap<>();
-        chanceMap.put(0, new double[] {0.30, 0.30, 0.30, 0.10});
+        chanceMap.put(0, new double[] {0.39, 0.30, 0.30, 0.01});
         chanceMap.put(1, new double[] {0.0, 0.15, 0.0, 0.85});
         chanceMap.put(10, new double[] {0.05, 0.05, 0.90, 0.0});
         chanceMap.put(11, new double[] {0.0, 1, 0.0, 0.0});
@@ -223,8 +223,9 @@ public class MapGenerator {
 
     private boolean mapValid() {
         int pathLength = aStarPath();
-        System.out.println("Path found! Length: " + pathLength);
-        return pathLength > worldWidth * 1.1 && calculateAccessibleTerrain() > 0.7;
+        double accessTerrain = calculateAccessibleTerrain();
+        System.out.println("Path found! Length: " + pathLength + " Terrain: " + accessTerrain);
+        return pathLength > worldWidth * 1.1 && accessTerrain > 0.68;
     }
 
     private int aStarPath() {
@@ -273,8 +274,23 @@ public class MapGenerator {
     }
 
     private double calculateAccessibleTerrain() {
-
-        return 1.0;
+        HashSet<Tile> closedList = new HashSet<>();
+        HashSet<Tile> openList = new HashSet<>();
+        Tile source = map[startRow][startWidthOffset];
+        openList.add(source);
+        while (openList.size() != 0) {
+            HashSet<Tile> tempSet = new HashSet<>();
+            for (Tile t : openList) {
+                closedList.add(t);
+                for (Tile n : getTileNeighbours(t)) {
+                    if (!closedList.contains(n) && n.isAccessible()) {
+                        tempSet.add(n);
+                    }
+                }
+            }
+            openList = tempSet;
+        }
+        return ((double) closedList.size())/((worldWidth - 1)* (worldHeight - 1));
     }
 
     private void fixMap() {
