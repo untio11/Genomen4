@@ -11,7 +11,6 @@ public class MapGenerator {
     private int startWidthOffset;
 
     public Tile[][] generate(int width, int height) {
-
         worldWidth = width;
         worldHeight = height;
         startWidthOffset = 10;

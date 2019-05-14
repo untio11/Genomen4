@@ -1,6 +1,6 @@
 package Graphics.RenderEngine;
 
-import GameState.Entities.Player;
+import GameState.Entities.Actor;
 import Graphics.Models.RawModel;
 import Graphics.Models.TexturedModel;
 import Graphics.Shaders.StaticShader;
@@ -36,11 +36,11 @@ public class Renderer {
         GL11.glClearColor(1, 0, 0, 1);
     }
 
-    public void render(Map<TexturedModel, List<Player>> entities) {
+    public void render(Map<TexturedModel, List<Actor>> entities) {
         for (TexturedModel model : entities.keySet()) {
             prepareTextureModel(model);
-            List<Player> batch = entities.get(model);
-            for (Player entity : batch) {
+            List<Actor> batch = entities.get(model);
+            for (Actor entity : batch) {
                 prepareInstance(entity);
                 GL11.glDrawElements(GL11.GL_TRIANGLES, model.getRawModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
             }
@@ -67,7 +67,7 @@ public class Renderer {
         GL30.glBindVertexArray(0);
     }
 
-    private void prepareInstance(Player player) {
+    private void prepareInstance(Actor player) {
         Matrix4f transformationMatrix = Maths.createTransformationMatrix(player.getPosition(),
                 player.getRotX(), player.getRotY(), player.getRotZ(), player.getScale());
         shader.loadTransformationMatrix(transformationMatrix);
@@ -75,7 +75,7 @@ public class Renderer {
 
     /**
      * Old renderer method, now divided in multiple methods (see above)
-     * public void render(Player player, StaticShader shader) {
+     * public void render(Actor player, StaticShader shader) {
      * TexturedModel texturedModel = player.getModel();
      * RawModel model = texturedModel.getRawModel();
      * GL30.glBindVertexArray(model.getVaoID());

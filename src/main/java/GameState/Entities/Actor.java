@@ -6,21 +6,22 @@ import org.joml.Vector3f;
 /**
  * For keeping track of the players
  */
-public class Player extends Entity {
+public class Actor extends Entity {
+
     private TexturedModel model;
     private float scale;
 
     /**
      * Initialize a player with the appropriate properties
      *
-     * @param model    The model that the player should have
+     * @param model    The model that the player should have: We probably want to change this to some loose reference
      * @param position The position of the player
      * @param rotX     The rotation around the x-axis
      * @param rotY     The rotation around the y-axis
      * @param rotZ     The rotation around the z-axis
      * @param scale    The size of the model (I think)
      */
-    public Player(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ, float scale) {
+    public Actor(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ, float scale) {
         super(position);
         this.model = model;
         this.rotation.x = rotX;

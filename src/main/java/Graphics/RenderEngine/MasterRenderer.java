@@ -1,7 +1,8 @@
 package Graphics.RenderEngine;
 
+import GameState.Entities.Actor;
 import GameState.Entities.Camera;
-import GameState.Entities.Player;
+import GameState.World;
 import Graphics.Models.TexturedModel;
 import Graphics.Shaders.StaticShader;
 
@@ -11,13 +12,19 @@ import java.util.List;
 import java.util.Map;
 
 public class MasterRenderer {
-
     private StaticShader shader = new StaticShader();
     private Renderer renderer = new Renderer(shader);
 
-    private Map<TexturedModel, List<Player>> entities = new HashMap<>();
+    private Map<TexturedModel, List<Actor>> entities = new HashMap<>();
 
-    public void render(Player player, Camera camera) {
+    private Camera camera;
+
+    public MasterRenderer() {
+        // Fetch the camera from the world
+        this.camera = World.getInstance().getCamera();
+    }
+
+    public void render() {
         renderer.prepare();
         shader.start();
         //shader.loadLight(player);
@@ -27,13 +34,13 @@ public class MasterRenderer {
         entities.clear();
     }
 
-    public void processEntity(Player player) {
+    public void processEntity(Actor player) {
         TexturedModel entityModel = player.getModel();
-        List<Player> batch = entities.get(entityModel);
+        List<Actor> batch = entities.get(entityModel);
         if (batch != null) {
             batch.add(player);
         } else {
-            List<Player> newBatch = new ArrayList<>();
+            List<Actor> newBatch = new ArrayList<>();
             newBatch.add(player);
             entities.put(entityModel, newBatch);
         }
