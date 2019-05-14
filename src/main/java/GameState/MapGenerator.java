@@ -246,7 +246,7 @@ public class MapGenerator {
 
                 t.setParent(q);
                 //Check if goal
-                if (t.getDiscretePosition().getX() == worldWidth - startWidthOffset && t.getDiscretePosition().getY() == startRow)  {
+                if (t.getRow() == startRow && t.getColumn() == worldWidth - startWidthOffset)  {
                     System.out.println("Path found!");
                     return q.getgCost() + 1;
                 }

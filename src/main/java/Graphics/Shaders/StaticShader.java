@@ -1,6 +1,6 @@
 package Graphics.Shaders;
 
-import GameState.Camera;
+import GameState.Entities.Camera;
 import Toolbox.Maths;
 import org.joml.Matrix4f;
 

@@ -1,35 +1,20 @@
-package GameState;
+package GameState.Entities;
 
 import Graphics.Models.TexturedModel;
 import org.joml.Vector3f;
 
-public class Player {
-
+public class Player extends Entity {
     private TexturedModel model;
-    private Vector3f position;
     private float rotX, rotY, rotZ;
     private float scale;
 
-    public Player(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ,
-                  float scale) {
+    public Player(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ, float scale) {
+        super(position);
         this.model = model;
-        this.position = position;
         this.rotX = rotX;
         this.rotY = rotY;
         this.rotZ = rotZ;
         this.scale = scale;
-    }
-
-    public void increasePosition(float dx, float dy, float dz) {
-        this.position.x += dx;
-        this.position.y += dy;
-        this.position.z += dz;
-    }
-
-    public void increaseRotation(float dx, float dy, float dz) {
-        this.rotX += dx;
-        this.rotY += dy;
-        this.rotZ += dz;
     }
 
     public TexturedModel getModel() {
@@ -38,14 +23,6 @@ public class Player {
 
     public void setModel(TexturedModel model) {
         this.model = model;
-    }
-
-    public Vector3f getPosition() {
-        return new Vector3f(position.x, position.y, 0);
-    }
-
-    public void setPosition(Vector3f position) {
-        this.position = position;
     }
 
     public float getRotX() {

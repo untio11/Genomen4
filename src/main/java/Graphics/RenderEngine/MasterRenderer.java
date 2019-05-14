@@ -1,7 +1,7 @@
 package Graphics.RenderEngine;
 
-import GameState.Camera;
-import GameState.Player;
+import GameState.Entities.Camera;
+import GameState.Entities.Player;
 import Graphics.Models.TexturedModel;
 import Graphics.Shaders.StaticShader;
 

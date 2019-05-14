@@ -1,13 +1,19 @@
-package GameState;
+package GameState.Entities;
 
 import org.joml.Vector3f;
 
-public class Camera {
+/**
+ * The class that keeps track of the camera position in the world
+ */
+public class Camera extends Entity {
+    public Camera(Vector3f position) {
+        super(position);
+        this.rotX = 90f;
+    }
 
-    private Vector3f position = new Vector3f(0,20,0);
-    private float pitch = 90f;
-    private float yaw;
-    private float roll;
+    public Camera() {
+        super();
+    }
 
     public void moveUp() {
         position.z -= 0.05f;
@@ -25,19 +31,15 @@ public class Camera {
         position.x += 0.05f;
     }
 
-    public Vector3f getPosition() {
-        return position;
-    }
-
     public float getPitch() {
-        return pitch;
+        return this.rotX;
     }
 
     public float getYaw() {
-        return yaw;
+        return this.rotZ;
     }
 
     public float getRoll() {
-        return roll;
+        return this.rotY;
     }
 }

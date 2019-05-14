@@ -1,5 +1,8 @@
 package GameState;
 
+import GameState.Entities.LightSource;
+import GameState.Entities.Player;
+
 public class World {
     private int width;
     private int height;

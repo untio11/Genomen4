@@ -1,6 +1,6 @@
 package Graphics.RenderEngine;
 
-import GameState.Player;
+import GameState.Entities.Player;
 import Graphics.Models.RawModel;
 import Graphics.Models.TexturedModel;
 import Graphics.Shaders.StaticShader;

@@ -1,5 +1,5 @@
-import GameState.Camera;
-import GameState.Player;
+import GameState.Entities.Camera;
+import GameState.Entities.Player;
 import Graphics.Models.RawModel;
 import Graphics.Models.TexturedModel;
 import Graphics.RenderEngine.Loader;
@@ -136,6 +136,18 @@ public class Main{
                     case GLFW_KEY_D:
                         camera.moveRight();
                         break;
+                    case GLFW_KEY_UP:
+                        camera.increaseRotation(-0.5f, 0, 0);
+                        break;
+                    case GLFW_KEY_DOWN:
+                        camera.increaseRotation(0.5f, 0, 0);
+                        break;
+                    case GLFW_KEY_LEFT:
+                        camera.increaseRotation(0, 0, -0.5f);
+                        break;
+                    case GLFW_KEY_RIGHT:
+                        camera.increaseRotation(0, 0, 0.5f);
+                        break;
                 }
             }
 
@@ -168,35 +180,9 @@ public class Main{
         // Setup a key callback. It will be called every time a key is pressed, repeated or released.
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
             if(action == GLFW_PRESS) {
-                switch (key) {
-                    case GLFW_KEY_W:
-                        pressedKeys.add(GLFW_KEY_W);
-                        break;
-                    case GLFW_KEY_S:
-                        pressedKeys.add(GLFW_KEY_S);
-                        break;
-                    case GLFW_KEY_A:
-                        pressedKeys.add(GLFW_KEY_A);
-                        break;
-                    case GLFW_KEY_D:
-                        pressedKeys.add(GLFW_KEY_D);
-                        break;
-                }
+                pressedKeys.add(key);
             } else if(action == GLFW_RELEASE) {
-                switch (key) {
-                    case GLFW_KEY_W:
-                        pressedKeys.remove(GLFW_KEY_W);
-                        break;
-                    case GLFW_KEY_S:
-                        pressedKeys.remove(GLFW_KEY_S);
-                        break;
-                    case GLFW_KEY_A:
-                        pressedKeys.remove(GLFW_KEY_A);
-                        break;
-                    case GLFW_KEY_D:
-                        pressedKeys.remove(GLFW_KEY_D);
-                        break;
-                }
+                pressedKeys.remove(key);
             }
             if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
                 glfwSetWindowShouldClose(window, true);

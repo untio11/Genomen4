@@ -1,6 +1,6 @@
 package Toolbox;
 
-import GameState.Camera;
+import GameState.Entities.Camera;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
