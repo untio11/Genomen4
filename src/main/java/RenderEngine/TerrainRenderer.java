@@ -41,23 +41,25 @@ public class TerrainRenderer {
         RawModel model = terrain.getModel();
         GL30.glBindVertexArray(model.getVaoID());
         GL20.glEnableVertexAttribArray(0);
-        GL20.glEnableVertexAttribArray(1);
+        //GL20.glEnableVertexAttribArray(1);
         bindTextures(terrain);
         //shader.loadShineVar
 
     }
 
+    // binds textures for the shader
     private void bindTextures(Terrain terrain) {
-        TerrainTexturePack texturePack = terrain.getTexturePack();
+        // binds terrain texture to sampler 0
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, texturePack.getWater().getTextureID());
-        GL13.glActiveTexture(GL13.GL_TEXTURE1);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, texturePack.getSand().getTextureID());
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, terrain.getTexture().getTextureID());
+        // binds second texture to sampler 1 (but not used now)
+//        GL13.glActiveTexture(GL13.GL_TEXTURE1);
+//        GL11.glBindTexture(GL11.GL_TEXTURE_2D, texturePack.getSand().getTextureID());
     }
 
     private void unbindTextureModel() {
-        GL20.glDisableVertexAttribArray(0);
-        GL20.glDisableVertexAttribArray(1);
+        GL20.glDisableVertexAttribArray(0); //unbinds texture at sampler 0
+        //GL20.glDisableVertexAttribArray(1);       //there wasn't texture bound at 1 so no need to unbind
         GL30.glBindVertexArray(0);
     }
 

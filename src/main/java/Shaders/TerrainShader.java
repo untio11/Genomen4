@@ -13,8 +13,7 @@ public class TerrainShader extends ShaderProgram {
     private int location_transformationMatrix;
     private int location_projectionMatrix;
     private int location_viewMatrix;
-    private int location_waterTexture;
-    private int location_sandTexture;
+    private int location_terrainTexture;
 
 
     public TerrainShader() {
@@ -34,13 +33,11 @@ public class TerrainShader extends ShaderProgram {
         location_transformationMatrix = super.getUniformLocation("transformationMatrix");
         location_projectionMatrix = super.getUniformLocation("projectionMatrix");
         location_viewMatrix = super.getUniformLocation("viewMatrix");
-        location_waterTexture = super.getUniformLocation("waterTexture");
-        location_sandTexture = super.getUniformLocation("sandTexture");
+        location_terrainTexture = super.getUniformLocation("terrainTexture");
     }
 
     public void connectTextureUnits() {
-        super.loadInt(location_waterTexture, 0);
-        super.loadInt(location_sandTexture, 1);
+        super.loadInt(location_terrainTexture, 0);
     }
 
     public void loadTransformationMatrix(Matrix4f transform) {

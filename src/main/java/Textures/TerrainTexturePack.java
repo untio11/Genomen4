@@ -1,15 +1,25 @@
 package Textures;
 
+import GameState.TileType;
 import terrains.Terrain;
+
+import java.util.HashMap;
 
 public class TerrainTexturePack {
 
     private TerrainTexture water;
     private TerrainTexture sand;
+    private TerrainTexture grass;
+//    private TerrainTexture[] textures;
+    private HashMap<TileType, TerrainTexture> textures;
 
-    public TerrainTexturePack(TerrainTexture water, TerrainTexture sand) {
-        this.water = water;
-        this.sand = sand;
+    public TerrainTexturePack(HashMap<TileType, TerrainTexture> textures) {
+        this.textures = textures;
+    }
+
+    public TerrainTexture getTexture(TileType tileType) {
+        TerrainTexture texture = textures.get(tileType);
+        return texture;
     }
 
     public TerrainTexture getWater() {

@@ -1,26 +1,28 @@
 package terrains;
 
+import GameState.MapGenerator;
 import GameState.Tile;
 import GameState.TileType;
 import Models.RawModel;
 import RenderEngine.Loader;
 import Textures.ModelTexture;
+import Textures.TerrainTexture;
 import Textures.TerrainTexturePack;
 
 public class Terrain {
 
-    private static final float SIZE = 10;
-    private static final int VERTEX_COUNT = 128;
+    private static final float SIZE = 1;   //scale for the size of map
+    private static final int VERTEX_COUNT = 4;
 
     private float x;
     private float z;
     private RawModel model;
-    private TerrainTexturePack texturePack;
-    private Tile[][] tilemap;
+    private MapGenerator mapGenerator;
+    private TerrainTexture texture;
 
-    public Terrain(int gridX, int gridZ, Loader loader, TerrainTexturePack texturePack, Tile[][] tilemap) {
-        this.texturePack = texturePack;
-        this.tilemap = tilemap;
+    public Terrain(int gridX, int gridZ, Loader loader, TerrainTexture texture, MapGenerator mapGenerator) {
+        this.texture = texture;
+        this.mapGenerator = mapGenerator;
         this.x = gridX * SIZE;
         this.z = gridZ * SIZE;
         this.model = generateTerrain(loader);
@@ -38,27 +40,32 @@ public class Terrain {
         return model;
     }
 
-    public TerrainTexturePack getTexturePack() {
-        return texturePack;
+    public TerrainTexture getTexture() {
+        return texture;
     }
 
-    public Tile[][] getTilemap() {
-        return tilemap;
+    // was used to calculate the offset for the texture coords, but now handeled by drawing wiles seperately
+    private int[] textureOffset(float posX, float posY) {
+        int[] worldDim = mapGenerator.getWorldDimensions();
+        float maxPosX = (float)VERTEX_COUNT * SIZE;
+        int tileX = (int)Math.ceil(posX / (maxPosX/worldDim[0]));
+        int tileY = (int)Math.ceil(posY / (maxPosX/worldDim[1]));
+
+        return getTextureOffset(mapGenerator.getMap()[tileX][tileY].getType());
     }
 
-    private int[][] tilemapToInt() {
-        int intMap[][] = new int[tilemap.length][tilemap.length];
-        for(int r=0; r<tilemap.length; r++) {
-            for(int c=0; c<tilemap.length; c++) {
-                if(tilemap[r][c].getType()== TileType.WATER){
-                    intMap[r][c] = 0;
-                }
-                if(tilemap[r][c].getType()== TileType.SAND){
-                    intMap[r][c] = 1;
-                }
-            }
+    private int[] getTextureOffset(TileType tileType) {
+        if(tileType == TileType.WATER) {
+            return new int[] {0, 1};
+        } else if (tileType == TileType.SAND) {
+            return new int[] {1, 2};
+        } else if (tileType == TileType.GRASS) {
+            return new int[] {2, 1};
+        } else if (tileType == TileType.TREE) {
+            return new int[] {2, 2};
+        } else {
+            return new int[] {1, 1};
         }
-        return intMap;
     }
 
     private RawModel generateTerrain(Loader loader){
@@ -70,14 +77,16 @@ public class Terrain {
         int vertexPointer = 0;
         for(int i=0;i<VERTEX_COUNT;i++){
             for(int j=0;j<VERTEX_COUNT;j++){
-                vertices[vertexPointer*3] = (float)j/((float)VERTEX_COUNT - 1) * SIZE;
+                float posX = (float)j/((float)VERTEX_COUNT - 1);
+                float posY = (float)i/((float)VERTEX_COUNT - 1);
+                vertices[vertexPointer*3] = posX * SIZE;
                 vertices[vertexPointer*3+1] = 0;
-                vertices[vertexPointer*3+2] = (float)i/((float)VERTEX_COUNT - 1) * SIZE;
+                vertices[vertexPointer*3+2] = posY * SIZE;
                 normals[vertexPointer*3] = 0;
                 normals[vertexPointer*3+1] = 1;
                 normals[vertexPointer*3+2] = 0;
-                textureCoords[vertexPointer*2] = (float)j/((float)VERTEX_COUNT - 1);
-                textureCoords[vertexPointer*2+1] = (float)i/((float)VERTEX_COUNT - 1);
+                textureCoords[vertexPointer*2] = posX;
+                textureCoords[vertexPointer*2+1] = posY;
                 vertexPointer++;
             }
         }

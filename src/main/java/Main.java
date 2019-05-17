@@ -1,6 +1,4 @@
-import GameState.Camera;
-import GameState.MapGenerator;
-import GameState.Player;
+import GameState.*;
 import Models.RawModel;
 import Models.TexturedModel;
 import RenderEngine.Loader;
@@ -17,8 +15,7 @@ import org.lwjgl.system.*;
 import terrains.Terrain;
 
 import java.nio.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
@@ -33,6 +30,8 @@ public class Main{
     private final int length = 600;
 
     private Set<Integer> pressedKeys = new HashSet<>();
+
+    private List<Terrain> terrainList;
 
     public void run() {
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
@@ -100,6 +99,46 @@ public class Main{
         glfwShowWindow(window);
     }
 
+    private void initTileMap(Loader loader) {
+        // Generate map
+        MapGenerator mapGenerator = new MapGenerator();
+        mapGenerator.generate(50, 50);
+        System.out.println(mapGenerator.toString());
+
+        // load terrain textures and put them in a hashmap
+        HashMap<TileType, TerrainTexture> textureHashMap = new HashMap<>();
+        // create textures
+        TerrainTexture water = new TerrainTexture(loader.loadTexture("water"));
+        TerrainTexture sand = new TerrainTexture(loader.loadTexture("sand"));
+        TerrainTexture grass = new TerrainTexture((loader.loadTexture("grass")));
+        TerrainTexture tree = new TerrainTexture((loader.loadTexture("tree")));
+        // put them in the hashmap
+        textureHashMap.put(TileType.WATER, water);
+        textureHashMap.put(TileType.SAND, sand);
+        textureHashMap.put(TileType.GRASS, grass);
+        textureHashMap.put(TileType.TREE, tree);
+
+        // backup texture
+        TerrainTexture backupTexture = new TerrainTexture((loader.loadTexture("black")));
+
+        // add every tile from map to a list, which is to be rendered
+        terrainList = new ArrayList<>();
+        TerrainTexture tileTexture;
+        for(int r=0; r<mapGenerator.getWorldDimensions()[0]; r++) {
+            for(int c=0; c<mapGenerator.getWorldDimensions()[1]; c++) {
+                TileType tileType = mapGenerator.getMap()[r][c].getType();
+                // get texture form hashmap, if it isn't there, use the backuptexture
+                if (textureHashMap.containsKey(tileType)) {
+                    tileTexture = textureHashMap.get(tileType);
+                } else {
+                    tileTexture = backupTexture;
+                }
+                // add to terrainList, which will be processed in loop
+                terrainList.add(new Terrain(r, c, loader, tileTexture, mapGenerator));
+            }
+        }
+    }
+
     private void loop() {
 
         // This line is critical for LWJGL's interoperation with GLFW's
@@ -110,27 +149,14 @@ public class Main{
         GL.createCapabilities();
 
         Loader loader = new Loader();
-        //StaticShader shader = new StaticShader();
-        //PlayerRenderer renderer = new PlayerRenderer(shader);
 
-        //************Terrain Texture Stuff*******
-        TerrainTexture waterTexture = new TerrainTexture(loader.loadTexture("water"));
-        TerrainTexture sandTexture = new TerrainTexture(loader.loadTexture("sand"));
-
-        TerrainTexturePack texturePack = new TerrainTexturePack(waterTexture, sandTexture);
-        //****************************************
-
+        initTileMap(loader);
 
         RawModel model = OBJLoader.loadObjModel("stall", loader);
         ModelTexture texture = new ModelTexture(loader.loadTexture("stallTexture"));
         TexturedModel texturedModel = new TexturedModel(model, texture);
 
         Player player = new Player(texturedModel, new Vector3f(0,0,0), 0, 0, 0, 1);
-
-        MapGenerator mapGenerator = new MapGenerator();
-        mapGenerator.generate(3, 3);
-
-        Terrain terrain = new Terrain(0,0,loader,texturePack, mapGenerator.getMap());
 
         Camera camera = new Camera();
 
@@ -156,18 +182,12 @@ public class Main{
                 }
             }
 
-//            renderer.prepare();
-//            shader.start();
-//            shader.loadViewMatrix(camera);
-//            renderer.render(player, shader);
-//            shader.stop();
+            //process all terrains make in initTileMap()
+            for(Terrain terrain:terrainList) {
+                renderer.processTerrain(terrain);
+            }
 
-            renderer.processTerrain(terrain);
-            renderer.processPlayer(player);
             renderer.render(player, camera);
-
-            //already done in renderer class
-            //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
             glfwSwapBuffers(window); // swap the color buffers
 
