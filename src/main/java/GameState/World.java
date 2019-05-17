@@ -11,9 +11,10 @@ import org.joml.Vector3f;
  */
 public class World {
     private static World instance;
-
+    public static final int TS = 16;
     private int width;
     private int height;
+    private int tileW, tileH;
     private float tile_width; // Used for rendering
     private Tile[][] data; // Stores the actual world data.
     private LightSource[] lights; // Store the lights for stuff
@@ -33,8 +34,8 @@ public class World {
         return instance;
     }
 
-    public static void initWorld(int width, int height) {
-        instance = new World(width, height);
+    public static void initWorld(int width, int height, int tileW, int tileH) {
+        instance = new World(width, height, tileW, tileH);
     }
 
     /**
@@ -44,12 +45,14 @@ public class World {
         instance = null;
     }
 
-    private World(int width, int height) {
+    private World(int width, int height, int tileW, int tileH) {
         this.width = width;
         this.height = height;
+        this.tileW = tileW;
+        this.tileH = tileH;
         this.data = new MapGenerator().generate(width, height);
-        this.father = spawnActor();
-        this.kidnapper = spawnActor();
+        this.father = spawnActor(false);
+        this.kidnapper = spawnActor(true);
 
         this.camera = new Camera(father.getPosition().add(0, 0, 10f)); // Put the camera above the fathers head
     }
@@ -61,16 +64,17 @@ public class World {
         );
     }
 
-    private Actor spawnActor() {
+    private Actor spawnActor(boolean kidnapper) {
         Position spawn = getRandomTile();
 
         return new Actor(
+                this,
                 null,
+                1,
                 new Vector3f(spawn.x, spawn.y, 0f),
-                0f,
-                0f,
-                0f,
-                1
+                new Vector3f(0f, 0f, 0f),
+                1,
+                kidnapper
         );
     }
 
@@ -78,23 +82,38 @@ public class World {
         return this.camera;
     }
 
-    public Tile[][] getTiles() {
-        return this.data;
+    public boolean getCollision(int x, int y) {
+        if (x < 0 || x >= tileW || y < 0 || y >= tileH) {
+            return true;
+        }
+        return !data[x][y].isAccessible();
     }
 
-    public int getHeight() {
-        return height;
+    public boolean isPlayerCollision() {
+        return !(father.getPosition().x > kidnapper.getPosition().y + kidnapper.getSize() ||
+                father.getPosition().y > kidnapper.getPosition().y + kidnapper.getSize() ||
+                kidnapper.getPosition().x > father.getPosition().x + father.getSize() ||
+                kidnapper.getPosition().y > father.getPosition().y + father.getSize());
     }
 
-    public int getWidth() {
-        return width;
+    public TileType getTileType(int x, int y) {
+        return data[x][y].getType();
     }
 
-    public float getTileWidth() {
-        return tile_width;
+    public int getTileW() {
+        return tileW;
     }
 
-    public LightSource[] getLights() {
-        return lights;
+    public int getTileH() {
+        return tileH;
     }
+
+    public Actor getFather() {
+        return father;
+    }
+
+    public Actor getKidnapper() {
+        return kidnapper;
+    }
+
 }

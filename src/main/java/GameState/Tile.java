@@ -1,7 +1,11 @@
 package GameState;
 
 public class Tile {
+<<<<<<< HEAD
     private Position position;
+=======
+
+>>>>>>> Engine
     private TileType type;
     private float height;
     private int heuristic;
