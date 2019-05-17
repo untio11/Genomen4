@@ -1,6 +1,5 @@
 package AI.Trainer;
 
-import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -8,13 +7,13 @@ import java.util.*;
 
 public class GeneticAlgorithm<A extends TrainerAIPlayer> {
 
-    private AIGameTrainer<A, ?> trainer;
+    private BaseAIGameTrainer<?>.AIPlayerBuilder<A> playerBuilder;
 
     private float mutateProbability = 0.05f;
     private float mutatePercentage = 0.1f;
 
-    public GeneticAlgorithm(AIGameTrainer<A, ?> trainer) {
-        this.trainer = trainer;
+    public GeneticAlgorithm(BaseAIGameTrainer<?>.AIPlayerBuilder<A> playerBuilder) {
+        this.playerBuilder = playerBuilder;
     }
 
     public List<A> performPlayerEvolution(LinkedHashMap<A, Integer> sortedPlayers) {
@@ -42,7 +41,7 @@ public class GeneticAlgorithm<A extends TrainerAIPlayer> {
             // -> Mutation
             this.mutate(childTable);
 
-            A childPlayer = trainer.createPlayer(childTable);
+            A childPlayer = playerBuilder.createPlayer(childTable);
 
             newPlayers.add(childPlayer);
         }

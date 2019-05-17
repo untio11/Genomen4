@@ -30,7 +30,7 @@ public class ConnectFourTrainer extends AIGameTrainer<AIConnectFourPlayer, PlayC
 
         trainer.init();
         trainer.runGeneticAlgorithm();
-        LinkedHashMap<AIConnectFourPlayer, Integer> sortedPlayers = trainer.evaluatePlayers();
+        LinkedHashMap<AIConnectFourPlayer, Integer> sortedPlayers = trainer.getScoredPlayers();
 
         // Play against the best player
         final PlayConnectFour game = new PlayConnectFour(false);
