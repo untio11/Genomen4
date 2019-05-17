@@ -1,7 +1,5 @@
 package GameState;
 
-import GameState.Tile;
-import GameState.World;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -13,7 +11,8 @@ public class WorldTest {
 
     @BeforeClass
     public static void createWorld() {
-        world = new World(width, height);
+        World.initWorld(width, height);
+        world = World.getInstance();
     }
 
     @Test

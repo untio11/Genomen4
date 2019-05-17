@@ -1,7 +1,7 @@
 package Textures;
 
 import GameState.TileType;
-import terrains.Terrain;
+import Graphics.Textures.TerrainTexture;
 
 import java.util.HashMap;
 
