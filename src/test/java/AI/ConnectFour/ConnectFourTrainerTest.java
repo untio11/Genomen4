@@ -44,7 +44,7 @@ public class ConnectFourTrainerTest {
 
         trainer.init();
         trainer.runGeneticAlgorithm();
-        LinkedHashMap<AIConnectFourPlayer, Integer> sortedPlayers = trainer.evaluatePlayers();
+        LinkedHashMap<AIConnectFourPlayer, Integer> sortedPlayers = trainer.getScoredPlayers();
     }
 
     @Test

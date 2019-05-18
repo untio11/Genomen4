@@ -3,70 +3,51 @@ package AI.Trainer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import util.Pair;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
-public abstract class AIGameTrainer<A extends TrainerAIPlayer, B> {
+public abstract class AIGameTrainer<A extends TrainerAIPlayer, G> extends BaseAIGameTrainer<G> {
 
     private List<A> players;
     private List<Pair<A, A>> competition;
     private Map<A, Integer> playerScores;
     private GeneticAlgorithm<A> geneticAlgorithm;
 
-    private final int nPlayers;
-    private final int iterations;
-
-
     public AIGameTrainer(int nPlayers, int iterations) {
-        this.nPlayers = nPlayers;
-        this.iterations = iterations;
+        super(nPlayers, iterations);
         players = new ArrayList<>();
         playerScores = new HashMap<>();
-        geneticAlgorithm = new GeneticAlgorithm<>(this);
+
+        final AIGameTrainer<A, G> trainer = this;
+
+        geneticAlgorithm = new GeneticAlgorithm<>(new AIPlayerBuilder<A>() {
+            @Override
+            public A createPlayer(Map<String, INDArray> paramTable) {
+                return trainer.createPlayer(paramTable);
+            }
+        });
     }
 
+    @Override
     public void init() {
+        super.init();
         this.createPlayers(players);
     }
 
-    public void runGeneticAlgorithm() {
-        // Assume that the trainer has already been initialized and that players and a competition exist
-        // Iterate over the genetic algorithm for a specified number of iterations
-        for (int i = 0; i < this.iterations; i++) {
-            // Create the competition
-            competition = this.createCompetition(players);
-
-            // Run the competition
-            this.playCompetition();
-
-            // Determine the best players
-            LinkedHashMap<A, Integer> sortedPlayers = this.evaluatePlayers();
-
-            // Skip generating new players if this is the last iteration
-            if (i + 1 == this.iterations) {
-                continue;
-            }
-
-            players = geneticAlgorithm.performPlayerEvolution(sortedPlayers);
-            playerScores = new HashMap<>();
-            for (A player : players) {
-                playerScores.put(player, 0);
-            }
-        }
-
-        // Save the best players so that they can be used again later
-
-
+    @Override
+    protected void setupCompetition() {
+        competition = this.createCompetition(players);
     }
 
+    @Override
     protected void playCompetition() {
         for (Pair<A, A> players : competition) {
-            B game = this.createGame(players);
+            G game = this.createGame(players);
             this.playGame(game);
         }
+    }
 
+    @Override
+    protected void evaluateCompetition() {
         int bestScore = 0;
         A bestPlayer = null;
         for (A player : players) {
@@ -85,11 +66,18 @@ public abstract class AIGameTrainer<A extends TrainerAIPlayer, B> {
         System.out.println("Best Score: " + bestScore);
     }
 
-    public LinkedHashMap<A, Integer> evaluatePlayers() {
-        // Sort the players based on the score
-         return playerScores.entrySet().stream()
-                .sorted((Map.Entry.<A, Integer>comparingByValue().reversed()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    @Override
+    protected void performGeneticEvolution() {
+        LinkedHashMap<A, Integer> sortedPlayers = evaluatePlayers(playerScores);
+        players = geneticAlgorithm.performPlayerEvolution(sortedPlayers);
+    }
+
+    @Override
+    protected void resetGeneticAlgorithm() {
+        playerScores = new HashMap<>();
+        for (A player : players) {
+            playerScores.put(player, 0);
+        }
     }
 
     protected void createPlayers(List<A> players) {
@@ -113,17 +101,9 @@ public abstract class AIGameTrainer<A extends TrainerAIPlayer, B> {
         playerScores.put(player, oldScore + score);
     }
 
-    protected void savePlayer(A player, String fileName) {
-        File f = new File("res/" + fileName + ".net");
-
-        try {
-            player.saveNetwork(f);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public LinkedHashMap<A, Integer> getScoredPlayers() {
+        return evaluatePlayers(playerScores);
     }
-
-    protected abstract String getName();
 
     protected abstract A createPlayer();
 
@@ -131,7 +111,5 @@ public abstract class AIGameTrainer<A extends TrainerAIPlayer, B> {
 
     protected abstract List<Pair<A, A>> createCompetition(List<A> players);
 
-    protected abstract B createGame(Pair<A, A> players);
-
-    protected abstract void playGame(B game);
+    protected abstract G createGame(Pair<A, A> players);
 }
