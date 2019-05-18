@@ -13,9 +13,9 @@ import java.util.Random;
  */
 public class World {
     private static World instance;
-    private int width;
-    private int height;
-    private Tile[][] data; // Stores the actual world data.
+    private int width;      //unit: tiles
+    private int height;     //unit: tiles
+    private Tile[][] data; // Stores the tiles of the world. note that the first parameter is the height of the world.
     private LightSource[] lights; // Store the lights for stuff
     private Actor father;
     private Actor kidnapper;
@@ -57,19 +57,32 @@ public class World {
         instance = null;
     }
 
+    /**
+     * Returns the tiles in a more conventional notation with x preceding y.
+     */
     public Tile getTile(int x, int y) {
         return data[y][x];
     }
 
+    /**
+     * Returns a random position in the world
+     */
     private Position getRandomTile() {
         Random random = new Random();
-        return new Position(
-                random.nextInt(width), random.nextInt(height)
-        );
+        return new Position(random.nextInt(width), random.nextInt(height));
     }
 
+    /**
+     * Spawn an actor on a random tile.
+     */
     private Actor spawnActor(boolean kidnapper) {
+        //todo: place the actors in specific positions instead random, because it sometimes messes up the map generation due to the random player distance
+        //find an accessible tile for the player spawn
         Position spawn = getRandomTile();
+        while (getCollision(spawn.x, spawn.y)) {
+            spawn = getRandomTile();
+        }
+
         return new Actor(
                 this,
                 null,
@@ -81,10 +94,9 @@ public class World {
         );
     }
 
-    public Camera getCamera() {
-        return this.camera;
-    }
-
+    /**
+     * Returns whether a tile at (x,y) is accessible.
+     */
     public boolean getCollision(int x, int y) {
         if (x < 0 || x >= width || y < 0 || y >= height) {
             return true;
@@ -92,6 +104,9 @@ public class World {
         return !getTile(x, y).isAccessible();
     }
 
+    /**
+     * Returns whether the two actors are colliding.
+     */
     public boolean isPlayerCollision() {
         return !(father.getPosition().x - father.getSize() / 2 > kidnapper.getPosition().x + kidnapper.getSize() / 2 ||
                 father.getPosition().y - father.getSize() / 2 > kidnapper.getPosition().y + kidnapper.getSize() / 2 ||
@@ -99,24 +114,16 @@ public class World {
                 kidnapper.getPosition().y - kidnapper.getSize() / 2 > father.getPosition().y + father.getSize() / 2);
     }
 
-    public TileType getTileType(int x, int y) {
-        return getTile(x, y).getType();
-    }
+    public TileType getTileType(int x, int y) { return getTile(x, y).getType(); }
 
-    public int getWidth() {
-        return width;
-    }
+    public int getWidth() { return width; }
 
-    public int getHeight() {
-        return height;
-    }
+    public int getHeight() { return height; }
 
-    public Actor getFather() {
-        return father;
-    }
+    public Actor getFather() { return father; }
 
-    public Actor getKidnapper() {
-        return kidnapper;
-    }
+    public Actor getKidnapper() { return kidnapper; }
+
+    public Camera getCamera() { return this.camera; }
 
 }
