@@ -29,7 +29,7 @@ import Graphics.WindowManager;
 
 public class Main {
     public static void main(String[] args) {
-        World.initWorld(100, 100, 2, 2);
+        World.initWorld(60, 60, 2, 2);
         new WindowManager().run();
     }
 }

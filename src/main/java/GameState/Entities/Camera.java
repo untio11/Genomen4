@@ -12,8 +12,8 @@ public class Camera extends Entity {
         this.rotation.x = 90f; // Rotate the camera down(?)
     }
 
-    public Camera(float x, float y, float z) {
-        setPosition(new Vector3f(x, y, z));
+    public Camera(Actor actor) {
+        setPosition(new Vector3f(actor.getPosition().x, actor.getPosition().y + 20, actor.getPosition().z));
         this.rotation.x = 90f; // Rotate the camera down(?)
     }
 

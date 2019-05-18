@@ -10,10 +10,10 @@ public class Inputhandler {
     Camera camera;
 
     Inputhandler() {
-        camera = new Camera();
+        //camera = new Camera();
     }
 
-    void handleInput(Set<Integer> pressedKeys) {
+    void handleInput(Camera camera, Set<Integer> pressedKeys) {
         for (int keyPressed : pressedKeys) {
             switch (keyPressed) {
                 case GLFW_KEY_W:

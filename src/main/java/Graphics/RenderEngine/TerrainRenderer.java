@@ -51,8 +51,8 @@ public class TerrainRenderer {
     private void prepareTerrain(Terrain terrain) {
         RawModel model = terrain.getModel();
         GL30.glBindVertexArray(model.getVaoID());
-        GL20.glEnableVertexAttribArray(0);
-        //GL20.glEnableVertexAttribArray(1);
+        GL20.glEnableVertexAttribArray(0);  // position
+        GL20.glEnableVertexAttribArray(1);  // texture coords
         bindTextures(terrain);
         //shader.loadShineVar
 
@@ -69,8 +69,8 @@ public class TerrainRenderer {
     }
 
     private void unbindTextureModel() {
-        GL20.glDisableVertexAttribArray(0); //unbinds texture at sampler 0
-        //GL20.glDisableVertexAttribArray(1);       //there wasn't texture bound at 1 so no need to unbind
+        GL20.glDisableVertexAttribArray(0); // position
+        GL20.glDisableVertexAttribArray(1); // texture coords
         GL30.glBindVertexArray(0);
     }
 
