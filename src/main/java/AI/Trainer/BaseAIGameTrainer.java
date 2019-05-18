@@ -20,7 +20,7 @@ public abstract class BaseAIGameTrainer<G> {
     }
 
     protected void savePlayer(TrainerAIPlayer player, String fileName) {
-        File f = new File("res/" + fileName + ".net");
+        File f = new File("res/network/" + fileName + ".net");
 
         try {
             player.saveNetwork(f);
