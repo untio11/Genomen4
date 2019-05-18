@@ -11,6 +11,8 @@ public class Actor extends Entity {
     private TexturedModel model;
     private float scale;
     private float speed;
+    private int tileX, tileY;
+    private float offX, offY;
     private float size;
     private boolean kidnapper;
     private World world;
@@ -29,8 +31,13 @@ public class Actor extends Entity {
         this.rotation = rotation;
         this.scale = scale;
         this.size = size;
+        // TODO: Something with offsets and models being centered in the tile.
+        this.offX = 0;
+        this.offY = 0;
+        this.tileX = (int) position.x;
+        this.tileY = (int) position.y;
         this.kidnapper = kidnapper;
-        this.speed = kidnapper ? 3 : 4;
+        this.speed = kidnapper ? 90 : 100;
         this.world = world;
     }
 
@@ -74,75 +81,13 @@ public class Actor extends Entity {
         this.scale = scale;
     }
 
-    public void moveUp(double dt) {
-        int tileY = (int) (position.y - size / 2);
-        float offY = (position.y - size / 2) - tileY;
-        int tileXLeft = (int) (position.x - size / 2);
-        int tileXRight = (int) (position.x + size / 2);
-        double distance = dt * speed;
-        if (world.getCollision((int) position.x, tileY - 1)
-                || world.getCollision(tileXRight, tileY - 1)
-                || world.getCollision(tileXLeft, tileY - 1)) {
-            if (distance > offY) {
-                position.y -= offY;
-                return;
-            }
-        }
-        position.y -= distance;
-        //todo: add rotation
-    }
+    public void moveUp(double dt) {}
 
-    public void moveDown(double dt) {
-        int tileY = (int) (position.y + size / 2 - 0.00001);
-        float offY = tileY + 1 - (position.y + size / 2);
-        int tileXLeft = (int) (position.x - size / 2);
-        int tileXRight = (int) (position.x + size / 2);
-        double distance = dt * speed;
-        if (world.getCollision((int) position.x, tileY + 1)
-                || world.getCollision(tileXRight, tileY + 1)
-                || world.getCollision(tileXLeft, tileY + 1)) {
-            if (distance > offY) {
-                position.y += offY;
-                return;
-            }
-        }
-        position.y += distance;
-        //todo: add rotation
-    }
+    public void moveDown(double dt) {}
 
-    public void moveLeft(double dt) {
-        int tileX = (int) (position.x - size / 2);
-        float offX = (position.x - size / 2) - tileX;
-        int tileYUp = (int) (position.y - size / 2);
-        int tileYDown = (int) (position.y + size / 2);
-        double distance = dt * speed;
-        if (world.getCollision(tileX - 1, (int) position.y)
-                || world.getCollision(tileX - 1, tileYUp)
-                || world.getCollision(tileX - 1, tileYDown)) {
-            if (distance > offX) {
-                position.x -= offX;
-                return;
-            }
-        }
-        position.x -= distance;
-        //todo: add rotation
-    }
+    public void moveLeft(double dt) {}
 
-    public void moveRight(double dt) {
-        int tileX = (int) (position.x + size / 2 - 0.00001);
-        float offX = tileX + 1 - (position.x + size / 2);
-        int tileYUp = (int) (position.y - size / 2);
-        int tileYDown = (int) (position.y + size / 2);
-        double distance = dt * speed;
-        if (world.getCollision(tileX + 1, (int) position.y) || world.getCollision(tileX + 1, tileYUp) || world.getCollision(tileX + 1, tileYDown)) {
-            if (distance > offX) {
-                position.x += offX;
-                return;
-            }
-        }
-        position.x += distance;
-        //todo: add rotation
-    }
+    public void moveRight(double dt) {}
 
     public float getSize() {
         return this.size;
