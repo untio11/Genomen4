@@ -1,5 +1,6 @@
 package GameState.Entities;
 
+import com.sun.istack.internal.NotNull;
 import org.joml.Vector3f;
 
 /**
@@ -75,6 +76,7 @@ public abstract class Entity {
      *
      * @return "[ID]: position(x, y, z), rotation(pitch, roll, yaw)"
      */
+    @NotNull
     public String toString() {
         return String.format("[%s]: position(%f, %f, %f), rotation(%f, %f, %f)",
                 ID, position.x, position.y, position.z, rotation.x, rotation.y, rotation.z);

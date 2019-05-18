@@ -20,8 +20,8 @@ public class GameContainer implements Runnable {
 
     public GameContainer(World world) {
         this.world = world;
-        width = Renderer.TS * (world.getWidth());
-        height = Renderer.TS * (world.getHeight());
+        width = World.TS * (world.getTileW());
+        height = World.TS * (world.getTileH());
     }
 
     public void start() {
@@ -88,9 +88,8 @@ public class GameContainer implements Runnable {
     }
 
     public static void main(String[] args) {
-        World.initWorld(60, 60);
-        GameContainer gc = new GameContainer(World.getInstance());
+        World world = new World(100, 100);
+        GameContainer gc = new GameContainer(world);
         gc.start();
     }
-
 }

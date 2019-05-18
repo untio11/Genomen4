@@ -46,13 +46,10 @@ public class KeyController implements KeyListener {
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {
-    }
+    public void keyTyped(KeyEvent e) {}
 
     @Override
-    public void keyPressed(KeyEvent e) {
-        keys[e.getKeyCode()] = true;
-    }
+    public void keyPressed(KeyEvent e) { keys[e.getKeyCode()] = true; }
 
     @Override
     public void keyReleased(KeyEvent e) {
