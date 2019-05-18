@@ -1,5 +1,6 @@
 package Engine;
 
+import Engine.Controller.KeyController;
 import GameState.World;
 
 import java.awt.event.KeyEvent;
