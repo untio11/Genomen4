@@ -3,6 +3,7 @@ package AI.Genomen.Player;
 import AI.ConnectFour.PlayConnectFour;
 import AI.Trainer.TrainerAIPlayer;
 import GameState.Entities.Actor;
+import GameState.World;
 import Graphics.Models.TexturedModel;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -23,22 +24,24 @@ public class AIGenomenPlayer extends Actor implements TrainerAIPlayer {
 
     protected MultiLayerNetwork net;
 
+
     public AIGenomenPlayer() {
-        super(null, null, 0, 0, 0, 1f);
+        super(null, null, 0, null, null, 1f, false);
     }
 
     /**
      * Initialize a player with the appropriate properties
      *
-     * @param model    The model that the player should have: We probably want to change this to some loose reference
-     * @param position The position of the player
-     * @param rotX     The rotation around the x-axis
-     * @param rotY     The rotation around the y-axis
-     * @param rotZ     The rotation around the z-axis
-     * @param scale    The size of the model (I think)
+     * @param world
+     * @param model     The model that the player should have: We probably want to change this to some loose reference
+     * @param size
+     * @param position  The position of the player
+     * @param rotation  The rotation of the model
+     * @param scale     The size of the model (I think)
+     * @param kidnapper
      */
-    public AIGenomenPlayer(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ, float scale) {
-        super(model, position, rotX, rotY, rotZ, scale);
+    public AIGenomenPlayer(World world, TexturedModel model, float size, Vector3f position, Vector3f rotation, float scale, boolean kidnapper) {
+        super(world, model, size, position, rotation, scale, kidnapper);
     }
 
     public void init() {
