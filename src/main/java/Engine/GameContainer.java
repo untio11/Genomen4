@@ -5,12 +5,12 @@ import GameState.World;
 import java.awt.event.KeyEvent;
 
 public class GameContainer implements Runnable {
-
-    private final double UPDATE_CAP = 1.0 / 60.0;
+    private final int FPS = 60;
+    private final double UPDATE_CAP = 1.0 / FPS;
     private boolean running = false;
     private Thread thread = new Thread(this);
 
-    private int width, height;
+    private int pixelWidth, pixelHeight;
     private float scale = 1;
 
     private Window window;
@@ -20,19 +20,27 @@ public class GameContainer implements Runnable {
 
     public GameContainer(World world) {
         this.world = world;
-        width = World.TS * (world.getTileW());
-        height = World.TS * (world.getTileH());
+        pixelWidth = Renderer.TS * (world.getWidth());
+        pixelHeight = Renderer.TS * (world.getHeight());
     }
 
+
+    /**
+     * Initialise game and run.
+     */
     public void start() {
-        window = new Window(width, height, scale);
+        window = new Window(pixelWidth, pixelHeight, scale);
         renderer = new Renderer(window, world);
+        //add keyboard controls to both player
         c1 = new KeyController(window, world.getKidnapper());
         c2 = new KeyController(window, world.getFather());
         c2.setKeys(KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT);
         thread.run();
     }
 
+    /**
+     * Game Loop
+     */
     public void run() {
         running = true;
 
@@ -49,19 +57,19 @@ public class GameContainer implements Runnable {
 
         while (running) {
             render = false;
-
             firstTime = System.nanoTime() / 1e9d;
             passedTime = firstTime - lastTime;
             lastTime = firstTime;
-
             unprocessedTime += passedTime;
             frameTime += passedTime;
 
+            //in case the game freezes, the while loop tries to catch up by updating faster
             while (unprocessedTime >= UPDATE_CAP) {
 
                 unprocessedTime -= UPDATE_CAP;
                 render = true;
 
+                //update game
                 c1.update(UPDATE_CAP);
                 c2.update(UPDATE_CAP);
 
@@ -73,9 +81,9 @@ public class GameContainer implements Runnable {
             }
 
             if (render) {
-                renderer.clear();
-                renderer.render();
-                window.update();
+                renderer.clear();   //clear window
+                renderer.render();  //render game
+                window.update();    //draw window
                 frames++;
             } else {
                 try {
@@ -88,8 +96,9 @@ public class GameContainer implements Runnable {
     }
 
     public static void main(String[] args) {
-        World world = World.getInstance();
-        GameContainer gc = new GameContainer(world);
+        //World.initWorld(50, 50);
+        GameContainer gc = new GameContainer(World.getInstance());
         gc.start();
     }
+
 }

@@ -1,0 +1,1 @@
+This directory will contain save files of the trained networks, these networks are only local and are not synced through git

@@ -51,7 +51,7 @@ public class PlayConnectFour extends JFrame {
         ConnectFourPlayer random1 = new HumanConnectFourPlayer();
         AIConnectFourPlayer random2 = new AIConnectFourPlayer();
         try {
-            random2.loadNetwork(new File("res/connect-four-98.net"));
+            random2.loadNetwork(new File("res/network/connect-four-98.net"));
         } catch (IOException e) {
             e.printStackTrace();
         }

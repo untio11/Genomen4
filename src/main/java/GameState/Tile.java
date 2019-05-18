@@ -10,6 +10,16 @@ public class Tile {
     private int fScore;
     private Tile parent;
 
+    /**
+     * Constructor for a tile required a type and a height.
+     */
+    Tile(TileType t, int height, int[] coordinates, int heuristic) {
+        this.type = t;
+        this.height = height;
+        this.position = new Position(coordinates[1], coordinates[0]); // row -> y, column -> x
+        this.heuristic = heuristic;
+    }
+
     public boolean isAccessible() {
         return type.isAccessible(type);
     }
@@ -51,21 +61,11 @@ public class Tile {
     }
 
     public Tile getParent() {
-        return  parent;
+        return parent;
     }
 
-    public void setParent(Tile t){
+    public void setParent(Tile t) {
         this.parent = t;
-    }
-
-    /**
-     * Constructor for a tile required a type and a height.
-     */
-    Tile(TileType t, int height, int[] coordinates, int heuristic) {
-        this.type = t;
-        this.height = height;
-        this.position = new Position(coordinates[1], coordinates[0]); // row -> y, column -> x
-        this.heuristic = heuristic;
     }
 
     @Override
