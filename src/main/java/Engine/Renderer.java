@@ -35,13 +35,15 @@ public class Renderer {
         for (int y = 0; y < world.getHeight(); y++) {
             for (int x = 0; x < world.getWidth(); x++) {
                 if (world.getTileType(x, y) == TileType.GRASS) {
-                    drawRect(x * TS, y * TS, TS, TS, 0xff00ff00);
+                    drawRect(x * TS, y * TS, TS, TS, 0xff0ff00f);
                 } else if (world.getTileType(x, y) == TileType.SAND) {
                     drawRect(x * TS, y * TS, TS, TS, 0xffffff00);
                 } else if (world.getTileType(x, y) == TileType.WATER) {
-                    drawRect(x * TS, y * TS, TS, TS, 0xff0000ff);
+                    drawRect(x * TS, y * TS, TS, TS, 0xff0000aa);
                 } else if (world.getTileType(x, y) == TileType.TREE) {
-                    drawRect(x * TS, y * TS, TS, TS, 0xff00f000);
+                    drawRect(x * TS, y * TS, TS, TS, 0xff00bb00);
+                } else {
+                    drawRect(x * TS, y * TS, TS, TS, 0xff0000ff);
                 }
             }
 
