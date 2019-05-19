@@ -96,7 +96,7 @@ public class GameContainer implements Runnable {
     }
 
     public static void main(String[] args) {
-        World.initWorld(50, 50);
+        //World.initWorld(50, 50);
         GameContainer gc = new GameContainer(World.getInstance());
         gc.start();
     }

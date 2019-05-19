@@ -125,5 +125,4 @@ public class World {
     public Actor getKidnapper() { return kidnapper; }
 
     public Camera getCamera() { return this.camera; }
-
 }
