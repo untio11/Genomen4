@@ -1,6 +1,7 @@
 package GameState;
 
 public class Tile {
+
     private Position position;
     private TileType type;
     private float height;

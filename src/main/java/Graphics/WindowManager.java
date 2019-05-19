@@ -1,13 +1,24 @@
 package Graphics;
 
+import GameState.Entities.Actor;
+import GameState.Entities.Camera;
+import GameState.MapGenerator;
+import GameState.TileType;
+import GameState.World;
+import Graphics.Models.RawModel;
+import Graphics.Models.TexturedModel;
 import Graphics.RenderEngine.Loader;
 import Graphics.RenderEngine.MasterRenderer;
+import Graphics.RenderEngine.OBJLoader;
+import Graphics.Terrains.Terrain;
+import Graphics.Textures.ModelTexture;
+import Graphics.Textures.TerrainTexture;
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -23,6 +34,9 @@ public class WindowManager {
 
     private static MasterRenderer renderer;
     private static Loader loader;
+    private static Camera camera;
+    private List<Terrain> terrainList;
+    private static Actor actor;
 
     public WindowManager() {
         width = 600;
@@ -109,6 +123,64 @@ public class WindowManager {
         GL.createCapabilities();
         loader = new Loader();
         renderer = new MasterRenderer();
+        //camera = new Camera();
+
+        //actorList = new ArrayList<>();
+        RawModel model = OBJLoader.loadObjModel("stall", loader);
+        ModelTexture texture = new ModelTexture(loader.loadTexture("stallTexture"));
+        TexturedModel texturedModel = new TexturedModel(model, texture);
+        actor = new Actor(World.getInstance(), texturedModel,1, new Vector3f(0,0,0), new Vector3f(0,0,0), 1, false);
+       // actorList.add(actor);
+
+        initTileMap(loader);
+
+        camera = new Camera(actor);
+    }
+
+    /**
+     * Generates the map, loads the terrainTextures and creates a terrainTile for every tile in the map.
+     * Stores the terrainTiles into a terrainList, which is later processed in the loop
+     * @param loader
+     */
+    private void initTileMap(Loader loader) {
+        // Generate map
+//        MapGenerator mapGenerator = new MapGenerator();
+//        mapGenerator.generate(5, 5);
+//        System.out.println(mapGenerator.toString());
+
+        // load terrain textures and put them in a hashmap
+        HashMap<TileType, TerrainTexture> textureHashMap = new HashMap<>();
+        // create textures
+        TerrainTexture water = new TerrainTexture(loader.loadTexture("water"));
+        TerrainTexture sand = new TerrainTexture(loader.loadTexture("sand"));
+        TerrainTexture grass = new TerrainTexture((loader.loadTexture("grass")));
+        TerrainTexture tree = new TerrainTexture((loader.loadTexture("tree")));
+        // put them in the hashmap
+        textureHashMap.put(TileType.WATER, water);
+        textureHashMap.put(TileType.SAND, sand);
+        textureHashMap.put(TileType.GRASS, grass);
+        textureHashMap.put(TileType.TREE, tree);
+
+        // backup texture
+        TerrainTexture backupTexture = new TerrainTexture((loader.loadTexture("black")));
+
+
+
+        // add every tile from map to a list, which is to be rendered
+        terrainList = new ArrayList<>();
+        TerrainTexture tileTexture;
+        for (TileType tileType:TileType.values()) {
+            for(int r = 0; r< World.getInstance().getWidth(); r++) {
+                for (int c = 0; c < World.getInstance().getHeight(); c++) {
+                    if( tileType == World.getInstance().getTileType(r, c)) {
+                        // get texture form hashmap, if it isn't there, use the backuptexture
+                        tileTexture = textureHashMap.getOrDefault(tileType, backupTexture);
+                        // add to terrainList, which will be processed in loop
+                        terrainList.add(new Terrain(r, c, loader, tileTexture));
+                    }
+                }
+            }
+        }
     }
 
     private void clean() {
@@ -126,9 +198,20 @@ public class WindowManager {
 
     private void loop() {
         while (!glfwWindowShouldClose(window)) {
-            inputhandler.handleInput(pressedKeys);
+            inputhandler.handleInput(camera, pressedKeys);
 
-            renderer.render();
+
+
+
+                //process all terrains make in initTileMap()
+                for (Terrain terrain : terrainList) {
+                    renderer.processTerrain(terrain);
+                }
+
+                renderer.processEntity(actor);
+
+                // render all processed models
+            renderer.render(camera);
 
             glfwSwapBuffers(window); // swap the color buffers
 
