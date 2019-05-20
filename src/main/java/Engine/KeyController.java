@@ -14,6 +14,7 @@ public class KeyController implements KeyListener {
     private int down = KeyEvent.VK_S;
     private int left = KeyEvent.VK_A;
     private int right = KeyEvent.VK_D;
+    private int rKey = KeyEvent.VK_R;
 
     public KeyController(Window window, Player player) {
         window.getCanvas().addKeyListener(this);
@@ -42,6 +43,12 @@ public class KeyController implements KeyListener {
 
         if (keys[down]) {
             player.moveDown(dt);
+        }
+
+        if (keys[rKey]) {
+            if (!player.isKidnapper()) {
+                player.castRays(1);
+            }
         }
     }
 

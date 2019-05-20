@@ -37,6 +37,14 @@ public class World {
         return data[x][y].getType();
     }
 
+    public Tile getTile(int x, int y) {
+        return data[x][y];
+    }
+
+    public Tile[][] getTiles() {
+        return data;
+    }
+
     public int getTileW() {
         return tileW;
     }
