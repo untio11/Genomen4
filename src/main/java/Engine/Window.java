@@ -10,22 +10,24 @@ public class Window {
 
     private JFrame frame;
     private BufferedImage image;
-    private int[] p;
-    private int pW, pH;
+    private int[] pixels;
+    private int pixelWidth, pixelHeight;
     private Canvas canvas;
     private BufferStrategy bs;
     private Graphics g;
 
-    public Window(int width, int height, float scale) {
-        pW = width;
-        pH = height;
-        image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        p = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+    public Window(int pixelWidth, int pixelHeight, float scale) {
+        this.pixelWidth = pixelWidth;
+        this.pixelHeight = pixelHeight;
+        image = new BufferedImage(pixelWidth, pixelHeight, BufferedImage.TYPE_INT_RGB);
+        pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
         canvas = new Canvas();
-        Dimension s = new Dimension((int) (width * scale), (int) (height * scale));
+        Dimension s = new Dimension((int) (pixelWidth * scale), (int) (pixelHeight * scale));
         canvas.setPreferredSize(s);
         canvas.setMaximumSize(s);
         canvas.setMinimumSize(s);
+
+
         frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
@@ -34,6 +36,7 @@ public class Window {
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
         frame.setVisible(true);
+        canvas.requestFocusInWindow();
 
         canvas.createBufferStrategy(2);
         bs = canvas.getBufferStrategy();
@@ -46,18 +49,18 @@ public class Window {
     }
 
     public void setPixel(int x, int y, int value) {
-        if (x < 0 || y < 0 || x >= pW || y >= pH || ((value >> 24) & 0xff) == 0) {
+        if (x < 0 || y < 0 || x >= pixelWidth || y >= pixelHeight || ((value >> 24) & 0xff) == 0) {
             return;
         }
-        p[x + y * pW] = value;
+        pixels[x + y * pixelWidth] = value;
     }
 
-    public int getPW() {
-        return pW;
+    public int getPixelWidth() {
+        return pixelWidth;
     }
 
-    public int getPH() {
-        return pH;
+    public int getPixelHeight() {
+        return pixelHeight;
     }
 
     public Canvas getCanvas() {

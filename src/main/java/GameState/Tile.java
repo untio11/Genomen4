@@ -2,13 +2,23 @@ package GameState;
 
 public class Tile {
 
+    private Position position;
     private TileType type;
     private float height;
-    private int[] coordinates;
     private int heuristic;
     private int gCost;
     private int fScore;
     private Tile parent;
+
+    /**
+     * Constructor for a tile required a type and a height.
+     */
+    Tile(TileType t, int height, int[] coordinates, int heuristic) {
+        this.type = t;
+        this.height = height;
+        this.position = new Position(coordinates[1], coordinates[0]); // row -> y, column -> x
+        this.heuristic = heuristic;
+    }
 
     public boolean isAccessible() {
         return type.isAccessible(type);
@@ -22,20 +32,16 @@ public class Tile {
         return type;
     }
 
-    public int[] getCoordinates() {
-        return coordinates;
-    }
-
     public int getHeuristic() {
         return heuristic;
     }
 
     public int getRow() {
-        return coordinates[0];
+        return position.y;
     }
 
     public int getColumn() {
-        return coordinates[1];
+        return position.x;
     }
 
     public int getgCost() {
@@ -55,21 +61,11 @@ public class Tile {
     }
 
     public Tile getParent() {
-        return  parent;
+        return parent;
     }
 
-    public void setParent(Tile t){
+    public void setParent(Tile t) {
         this.parent = t;
-    }
-
-    /**
-     * Constructor for a tile required a type and a height.
-     */
-    Tile(TileType t, int height, int[] coordinates, int heuristic) {
-        this.type = t;
-        this.height = height;
-        this.coordinates = coordinates;
-        this.heuristic = heuristic;
     }
 
     @Override

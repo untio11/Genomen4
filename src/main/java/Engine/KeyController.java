@@ -1,6 +1,6 @@
 package Engine;
 
-import GameState.Player;
+import GameState.Entities.Actor;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -9,14 +9,14 @@ public class KeyController implements KeyListener {
 
     private final int NUM_KEYS = 256;
     private boolean[] keys = new boolean[NUM_KEYS];
-    private Player player;
+    private Actor player;
     private int up = KeyEvent.VK_W;
     private int down = KeyEvent.VK_S;
     private int left = KeyEvent.VK_A;
     private int right = KeyEvent.VK_D;
     private int rKey = KeyEvent.VK_R;
 
-    public KeyController(Window window, Player player) {
+    public KeyController(Window window, Actor player) {
         window.getCanvas().addKeyListener(this);
         this.player = player;
     }
@@ -53,10 +53,13 @@ public class KeyController implements KeyListener {
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {}
+    public void keyTyped(KeyEvent e) {
+    }
 
     @Override
-    public void keyPressed(KeyEvent e) { keys[e.getKeyCode()] = true; }
+    public void keyPressed(KeyEvent e) {
+        keys[e.getKeyCode()] = true;
+    }
 
     @Override
     public void keyReleased(KeyEvent e) {

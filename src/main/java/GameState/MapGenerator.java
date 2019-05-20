@@ -11,7 +11,6 @@ public class MapGenerator {
     private int startWidthOffset;
 
     public Tile[][] generate(int width, int height) {
-
         worldWidth = width;
         worldHeight = height;
         startWidthOffset = 10;
@@ -224,8 +223,9 @@ public class MapGenerator {
 
     private boolean mapValid() {
         int pathLength = aStarPath();
-        System.out.println("Path found! Length: " + pathLength);
-        return pathLength > worldWidth * 1.1 && calculateAccessibleTerrain() > 0.7;
+        double accessTerrain = calculateAccessibleTerrain();
+        System.out.println("Path found! Length: " + pathLength + " Terrain: " + accessTerrain);
+        return pathLength > worldWidth * 1.1 && accessTerrain > 0.68;
     }
 
     private int aStarPath() {
@@ -247,7 +247,7 @@ public class MapGenerator {
 
                 t.setParent(q);
                 //Check if goal
-                if (Arrays.equals(t.getCoordinates(), new int[] {startRow, worldWidth - startWidthOffset})) {
+                if (t.getRow() == startRow && t.getColumn() == worldWidth - startWidthOffset)  {
                     System.out.println("Path found!");
                     return q.getgCost() + 1;
                 }
@@ -274,8 +274,23 @@ public class MapGenerator {
     }
 
     private double calculateAccessibleTerrain() {
-
-        return 1.0;
+        HashSet<Tile> closedList = new HashSet<>();
+        HashSet<Tile> openList = new HashSet<>();
+        Tile source = map[startRow][startWidthOffset];
+        openList.add(source);
+        while (openList.size() != 0) {
+            HashSet<Tile> tempSet = new HashSet<>();
+            for (Tile t : openList) {
+                closedList.add(t);
+                for (Tile n : getTileNeighbours(t)) {
+                    if (!closedList.contains(n) && n.isAccessible()) {
+                        tempSet.add(n);
+                    }
+                }
+            }
+            openList = tempSet;
+        }
+        return ((double) closedList.size())/((worldWidth - 1)* (worldHeight - 1));
     }
 
     private void fixMap() {

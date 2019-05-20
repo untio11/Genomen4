@@ -34,3 +34,5 @@
 /.teamcity/target
 !/.teamcity/Gradle_Check_dsl.iml
 .DS_Store
+
+/res/network/*.net
