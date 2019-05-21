@@ -127,11 +127,15 @@ public class GameContainer implements Runnable {
 
         while (running) {
             if (world.isPlayerCollision()) {
-                window.close();
+                if (this.renderWindow) {
+                    window.close();
+                }
                 fatherWin = true;
                 break;
             } else if (roundTime < 0) {
-                window.close();
+                if (this.renderWindow) {
+                    window.close();
+                }
                 fatherWin = false;
                 break;
             }
