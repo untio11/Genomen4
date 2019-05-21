@@ -16,8 +16,7 @@ public class KeyController extends Controller implements KeyListener {
     private int left = KeyEvent.VK_A;
     private int right = KeyEvent.VK_D;
 
-    public KeyController(Window window, Actor player) {
-        super(player);
+    public KeyController(Window window) {
         window.getCanvas().addKeyListener(this);
     }
 
