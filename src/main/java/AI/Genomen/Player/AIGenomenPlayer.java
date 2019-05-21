@@ -2,9 +2,7 @@ package AI.Genomen.Player;
 
 import AI.ConnectFour.PlayConnectFour;
 import AI.Trainer.TrainerAIPlayer;
-import GameState.Entities.Actor;
-import GameState.World;
-import Graphics.Models.TexturedModel;
+import Engine.Controller.AIController;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.distribution.UniformDistribution;
@@ -12,7 +10,6 @@ import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.util.ModelSerializer;
-import org.joml.Vector3f;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -20,29 +17,9 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import java.io.File;
 import java.io.IOException;
 
-public class AIGenomenPlayer extends Actor implements TrainerAIPlayer {
+public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
 
     protected MultiLayerNetwork net;
-
-
-    public AIGenomenPlayer() {
-        super(null, null, 0, null, null, 1f, false);
-    }
-
-    /**
-     * Initialize a player with the appropriate properties
-     *
-     * @param world
-     * @param model     The model that the player should have: We probably want to change this to some loose reference
-     * @param size
-     * @param position  The position of the player
-     * @param rotation  The rotation of the model
-     * @param scale     The size of the model (I think)
-     * @param kidnapper
-     */
-    public AIGenomenPlayer(World world, TexturedModel model, float size, Vector3f position, Vector3f rotation, float scale, boolean kidnapper) {
-        super(world, model, size, position, rotation, scale, kidnapper);
-    }
 
     public void init() {
         if (this.net == null) {
