@@ -1,8 +1,12 @@
 package GameState.Entities;
 
+import GameState.Position;
+import GameState.TileType;
 import GameState.World;
 import Graphics.Models.TexturedModel;
 import org.joml.Vector3f;
+
+import java.util.Arrays;
 
 /**
  * For keeping track of the players
@@ -173,69 +177,113 @@ public class Actor extends Entity {
      *            it moves anti-clockwise
      * @return a 2D array giving the result of the rays, in the same order as they are cast. So starting straight to
      * the right and going anti-clockwise. The format of the inner array is [Accessible ? 1 : 0, Max(distance, 3), angle (degrees)]
+     * Also, if the opponent player is in sight, an extra ray will be appended with a first value of 2, together with the distance
+     * and the angle in degrees.
      */
-    public double[][] castRays(int num) {
-        double[][] results = new double [num][3];
+    public double[][] castRays(int num, int maxRayLength) {
+
+        boolean playerInSight = false;
+        double distanceToOpponent;
+        Vector3f opponentPos;
+        if (kidnapper) {
+            opponentPos = world.getFather().getPosition();
+        } else {
+            opponentPos = world.getKidnapper().getPosition();
+        }
+        double xToOpponent = Math.abs(position.x - opponentPos.x);
+        double yToOpponent = Math.abs(position.y - opponentPos.y);
+        distanceToOpponent = Math.sqrt(Math.pow(xToOpponent, 2) + Math.pow(yToOpponent, 2));
+        double angleRads = Math.atan2(position.y - opponentPos.y, opponentPos.x - position.x);
+        int angleDegrees = (int) Math.toDegrees(angleRads);
+
+        if (angleDegrees < 0) {
+            angleDegrees += 360;
+        }
+
+        System.out.println("Angle to Opponent: "+ angleDegrees);
+        double[] rayToOpponent = castRay(angleDegrees, maxRayLength, true);
+
+        playerInSight = distanceToOpponent <= rayToOpponent[1] && distanceToOpponent <= maxRayLength;
+
+        double[][] results = playerInSight ? new double[num + 1][3] : new double [num][3];
+
         for (int a = 0; a < num; ++a) {
             int angle = getRayAngle(num, a);
-            float rayDirX = (float) Math.cos(Math.toRadians(angle));
-            float rayDirY = (float) Math.sin(Math.toRadians(angle));
-            //System.out.println("RayDirX: " + rayDirX + " RayDirY: " + rayDirY);
-            float sideDistX;
-            float sideDistY;
-            float deltaDistX = Math.abs(1 / rayDirX);
-            float deltaDistY = Math.abs(1 / rayDirY);
-            int stepX;
-            int stepY;
-            int mapX = (int) position.x;
-            int mapY = (int) position.y;
-            float posX = position.x;
-            float posY = position.y;
-            //System.out.println("X: " + posX + " Y: " + posY + " mapX: " + mapX + " mapY: " + mapY);
-            int hit = 0;
+            results[a] = castRay(angle, maxRayLength, false);
+        }
 
-            //calculate step and initial sideDist
-            if (rayDirX < 0) {
-                stepX = -1;
-                sideDistX = (posX - mapX) * deltaDistX;
+        if (playerInSight) {
+            rayToOpponent[0] = 2;
+            rayToOpponent[1] = distanceToOpponent;
+            results[results.length - 1] = rayToOpponent;
+            System.out.println("Player in sight! " + Arrays.toString(rayToOpponent));
+        }
+
+        return results;
+    }
+
+    private double[] castRay(int angle, int maxRayLength, boolean ignoreWater) {
+        float rayDirX = (float) Math.cos(Math.toRadians(angle));
+        float rayDirY = (float) Math.sin(Math.toRadians(angle));
+        System.out.println("RayDirX: " + rayDirX + " RayDirY: " + rayDirY + " Angle in Radians: " + Math.toRadians(angle));
+        float sideDistX;
+        float sideDistY;
+        float deltaDistX = Math.abs(1 / rayDirX);
+        float deltaDistY = Math.abs(1 / rayDirY);
+        int stepX;
+        int stepY;
+        int mapX = (int) position.x;
+        int mapY = (int) position.y;
+        float posX = position.x;
+        float posY = position.y;
+        System.out.println("X: " + posX + " Y: " + posY + " mapX: " + mapX + " mapY: " + mapY);
+        int hit = 0;
+
+        //calculate step and initial sideDist
+        if (rayDirX < 0) {
+            stepX = -1;
+            sideDistX = (posX - mapX) * deltaDistX;
+        } else {
+            stepX = 1;
+            sideDistX = (mapX + 1 - posX) * deltaDistX;
+        } if (rayDirY > 0) {
+            stepY = -1;
+            sideDistY = (posY - mapY) * deltaDistY;
+        } else {
+            stepY = 1;
+            sideDistY = (mapY + 1 - posY) * deltaDistY;
+        }
+
+        while (hit == 0) {
+            //jump to next map square, OR in x-direction, OR in y-direction
+            if (sideDistX < sideDistY) {
+                sideDistX += deltaDistX;
+                mapX += stepX;
             } else {
-                stepX = 1;
-                sideDistX = (mapX + 1 - posX) * deltaDistX;
-            } if (rayDirY < 0) {
-                stepY = -1;
-                sideDistY = (posY - mapY) * deltaDistY;
-            } else {
-                stepY = 1;
-                sideDistY = (mapY + 1 - posY) * deltaDistY;
+                sideDistY += deltaDistY;
+                mapY += stepY;
             }
-
-            while (hit == 0) {
-                //jump to next map square, OR in x-direction, OR in y-direction
-                if (sideDistX < sideDistY) {
-                    sideDistX += deltaDistX;
-                    mapX += stepX;
+            //Check if ray has hit a wall
+            if ((!ignoreWater && !world.getTile(mapX, mapY).isAccessible()) || (world.getTile(mapX, mapY).getType() == TileType.TREE) || isWorldEdge(mapX, mapY)) {
+                hit = 1;
+                //double distance = Math.sqrt((Float.isInfinite(sideDistX) || sideDistX > 20 ? 0 : Math.pow(sideDistX - deltaDistX, 2))
+                //        + (Float.isInfinite(sideDistY) || sideDistY > 20 ? 0 : Math.pow(sideDistY - deltaDistY, 2)));
+                double distance = Math.sqrt(Math.pow(Math.abs(position.x - (mapX + 0.5)), 2) + Math.pow(Math.abs(position.y - (mapY + 0.5)), 2));
+                System.out.println("Hit: " + world.getTileType(mapX, mapY).toString()
+                        + " Distance: " + distance + " mapX: " + mapX + " mapY: " + mapY + " sideDistX: " + sideDistX + "sideDistY: " + sideDistY);
+                if (distance <= maxRayLength) {
+                    return new double[] {0, distance, (double) angle};
                 } else {
-                    sideDistY += deltaDistY;
-                    mapY += stepY;
+                    return new double[] {1, 3, (double) angle};
                 }
-                //Check if ray has hit a wall
-                if (!world.getTile(mapX, mapY).isAccessible()) {
-                    hit = 1;
-                    double distance = Math.sqrt((Float.isInfinite(sideDistX) || sideDistX > 100 ? 0 : Math.pow(sideDistX - deltaDistX, 2))
-                            + (Float.isInfinite(sideDistY) || sideDistY > 100 ? 0 : Math.pow(sideDistY - deltaDistY, 2)));
-                    if (distance <= 3) {
-                        results[a] = new double[] {0, distance, (double) angle};
-                    } else {
-                        results[a] = new double[] {1, 3, (double) angle};
-                    }
-                    //System.out.println("Hit: " + world.getTileType(mapX, mapY).toString()
-                    //+ " Distance: " + Math.sqrt((Float.isInfinite(sideDistX) || sideDistX > 100 ? 0 :
-                    // Math.pow(sideDistX - deltaDistX, 2)) + (Float.isInfinite(sideDistY) || sideDistY > 100 ? 0 :
-                    // Math.pow(sideDistY - deltaDistY, 2))) + " mapX: " + mapX + " mapY: " + mapY);
-                }
+
             }
         }
-        return results;
+        return null; //Will never reach this, since eventually it will always hit an inaccessible tile (island)
+    }
+
+    private boolean isWorldEdge(int x, int y) {
+        return x == 0 || y == 0 || x == world.getWidth() - 1 || y == world.getHeight() - 1;
     }
 
     private int getRayAngle(int total, int x) {
