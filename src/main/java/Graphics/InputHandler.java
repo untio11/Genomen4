@@ -1,5 +1,6 @@
 package Graphics;
 
+import Engine.Controller.Controller;
 import GameState.Entities.Actor;
 import GameState.Entities.Camera;
 
@@ -33,5 +34,6 @@ public class InputHandler {
             }
         }
     }
+
 
 }
