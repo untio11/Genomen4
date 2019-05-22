@@ -16,6 +16,9 @@ public class Actor extends Entity {
     private boolean kidnapper;
     private World world;
 
+    // Turnspeed has to be a divisor of 90
+    private float turnSpeed = 30f;
+
     /**
      * Initialize a actor with the appropriate properties
      *
@@ -34,6 +37,15 @@ public class Actor extends Entity {
         this.kidnapper = kidnapper;
         this.speed = kidnapper ? 3 : 4; //different speed for the two players
         this.world = world;
+    }
+
+    public  void resetDegrees() {
+        // Reset the degrees after rotating a full circle
+        if(rotation.y >= 360f) {
+            rotation.z -= 360f;
+        } else if(rotation.z < 0f) {
+            rotation.z += 360f;
+        }
     }
 
     /**
@@ -55,7 +67,16 @@ public class Actor extends Entity {
             }
         }
         position.y -= distance;
-        //todo: add rotation
+
+        // If not facing upwards
+        if (rotation.z != 0f) {
+            if (rotation.z > 0f && rotation.z < 180f) { // When facing left
+                rotation.z -= turnSpeed; // Turn clockwise
+            } else if (rotation.z >= 180f && rotation.z < 360f) { // When facing right
+                rotation.z += turnSpeed; // Turn counter-clockwise
+            }
+        }
+        resetDegrees();
     }
 
     /**
@@ -77,7 +98,16 @@ public class Actor extends Entity {
             }
         }
         position.y += distance;
-        //todo: add rotation
+
+        // If not facing downwards
+        if (rotation.z != 180f) {
+            if (rotation.z > 180 && rotation.z < 360) { // When facing right
+                rotation.z -= turnSpeed; // Turn clockwise
+            } else if (rotation.z >= 0 && rotation.z < 180) { // When facing left
+                rotation.z += turnSpeed; // Turn counter-clockwise
+            }
+        }
+        resetDegrees();
     }
 
     /**
@@ -99,7 +129,16 @@ public class Actor extends Entity {
             }
         }
         position.x -= distance;
-        //todo: add rotation
+
+        // If not facing left
+        if (rotation.z != 90f) {
+            if (rotation.z > 90 && rotation.z <= 270) { // When facing down
+                rotation.z -= turnSpeed; // Turn clockwise
+            } else if ((rotation.z > 270 && rotation.z < 360) || (rotation.z >= 0 && rotation.z < 90)) { // When facing up
+                rotation.z += turnSpeed; // Turn counter-clockwise
+            }
+        }
+        resetDegrees();
     }
 
     /**
@@ -121,7 +160,16 @@ public class Actor extends Entity {
             }
         }
         position.x += distance;
-        //todo: add rotation
+
+        // If not facing right
+        if (rotation.z != 270) {
+            if ((rotation.z > 270 && rotation.z < 360) || (rotation.z >= 0 && rotation.z <= 90)) { // When facing up
+                rotation.z -= turnSpeed; // Turn clockwise
+            } else if (rotation.z > 90 && rotation.z < 270) { // When facing down
+                rotation.z += turnSpeed; // Turn counter-clockwise
+            }
+        }
+        resetDegrees();
     }
 
     public float getSize() { return this.size; }
