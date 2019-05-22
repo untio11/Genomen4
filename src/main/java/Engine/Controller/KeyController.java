@@ -1,24 +1,24 @@
-package Engine;
+package Engine.Controller;
 
+import Engine.Window;
 import GameState.Entities.Actor;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-public class KeyController implements KeyListener {
+public class KeyController extends Controller implements KeyListener {
 
     private final int NUM_KEYS = 256;
     private boolean[] keys = new boolean[NUM_KEYS];
-    private Actor player;
+
     private int up = KeyEvent.VK_W;
     private int down = KeyEvent.VK_S;
     private int left = KeyEvent.VK_A;
     private int right = KeyEvent.VK_D;
     private int rKey = KeyEvent.VK_R;
 
-    public KeyController(Window window, Actor player) {
+    public KeyController(Window window) {
         window.getCanvas().addKeyListener(this);
-        this.player = player;
     }
 
     public void setKeys(int up, int down, int left, int right) {
@@ -28,6 +28,7 @@ public class KeyController implements KeyListener {
         this.right = right;
     }
 
+    @Override
     public void update(double dt) {
         if (keys[right]) {
             player.moveRight(dt);

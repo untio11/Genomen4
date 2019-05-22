@@ -21,13 +21,10 @@ public class Renderer {
         renderTiles();
         renderPlayer(world.getFather());
         renderPlayer(world.getKidnapper());
-        if (world.isPlayerCollision()) {
-            System.out.println("Collision");
-        }
     }
 
     public void renderPlayer(Actor player) {
-        int color = player.isKidnapper() ? 0xff000000 : 0xff000000;
+        int color = player.isKidnapper() ? 0xffff00ff : 0xff000000;
         drawRect((int) ((player.getPosition().x - player.getSize() / 2) * TS), (int) ((player.getPosition().y - player.getSize() / 2) * TS), (int) (player.getSize() * TS), (int) (player.getSize() * TS), color);
     }
 

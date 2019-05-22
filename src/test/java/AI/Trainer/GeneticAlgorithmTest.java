@@ -1,16 +1,10 @@
 package AI.Trainer;
 
-import AI.ConnectFour.ConnectFourTrainer;
 import AI.ConnectFour.PlayConnectFour;
-import AI.ConnectFour.Player.AIConnectFourPlayer;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-
-import java.util.LinkedHashMap;
-import java.util.List;
 
 public class GeneticAlgorithmTest {
 
@@ -19,61 +13,6 @@ public class GeneticAlgorithmTest {
     @BeforeClass
     public static void createGame() {
         game = new PlayConnectFour(true);
-    }
-
-    @Test
-    public void performPlayerEvolution() {
-        LinkedHashMap<AIConnectFourPlayer, Integer> sortedPlayers = new LinkedHashMap<>();
-        AIConnectFourPlayer p1 = new AIConnectFourPlayer();
-        AIConnectFourPlayer p2 = new AIConnectFourPlayer();
-        p1.setGame(game);
-        p2.setGame(game);
-        p1.setPlayerId(1);
-        p2.setPlayerId(2);
-        p1.init();
-        p2.init();
-
-        sortedPlayers.put(p1, 1);
-        sortedPlayers.put(p2, 1);
-
-        GeneticAlgorithm<AIConnectFourPlayer> geneticAlgorithm = new GeneticAlgorithm<>(new ConnectFourTrainer(2, 1));
-
-        List<AIConnectFourPlayer> newPlayers = geneticAlgorithm.performPlayerEvolution(sortedPlayers);
-    }
-
-    @Test
-    public void accumulatePlayerScores() {
-        LinkedHashMap<AIConnectFourPlayer, Integer> sortedPlayers = new LinkedHashMap<>();
-        LinkedHashMap<AIConnectFourPlayer, Integer> expectedAccumulatedPlayers = new LinkedHashMap<>();
-
-        AIConnectFourPlayer p1 = new AIConnectFourPlayer();
-        AIConnectFourPlayer p2 = new AIConnectFourPlayer();
-        AIConnectFourPlayer p3 = new AIConnectFourPlayer();
-        AIConnectFourPlayer p4 = new AIConnectFourPlayer();
-        AIConnectFourPlayer p5 = new AIConnectFourPlayer();
-
-        sortedPlayers.put(p1, 5);
-        sortedPlayers.put(p2, 5);
-        sortedPlayers.put(p3, 2);
-        sortedPlayers.put(p4, 1);
-        sortedPlayers.put(p5, 0);
-
-        expectedAccumulatedPlayers.put(p5, 0);
-        expectedAccumulatedPlayers.put(p4, 1);
-        expectedAccumulatedPlayers.put(p3, 3);
-        expectedAccumulatedPlayers.put(p2, 8);
-        expectedAccumulatedPlayers.put(p1, 13);
-
-        GeneticAlgorithm<AIConnectFourPlayer> geneticAlgorithm = new GeneticAlgorithm<>(new ConnectFourTrainer(2, 1));
-
-        LinkedHashMap<AIConnectFourPlayer, Integer> accumulatedPlayers = geneticAlgorithm.accumulatePlayerScores(sortedPlayers);
-
-        Assert.assertEquals(expectedAccumulatedPlayers.size(), accumulatedPlayers.size());
-
-        for (AIConnectFourPlayer s : accumulatedPlayers.keySet()) {
-            Assert.assertEquals(expectedAccumulatedPlayers.get(s), accumulatedPlayers.get(s));
-        }
-
     }
 
     @Test
