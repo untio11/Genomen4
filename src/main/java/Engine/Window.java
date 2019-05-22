@@ -35,7 +35,7 @@ public class Window {
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
-        frame.setVisible(true);
+        frame.setVisible(false);
         canvas.requestFocusInWindow();
 
         canvas.createBufferStrategy(2);
@@ -53,6 +53,14 @@ public class Window {
             return;
         }
         pixels[x + y * pixelWidth] = value;
+    }
+
+    public void display() {
+        frame.setVisible(true);
+    }
+
+    public void close() {
+        frame.dispose();
     }
 
     public int getPixelWidth() {
