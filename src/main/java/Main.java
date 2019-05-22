@@ -30,7 +30,8 @@ import Graphics.WindowManager;
 public class Main {
     public static void main(String[] args) {
         World.initWorld(60, 60);
-        new WindowManager().run();
+        WindowManager wm = new WindowManager();
+        wm.run();
     }
 }
 

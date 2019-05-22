@@ -1,5 +1,6 @@
 package GameState.Entities;
 
+import GameState.Position;
 import GameState.World;
 import Graphics.Models.TexturedModel;
 import org.joml.Vector3f;
@@ -40,7 +41,7 @@ public class Actor extends Entity {
      * @param dt time elapsed
      */
     public void moveUp(double dt) {
-        int tileY = (int) (position.y - size / 2);                  //the tile where the upper side of the actor is
+        int tileY = (int) (position.z - size / 2);                  //the tile where the upper side of the actor is
         float offY = (position.y - size / 2) - tileY;               //the y offset in that tile
         int tileXLeft = (int) (position.x - size / 2);              //the tile where the left side of the actor is in
         int tileXRight = (int) (position.x + size / 2 - 0.0001);    //the tile where the right side of the actor is in
@@ -49,11 +50,11 @@ public class Actor extends Entity {
                 || world.getCollision(tileXRight, tileY - 1)
                 || world.getCollision(tileXLeft, tileY - 1)) {
             if (distance > offY) {  //in case that the travelled distance would lead into an obstacle
-                position.y -= offY;
+                position.z -= offY;
                 return;
             }
         }
-        position.y -= distance;
+        position.z -= distance;
         //todo: add rotation
     }
 
@@ -75,7 +76,7 @@ public class Actor extends Entity {
                 return;
             }
         }
-        position.y += distance;
+        position.z += distance;
         //todo: add rotation
     }
 
@@ -165,5 +166,9 @@ public class Actor extends Entity {
 
     public void setScale(float scale) {
         this.scale = scale;
+    }
+
+    public Vector3f get3DPosition() {
+        return new Vector3f(position.x, position.z, position.y);
     }
 }

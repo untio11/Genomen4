@@ -2,7 +2,6 @@ package Graphics;
 
 import GameState.Entities.Actor;
 import GameState.Entities.Camera;
-import GameState.MapGenerator;
 import GameState.TileType;
 import GameState.World;
 import Graphics.Models.RawModel;
@@ -30,18 +29,19 @@ public class WindowManager {
     private final int height;
 
     private Set<Integer> pressedKeys; // To collect all pressed keys for processing
-    private Inputhandler inputhandler;
+    private InputHandler inputhandler;
 
     private static MasterRenderer renderer;
     private static Loader loader;
     private static Camera camera;
     private List<Terrain> terrainList;
-    private static Actor actor;
+    private static Actor stall, player;
+
 
     public WindowManager() {
         width = 600;
         height = 600;
-        inputhandler = new Inputhandler();
+        inputhandler = new InputHandler(World.getInstance().getFather());
         pressedKeys = new HashSet<>();
     }
 
@@ -126,15 +126,21 @@ public class WindowManager {
         //camera = new Camera();
 
         //actorList = new ArrayList<>();
-        RawModel model = OBJLoader.loadObjModel("stall", loader);
-        ModelTexture texture = new ModelTexture(loader.loadTexture("stallTexture"));
-        TexturedModel texturedModel = new TexturedModel(model, texture);
-        actor = new Actor(World.getInstance(), texturedModel,1, new Vector3f(0,0,0), new Vector3f(0,0,0), 1, false);
-       // actorList.add(actor);
+        RawModel stallModel = OBJLoader.loadObjModel("stall", loader);
+        ModelTexture stallTexture = new ModelTexture(loader.loadTexture("stallTexture"));
+        TexturedModel texturedStall = new TexturedModel(stallModel, stallTexture);
+        stall = new Actor(World.getInstance(), texturedStall,1, new Vector3f(0,0,0), new Vector3f(0,0,0), 1, false);
+
+        RawModel playerModel = OBJLoader.loadObjModel("player", loader);
+        ModelTexture playerTexture = new ModelTexture(loader.loadTexture("playerTexture"));
+        TexturedModel texturedPlayer = new TexturedModel(playerModel, playerTexture);
+        // player = new Actor(World.getInstance(), texturedPlayer,1, new Vector3f(0,0,0), new Vector3f(0,0,0), 1, false);
+        World.getInstance().getFather().setModel(texturedPlayer);
+        // actorList.add(actor);
 
         initTileMap(loader);
 
-        camera = new Camera(actor);
+        camera = new Camera(World.getInstance().getFather());
     }
 
     /**
@@ -198,8 +204,8 @@ public class WindowManager {
 
     private void loop() {
         while (!glfwWindowShouldClose(window)) {
-            inputhandler.handleInput(camera, pressedKeys);
-
+            inputhandler.update(1/60f, pressedKeys);
+            camera.updatePosition();
 
 
 
@@ -208,8 +214,8 @@ public class WindowManager {
                     renderer.processTerrain(terrain);
                 }
 
-                renderer.processEntity(actor);
-
+                renderer.processEntity(stall);
+                renderer.processEntity(World.getInstance().getFather());
                 // render all processed models
             renderer.render(camera);
 
