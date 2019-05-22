@@ -11,6 +11,8 @@ import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
@@ -19,12 +21,86 @@ import java.io.IOException;
 
 public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
 
+    // The number of frames between every update of the ai player
+    public static final int UPDATE_FREQUENCY = 30;
+
+    // The number of inputs of the neural network
+    public static final int INPUT_COUNT = 8;
+
+    // The current number of frames elapsed since the last update
+    protected int frame = 0;
+
     protected MultiLayerNetwork net;
 
     public void init() {
         if (this.net == null) {
             this.createNetwork();
         }
+    }
+
+    @Override
+    public void update(double dt) {
+        // First check if the AI should update the movement axes
+        if (frame > UPDATE_FREQUENCY) {
+            // If so, update these
+            this.movePlayer();
+            frame = 0;
+        }
+
+        // Next, update the AI controller
+        super.update(dt);
+
+        // Increase the frame counter
+        frame++;
+    }
+
+    protected void movePlayer() {
+        double[][] input = this.getInput(INPUT_COUNT);
+        // Process the input so the neural network can accept it
+        INDArray indArray = this.inputToINDArray(input);
+
+        // Evaluate the network with the processed input
+        INDArray output = this.evaluateNetwork(indArray);
+
+        System.out.println(output);
+
+        // Process the output so that it can be used for moving the player
+        double xAxis = 0;
+        double yAxis = 0;
+
+        // Set the movement axes of the player depending on the output
+        this.setAxis(xAxis, yAxis);
+    }
+
+    private INDArray inputToINDArray(double[][] input) {
+        // Process the input array from a 2D double array to 1D double array and normalize values if necessary
+        double[] processedInput = this.processInput(input);
+        // Convert the processed inputs to an INDArray
+        INDArray indArray = Nd4j.create(processedInput, new int[]{1, processedInput.length});
+        return indArray;
+    }
+
+    private double[] processInput(double[][] input) {
+        double[] processed = new double[INPUT_COUNT * 2];
+        for (int i = 0; i < input.length; i++) {
+            // Normalize the values and store them in the 1D array
+            processed[i*2] = this.normalizeAccessible(input[i][0]);
+            processed[i*2+1] = this.normalizeDistance(input[i][1]);
+        }
+        return processed;
+    }
+
+    private double normalizeAccessible(double input) {
+        return input;
+    }
+
+    private double normalizeDistance(double input) {
+        return input;
+    }
+
+    private INDArray evaluateNetwork(INDArray indArray) {
+        // Evaluate the neural network with set input and return the output
+        return net.output(indArray);
     }
 
     protected void createNetwork() {
