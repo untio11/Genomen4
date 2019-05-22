@@ -167,12 +167,20 @@ public class Actor extends Entity {
         this.scale = scale;
     }
 
-    public void castRays(int num) {
+    /**
+     *
+     * @param num the total number of rays to cast. It works like a radiant circle. So first ray is to the right, and
+     *            it moves anti-clockwise
+     * @return a 2D array giving the result of the rays, in the same order as they are cast. So starting straight to
+     * the right and going anti-clockwise. The format of the inner array is [Accessible ? 1 : 0, Max(distance, 3), angle (degrees)]
+     */
+    public double[][] castRays(int num) {
+        double[][] results = new double [num][3];
         for (int a = 0; a < num; ++a) {
             int angle = getRayAngle(num, a);
             float rayDirX = (float) Math.cos(Math.toRadians(angle));
             float rayDirY = (float) Math.sin(Math.toRadians(angle));
-            System.out.println("RayDirX: " + rayDirX + " RayDirY: " + rayDirY);
+            //System.out.println("RayDirX: " + rayDirX + " RayDirY: " + rayDirY);
             float sideDistX;
             float sideDistY;
             float deltaDistX = Math.abs(1 / rayDirX);
@@ -183,7 +191,7 @@ public class Actor extends Entity {
             int mapY = (int) position.y;
             float posX = position.x;
             float posY = position.y;
-            System.out.println("X: " + posX + " Y: " + posY + " mapX: " + mapX + " mapY: " + mapY);
+            //System.out.println("X: " + posX + " Y: " + posY + " mapX: " + mapX + " mapY: " + mapY);
             int hit = 0;
 
             //calculate step and initial sideDist
@@ -201,7 +209,6 @@ public class Actor extends Entity {
                 sideDistY = (mapY + 1 - posY) * deltaDistY;
             }
 
-            float distance = 0;
             while (hit == 0) {
                 //jump to next map square, OR in x-direction, OR in y-direction
                 if (sideDistX < sideDistY) {
@@ -214,11 +221,21 @@ public class Actor extends Entity {
                 //Check if ray has hit a wall
                 if (!world.getTile(mapX, mapY).isAccessible()) {
                     hit = 1;
-                    System.out.println("Hit: " + world.getTileType(mapX, mapY).toString()
-                            + " Distance: " + Math.sqrt((Float.isInfinite(sideDistX) ? 0 : Math.pow(sideDistX - deltaDistX, 2)) + (Float.isInfinite(sideDistY) ? 0 : Math.pow(sideDistY - deltaDistY, 2))) + " mapX: " + mapX + " mapY: " + mapY);
+                    double distance = Math.sqrt((Float.isInfinite(sideDistX) || sideDistX > 100 ? 0 : Math.pow(sideDistX - deltaDistX, 2))
+                            + (Float.isInfinite(sideDistY) || sideDistY > 100 ? 0 : Math.pow(sideDistY - deltaDistY, 2)));
+                    if (distance <= 3) {
+                        results[a] = new double[] {0, distance, (double) angle};
+                    } else {
+                        results[a] = new double[] {1, 3, (double) angle};
+                    }
+                    //System.out.println("Hit: " + world.getTileType(mapX, mapY).toString()
+                    //+ " Distance: " + Math.sqrt((Float.isInfinite(sideDistX) || sideDistX > 100 ? 0 :
+                    // Math.pow(sideDistX - deltaDistX, 2)) + (Float.isInfinite(sideDistY) || sideDistY > 100 ? 0 :
+                    // Math.pow(sideDistY - deltaDistY, 2))) + " mapX: " + mapX + " mapY: " + mapY);
                 }
             }
         }
+        return results;
     }
 
     private int getRayAngle(int total, int x) {

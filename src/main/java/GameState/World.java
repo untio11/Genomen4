@@ -76,12 +76,13 @@ public class World {
      * Spawn an actor on a random tile.
      */
     private Actor spawnActor(boolean kidnapper) {
-        //todo: place the actors in specific positions instead random, because it sometimes messes up the map generation due to the random player distance
-        //find an accessible tile for the player spawn
-        Position spawn = getRandomTile();
-        while (getCollision(spawn.x, spawn.y)) {
-            spawn = getRandomTile();
+        Position spawn = new Position(0, 0);
+        if (kidnapper) {
+            spawn.x = width - 5;
+        } else {
+            spawn.x = 5;
         }
+        spawn.y = height / 2;
 
         return new Actor(
                 this,
