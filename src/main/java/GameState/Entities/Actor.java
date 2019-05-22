@@ -42,9 +42,9 @@ public class Actor extends Entity {
     public  void resetDegrees() {
         // Reset the degrees after rotating a full circle
         if(rotation.y >= 360f) {
-            rotation.z -= 360f;
-        } else if(rotation.z < 0f) {
-            rotation.z += 360f;
+            rotation.y -= 360f;
+        } else if(rotation.y < 0f) {
+            rotation.y += 360f;
         }
     }
 
@@ -69,11 +69,11 @@ public class Actor extends Entity {
         position.y -= distance;
 
         // If not facing upwards
-        if (rotation.z != 0f) {
-            if (rotation.z > 0f && rotation.z < 180f) { // When facing left
-                rotation.z -= turnSpeed; // Turn clockwise
-            } else if (rotation.z >= 180f && rotation.z < 360f) { // When facing right
-                rotation.z += turnSpeed; // Turn counter-clockwise
+        if (rotation.y != 0f) {
+            if (rotation.y > 0f && rotation.y < 180f) { // When facing left
+                rotation.y -= turnSpeed; // Turn clockwise
+            } else if (rotation.y >= 180f && rotation.y < 360f) { // When facing right
+                rotation.y += turnSpeed; // Turn counter-clockwise
             }
         }
         resetDegrees();
@@ -100,11 +100,11 @@ public class Actor extends Entity {
         position.y += distance;
 
         // If not facing downwards
-        if (rotation.z != 180f) {
-            if (rotation.z > 180 && rotation.z < 360) { // When facing right
-                rotation.z -= turnSpeed; // Turn clockwise
-            } else if (rotation.z >= 0 && rotation.z < 180) { // When facing left
-                rotation.z += turnSpeed; // Turn counter-clockwise
+        if (rotation.y != 180f) {
+            if (rotation.y > 180 && rotation.y < 360) { // When facing right
+                rotation.y -= turnSpeed; // Turn clockwise
+            } else if (rotation.y >= 0 && rotation.y < 180) { // When facing left
+                rotation.y += turnSpeed; // Turn counter-clockwise
             }
         }
         resetDegrees();
@@ -131,11 +131,11 @@ public class Actor extends Entity {
         position.x -= distance;
 
         // If not facing left
-        if (rotation.z != 90f) {
-            if (rotation.z > 90 && rotation.z <= 270) { // When facing down
-                rotation.z -= turnSpeed; // Turn clockwise
-            } else if ((rotation.z > 270 && rotation.z < 360) || (rotation.z >= 0 && rotation.z < 90)) { // When facing up
-                rotation.z += turnSpeed; // Turn counter-clockwise
+        if (rotation.y != 90f) {
+            if (rotation.y > 90 && rotation.y <= 270) { // When facing down
+                rotation.y -= turnSpeed; // Turn clockwise
+            } else if ((rotation.y > 270 && rotation.y < 360) || (rotation.y >= 0 && rotation.y < 90)) { // When facing up
+                rotation.y += turnSpeed; // Turn counter-clockwise
             }
         }
         resetDegrees();
@@ -162,11 +162,11 @@ public class Actor extends Entity {
         position.x += distance;
 
         // If not facing right
-        if (rotation.z != 270) {
-            if ((rotation.z > 270 && rotation.z < 360) || (rotation.z >= 0 && rotation.z <= 90)) { // When facing up
-                rotation.z -= turnSpeed; // Turn clockwise
-            } else if (rotation.z > 90 && rotation.z < 270) { // When facing down
-                rotation.z += turnSpeed; // Turn counter-clockwise
+        if (rotation.y != 270) {
+            if ((rotation.y > 270 && rotation.y < 360) || (rotation.y >= 0 && rotation.y <= 90)) { // When facing up
+                rotation.y -= turnSpeed; // Turn clockwise
+            } else if (rotation.y > 90 && rotation.y < 270) { // When facing down
+                rotation.y += turnSpeed; // Turn counter-clockwise
             }
         }
         resetDegrees();
