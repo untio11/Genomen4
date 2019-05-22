@@ -7,10 +7,6 @@ public class AIController extends Controller {
     private double yAxis = 0;
     private double xAxis = 0;
 
-    public AIController(Actor player) {
-        super(player);
-    }
-
     @Override
     public void update(double dt) {
         if (yAxis > 0) {

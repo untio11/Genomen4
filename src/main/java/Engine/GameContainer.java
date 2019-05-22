@@ -8,6 +8,9 @@ import GameState.World;
 import java.awt.event.KeyEvent;
 
 public class GameContainer implements Runnable {
+
+    private static final double ROUND_TIME = 30;
+
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
     private boolean running = false;
@@ -15,7 +18,7 @@ public class GameContainer implements Runnable {
     private float speed;
     private boolean renderWindow;
     private boolean humanPlayer = false;
-    private double roundTime = 60;
+    private double roundTime = ROUND_TIME;
     private boolean fatherWin;
 
     private int pixelWidth, pixelHeight;
@@ -62,7 +65,8 @@ public class GameContainer implements Runnable {
      */
     public void setKidnapperPlayer() {
         if (window != null) {
-            KeyController c = new KeyController(window, world.getKidnapper());
+            KeyController c = new KeyController(window);
+            c.setPlayer(world.getKidnapper());
             changeKey2P(c);
             kidnapperController = c;
         } else {
@@ -75,7 +79,8 @@ public class GameContainer implements Runnable {
      */
     public void setFatherPlayer() {
         if (window != null) {
-            KeyController c = new KeyController(window, world.getFather());
+            KeyController c = new KeyController(window);
+            c.setPlayer(world.getFather());
             changeKey2P(c);
             fatherController = c;
         } else {
@@ -106,6 +111,22 @@ public class GameContainer implements Runnable {
      */
     public void setKidnapperAI(Controller c) {
         kidnapperController = c;
+    }
+
+    /**
+     * Retrieve the father controller
+     * @return The father controller
+     */
+    public Controller getFatherController() {
+        return this.fatherController;
+    }
+
+    /**
+     * Retrieve the kidnapper controller
+     * @return The kidnapper controller
+     */
+    public Controller getKidnapperController() {
+        return this.kidnapperController;
     }
 
     /**
@@ -191,13 +212,23 @@ public class GameContainer implements Runnable {
         return fatherWin;
     }
 
+    public double getRoundTime() {
+        return ROUND_TIME;
+    }
+
     public static void main(String[] args) {
         World.initWorld(100, 100);
         GameContainer gc = new GameContainer(World.getInstance(), 4, true);
         gc.setFatherPlayer();
         //gc.setKidnapperPlayer();
-        //gc.setFatherAI(new AIController(World.getInstance().getFather()));
-        gc.setKidnapperAI(new AIController(World.getInstance().getKidnapper()));
+
+        //Controller fatherController = new AIController();
+        //fatherController.setPlayer(World.getInstance().getFather());
+        //gc.setKidnapperAI(fatherController);
+
+        Controller kidnapperController = new AIController();
+        kidnapperController.setPlayer(World.getInstance().getKidnapper());
+        gc.setKidnapperAI(kidnapperController);
         gc.start();
         System.out.println(gc.isFatherWin() + " " + gc.getRemainingTime());
     }

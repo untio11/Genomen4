@@ -6,7 +6,7 @@ public abstract class Controller {
 
     protected Actor player;
 
-    public Controller(Actor player) {
+    public void setPlayer(Actor player) {
         this.player = player;
     }
 
