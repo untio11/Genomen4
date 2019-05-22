@@ -13,7 +13,7 @@ public class MapGenerator {
     public Tile[][] generate(int width, int height) {
         worldWidth = width;
         worldHeight = height;
-        startWidthOffset = 10;
+        startWidthOffset = 5;
         startRow = (int) Math.floor(height/2);
 
         map = new Tile[width][height];
@@ -60,6 +60,7 @@ public class MapGenerator {
 
         if (mapValid()) {
             fixMap();
+            System.out.println(this.toString());
             return map;
         } else {
             return generate(width, height);
@@ -199,7 +200,7 @@ public class MapGenerator {
         chanceMap.put(1, new double[] {0.0, 0.15, 0.0, 0.85});
         chanceMap.put(10, new double[] {0.05, 0.05, 0.90, 0.0});
         chanceMap.put(11, new double[] {0.0, 1, 0.0, 0.0});
-        chanceMap.put(100, new double[] {0.05, 0.45, 0.05, 0.45});
+        chanceMap.put(100, new double[] {0.35, 0.30, 0.20, 0.15});
         chanceMap.put(101, new double[] {0.0, 0.50, 0.0, 0.50});
         chanceMap.put(110, new double[] {0.05, 0.85, 0.05, 0.0});
         chanceMap.put(111, new double[] {0.0, 1, 0.0, 0.0});
@@ -215,16 +216,25 @@ public class MapGenerator {
         int keyToLookFor = (Arrays.asList(connectedTypes).contains(TileType.GRASS) ? 1000 : 0) +
                 (Arrays.asList(connectedTypes).contains(TileType.SAND) ? 100 : 0) +
                 (Arrays.asList(connectedTypes).contains(TileType.TREE) ? 10 : 0) +
-                (Arrays.asList(connectedTypes).contains(TileType.WATER) ? 1 : 0);
+                (Arrays.asList(connectedTypes).contains(TileType.WATER)|| containsShore(connectedTypes) ? 1 : 0);
 
         return chanceMap.get(keyToLookFor);
+    }
+
+    private boolean containsShore(TileType[] connectedTypes) {
+        for (TileType t : connectedTypes) {
+            if (t.toString().contains("SHORE")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean mapValid() {
         int pathLength = aStarPath();
         double accessTerrain = calculateAccessibleTerrain();
         System.out.println("Path found! Length: " + pathLength + " Terrain: " + accessTerrain);
-        return pathLength > worldWidth * 1.1 && accessTerrain > 0.68;
+        return pathLength > worldWidth * 1.1 && accessTerrain > 0.74;
     }
 
     private int aStarPath() {
@@ -296,21 +306,21 @@ public class MapGenerator {
         //create the bayesian network
         Map<Integer, TileType> shoreMap = new HashMap<>();
         shoreMap.put(0, TileType.WATER);
-        shoreMap.put(1, TileType.SHORE_D);
-        shoreMap.put(10, TileType.SHORE_T);
-        shoreMap.put(11, TileType.SHORE_TD);
-        shoreMap.put(100, TileType.SHORE_R);
-        shoreMap.put(101, TileType.SHORE_RD);
-        shoreMap.put(110, TileType.SHORE_RT);
-        shoreMap.put(111, TileType.SHORE_RTD);
-        shoreMap.put(1000, TileType.SHORE_L);
-        shoreMap.put(1001, TileType.SHORE_LD);
-        shoreMap.put(1010, TileType.SHORE_LT);
-        shoreMap.put(1011, TileType.SHORE_LTD);
-        shoreMap.put(1100, TileType.SHORE_LR);
-        shoreMap.put(1101, TileType.SHORE_LRD);
-        shoreMap.put(1110, TileType.SHORE_LRT);
-        shoreMap.put(1111, TileType.SHORE_LRTD);
+        shoreMap.put(1, TileType.SHORE_S);
+        shoreMap.put(10, TileType.SHORE_N);
+        shoreMap.put(11, TileType.SHORE_NS);
+        shoreMap.put(100, TileType.SHORE_E);
+        shoreMap.put(101, TileType.SHORE_ES);
+        shoreMap.put(110, TileType.SHORE_NE);
+        shoreMap.put(111, TileType.SHORE_NES);
+        shoreMap.put(1000, TileType.SHORE_W);
+        shoreMap.put(1001, TileType.SHORE_SW);
+        shoreMap.put(1010, TileType.SHORE_NW);
+        shoreMap.put(1011, TileType.SHORE_NSW);
+        shoreMap.put(1100, TileType.SHORE_EW);
+        shoreMap.put(1101, TileType.SHORE_ESW);
+        shoreMap.put(1110, TileType.SHORE_NEW);
+        shoreMap.put(1111, TileType.SHORE_NESW);
 
 
         for (int r = 0; r < worldWidth; ++r) {
@@ -336,7 +346,7 @@ public class MapGenerator {
     }
 
     private int calcHeuristic(int r, int c) {
-        return (int) (Math.abs(r - startRow) + Math.abs(worldWidth - 2 * startWidthOffset));
+        return (int) (Math.abs(r - startRow) + Math.abs(c - startWidthOffset));
     }
 
     private Tile[] getTileNeighbours(Tile tile) {

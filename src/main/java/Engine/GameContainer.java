@@ -9,7 +9,7 @@ import java.awt.event.KeyEvent;
 
 public class GameContainer implements Runnable {
 
-    private static final double ROUND_TIME = 30;
+    private static final double ROUND_TIME = 1000;
 
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
@@ -218,9 +218,9 @@ public class GameContainer implements Runnable {
 
     public static void main(String[] args) {
         World.initWorld(100, 100);
-        GameContainer gc = new GameContainer(World.getInstance(), 4, true);
+        GameContainer gc = new GameContainer(World.getInstance(), 1, true);
         gc.setFatherPlayer();
-        //gc.setKidnapperPlayer();
+        gc.setKidnapperPlayer();
 
         //Controller fatherController = new AIController();
         //fatherController.setPlayer(World.getInstance().getFather());
@@ -228,7 +228,7 @@ public class GameContainer implements Runnable {
 
         Controller kidnapperController = new AIController();
         kidnapperController.setPlayer(World.getInstance().getKidnapper());
-        gc.setKidnapperAI(kidnapperController);
+        //gc.setKidnapperAI(kidnapperController);
         gc.start();
         System.out.println(gc.isFatherWin() + " " + gc.getRemainingTime());
     }
