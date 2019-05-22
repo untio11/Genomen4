@@ -8,6 +8,9 @@ import GameState.World;
 import java.awt.event.KeyEvent;
 
 public class GameContainer implements Runnable {
+
+    private static final double ROUND_TIME = 30;
+
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
     private boolean running = false;
@@ -15,7 +18,7 @@ public class GameContainer implements Runnable {
     private float speed;
     private boolean renderWindow;
     private boolean humanPlayer = false;
-    private double roundTime = 30;
+    private double roundTime = ROUND_TIME;
     private boolean fatherWin;
 
     private int pixelWidth, pixelHeight;
@@ -210,7 +213,7 @@ public class GameContainer implements Runnable {
     }
 
     public double getRoundTime() {
-        return this.roundTime;
+        return ROUND_TIME;
     }
 
     public static void main(String[] args) {
