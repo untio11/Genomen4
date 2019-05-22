@@ -25,7 +25,7 @@ public class Camera extends Entity {
     }
 
     public void updatePosition() {
-        setPosition(new Vector3f(actor.getPosition().x, actor.getPosition().y + 50, actor.getPosition().z));
+        setPosition(new Vector3f(actor.get3DPosition().x, actor.get3DPosition().y + 50, actor.get3DPosition().z));
     }
 
     public float getPitch() {

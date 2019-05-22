@@ -61,7 +61,7 @@ public class ActorRenderer {
     }
 
     private void prepareInstance(Actor actor) {
-        Matrix4f transformationMatrix = Maths.createTransformationMatrix(actor.getPosition(),
+        Matrix4f transformationMatrix = Maths.createTransformationMatrix(actor.get3DPosition(),
                 actor.getRotX(), actor.getRotY(), actor.getRotZ(), actor.getScale());
         shader.loadTransformationMatrix(transformationMatrix);
     }
