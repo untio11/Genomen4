@@ -166,4 +166,70 @@ public class Actor extends Entity {
     public void setScale(float scale) {
         this.scale = scale;
     }
+
+    public void castRays(int num) {
+        for (int a = 0; a < num; ++a) {
+            int angle = getRayAngle(num, a);
+            float rayDirX = (float) Math.cos(Math.toRadians(angle));
+            float rayDirY = (float) Math.sin(Math.toRadians(angle));
+            System.out.println("RayDirX: " + rayDirX + " RayDirY: " + rayDirY);
+            float sideDistX;
+            float sideDistY;
+            float deltaDistX = Math.abs(1 / rayDirX);
+            float deltaDistY = Math.abs(1 / rayDirY);
+            int stepX;
+            int stepY;
+            int mapX = (int) position.x;
+            int mapY = (int) position.y;
+            float posX = position.x;
+            float posY = position.y;
+            System.out.println("X: " + posX + " Y: " + posY + " mapX: " + mapX + " mapY: " + mapY);
+            int hit = 0;
+
+            //calculate step and initial sideDist
+            if (rayDirX < 0) {
+                stepX = -1;
+                sideDistX = (posX - mapX) * deltaDistX;
+            } else {
+                stepX = 1;
+                sideDistX = (mapX + 1 - posX) * deltaDistX;
+            } if (rayDirY < 0) {
+                stepY = -1;
+                sideDistY = (posY - mapY) * deltaDistY;
+            } else {
+                stepY = 1;
+                sideDistY = (mapY + 1 - posY) * deltaDistY;
+            }
+
+            float distance = 0;
+            while (hit == 0) {
+                //jump to next map square, OR in x-direction, OR in y-direction
+                if (sideDistX < sideDistY) {
+                    sideDistX += deltaDistX;
+                    mapX += stepX;
+                } else {
+                    sideDistY += deltaDistY;
+                    mapY += stepY;
+                }
+                //Check if ray has hit a wall
+                if (!world.getTile(mapX, mapY).isAccessible()) {
+                    hit = 1;
+                    System.out.println("Hit: " + world.getTileType(mapX, mapY).toString()
+                            + " Distance: " + Math.sqrt((Float.isInfinite(sideDistX) ? 0 : Math.pow(sideDistX - deltaDistX, 2)) + (Float.isInfinite(sideDistY) ? 0 : Math.pow(sideDistY - deltaDistY, 2))) + " mapX: " + mapX + " mapY: " + mapY);
+                }
+            }
+        }
+    }
+
+    private int getRayAngle(int total, int x) {
+        return (x * (360 / total));
+    }
+
+    private int getRayQuadrant(int angle) {
+        angle %= 360;
+        if (angle < 0) {
+            angle += 360;
+        }
+        return (angle / 90) % 4 + 1;
+    }
 }

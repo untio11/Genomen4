@@ -21,8 +21,7 @@ public class MapGeneratorTest {
 
     @Test
     public void testGenerate() {
-        mapGenerator.generate(100, 100);
+        mapGenerator.generate(60, 80);
         System.out.println(mapGenerator.toString());
     }
-
 }
