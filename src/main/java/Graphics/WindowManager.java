@@ -169,18 +169,38 @@ public class WindowManager {
         // add every tile from map to a list, which is to be rendered
         terrainList = new ArrayList<>();
         TerrainTexture tileTexture;
-        for (TileType tileType:TileType.values()) {
+//        for (TileType tileType:TileType.values()) {
+//            for(int r = 0; r< World.getInstance().getWidth(); r++) {
+//                for (int c = 0; c < World.getInstance().getHeight(); c++) {
+//                    if( tileType == World.getInstance().getTileType(r, c)) {
+//                    //TileType tileType = World.getInstance().getTileType(r, c);
+//                        // get texture form hashmap, if it isn't there, use the backupTexture
+//                        tileTexture = textureHashMap.getOrDefault(tileType, backupTexture);
+//                        // add to terrainList, which will be processed in loop
+//                        terrainList.add(new Terrain(r, c, loader, tileTexture));
+//                    }
+//                }
+//            }
+//        }
+
             for(int r = 0; r< World.getInstance().getWidth(); r++) {
                 for (int c = 0; c < World.getInstance().getHeight(); c++) {
-                    if( tileType == World.getInstance().getTileType(r, c)) {
-                        // get texture form hashmap, if it isn't there, use the backuptexture
+
+                        TileType tileType = World.getInstance().getTileType(r, c);
+                        // get texture form hashmap, if it isn't there, use the backupTexture
                         tileTexture = textureHashMap.getOrDefault(tileType, backupTexture);
+                    int height = 0;
+
+                    if (!tileType.isAccessible(tileType)) {
+                            height = 1;
+                        }
+
                         // add to terrainList, which will be processed in loop
-                        terrainList.add(new Terrain(r, c, loader, tileTexture));
-                    }
+                        terrainList.add(new Terrain(r, c, height, loader, tileTexture));
+
                 }
             }
-        }
+
     }
 
     private void clean() {

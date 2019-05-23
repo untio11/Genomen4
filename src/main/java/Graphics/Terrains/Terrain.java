@@ -9,17 +9,19 @@ import Graphics.Textures.TerrainTexture;
 public class Terrain {
 
     private static final float SIZE = 1;   //scale for the size of map
-    private static final int VERTEX_COUNT = 64;
+    private static final int VERTEX_COUNT = 2;
 
     private float x;
     private float z;
+    private int height;
     private RawModel model;
     private TerrainTexture texture;
 
-    public Terrain(int gridX, int gridZ, Loader loader, TerrainTexture texture) {
+    public Terrain(int gridX, int gridZ, int height, Loader loader, TerrainTexture texture) {
         this.texture = texture;
         this.x = gridX * SIZE;
         this.z = gridZ * SIZE;
+        this.height = height;
         this.model = generateTerrain(loader);
     }
 
@@ -69,13 +71,16 @@ public class Terrain {
         float[] normals = new float[count * 3];
         float[] textureCoords = new float[count * 2];
         int[] indices = new int[6*(VERTEX_COUNT-1)*(VERTEX_COUNT-1)];
+
+        
+
         int vertexPointer = 0;
         for(int i=0;i<VERTEX_COUNT;i++){
             for(int j=0;j<VERTEX_COUNT;j++){
                 float posX = (float)j/((float)VERTEX_COUNT - 1);
                 float posY = (float)i/((float)VERTEX_COUNT - 1);
                 vertices[vertexPointer*3] = posX * SIZE;
-                vertices[vertexPointer*3+1] = 0;
+                vertices[vertexPointer*3+1] = height * SIZE;
                 vertices[vertexPointer*3+2] = posY * SIZE;
                 normals[vertexPointer*3] = 0;
                 normals[vertexPointer*3+1] = 1;

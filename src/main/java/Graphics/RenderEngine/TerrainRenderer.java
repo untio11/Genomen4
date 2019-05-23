@@ -1,9 +1,11 @@
 package Graphics.RenderEngine;
 
+import GameState.TileType;
 import Graphics.Models.RawModel;
 import Graphics.Models.TexturedModel;
 import Graphics.Terrains.Terrain;
 import Graphics.Shaders.TerrainShader;
+import Graphics.Textures.TerrainTexture;
 import Toolbox.Maths;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -36,17 +38,17 @@ public class TerrainRenderer {
         }
     }
 
-//    public void render(Map<TexturedModel, List<Terrain>> terrains) {
-//        for(TexturedModel terrain:terrains.keySet()) {
-//            prepareTerrain(terrain);
-//            List<Terrain> batch = terrains.get(terrain);
-//            for (Terrain terrain:batch) {
-//                loadModelMatrix(terrain);
-//                GL11.glDrawElements(GL11.GL_TRIANGLES, terrain.getModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
-//            }
-//            unbindTextureModel();
-//        }
-//    }
+    public void render(Map<TerrainTexture, List<Terrain>> terrains) {
+        for(TerrainTexture texture:terrains.keySet()) {
+            List<Terrain> batch = terrains.get(texture);
+            prepareTerrain(batch.get(0));
+            for (Terrain terrain:batch) {
+                loadModelMatrix(terrain);
+                GL11.glDrawElements(GL11.GL_TRIANGLES, terrain.getModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+            }
+            unbindTextureModel();
+        }
+    }
 
     private void prepareTerrain(Terrain terrain) {
         RawModel model = terrain.getModel();
