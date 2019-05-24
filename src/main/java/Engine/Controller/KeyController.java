@@ -46,6 +46,11 @@ public class KeyController extends Controller implements KeyListener {
             player.moveDown(dt);
         }
 
+        if (keys[rKey]) {
+            if (!player.isKidnapper()) {
+                player.castRays(0, 3);
+            }
+        }
     }
 
     @Override
