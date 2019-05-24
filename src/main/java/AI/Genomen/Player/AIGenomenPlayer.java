@@ -27,6 +27,9 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     // The number of inputs of the neural network
     public static final int INPUT_COUNT = 8;
 
+    // The maximum length of each ray coming from the player
+    public static final int MAX_RAY_LENGTH = 3;
+
     // The current number of frames elapsed since the last update
     protected int frame = 0;
 
@@ -55,14 +58,12 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     }
 
     protected void movePlayer() {
-        double[][] input = this.getInput(INPUT_COUNT);
+        double[][] input = this.getInput(INPUT_COUNT, MAX_RAY_LENGTH);
         // Process the input so the neural network can accept it
         INDArray indArray = this.inputToINDArray(input);
 
         // Evaluate the network with the processed input
         INDArray output = this.evaluateNetwork(indArray);
-
-        System.out.println(output);
 
         // Process the output so that it can be used for moving the player
         double xAxis = 0;
