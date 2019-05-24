@@ -205,7 +205,7 @@ public class Actor extends Entity {
 
         playerInSight = distanceToOpponent <= rayToOpponent[1] && distanceToOpponent <= maxRayLength;
 
-        double[][] results = playerInSight ? new double[num + 1][3] : new double [num][3];
+        double[][] results = new double[num + 1][3];
 
         for (int a = 0; a < num; ++a) {
             int angle = getRayAngle(num, a);
@@ -217,6 +217,10 @@ public class Actor extends Entity {
             rayToOpponent[1] = distanceToOpponent;
             results[results.length - 1] = rayToOpponent;
             System.out.println("Player in sight! " + Arrays.toString(rayToOpponent));
+        } else {
+            rayToOpponent[0] = 0;
+            rayToOpponent[1] = maxRayLength;
+            results[results.length - 1] = rayToOpponent;
         }
 
         return results;
