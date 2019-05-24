@@ -27,6 +27,13 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     // The number of inputs of the neural network
     public static final int INPUT_COUNT = 8;
 
+    // The number of outputs of the neural network
+    public static final int OUTPUT_COUNT = 2;
+
+    // The number of values that the neural network should remember
+    // These will be passed through in the next iteration
+    public static final int REMEMBER_COUNT = 3;
+
     // The maximum length of each ray coming from the player
     public static final int MAX_RAY_LENGTH = 3;
 
@@ -34,6 +41,8 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     protected int frame = 0;
 
     protected MultiLayerNetwork net;
+
+    private double[] rememberInputs = new double[REMEMBER_COUNT];
 
     public void init() {
         if (this.net == null) {
