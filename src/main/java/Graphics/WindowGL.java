@@ -18,8 +18,8 @@ public class WindowGL {
     private Set<Integer> pressedKeys; // To collect all pressed keys f
 
     public WindowGL() {
-        width = 600;
-        height = 600;
+        width = 1600;
+        height = 900;
         pressedKeys = new HashSet<>();
     }
 

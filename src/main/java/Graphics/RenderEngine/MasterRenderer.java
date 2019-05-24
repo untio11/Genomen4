@@ -20,9 +20,9 @@ import java.util.Map;
 
 public class MasterRenderer {
 
-    private static final float FOV = 70;
+    private static final float FOV = 100;
     private static final float NEAR_PLANE = 0.1f;
-    private static final float FAR_PLANE = 1000;
+    private static final float FAR_PLANE = 300;
 
     private Matrix4f projectionMatrix;
 
@@ -105,7 +105,7 @@ public class MasterRenderer {
 
     private void createProjectionMatrix() {
         // TODO: compute aspectRatio
-        float aspectRatio = 1f;
+        float aspectRatio = 16/9f;
         float y_scale = (float) ((1f / Math.tan(Math.toRadians(FOV / 2f))) * aspectRatio);
         float x_scale = y_scale / aspectRatio;
         float frustrum_length = FAR_PLANE - NEAR_PLANE;
