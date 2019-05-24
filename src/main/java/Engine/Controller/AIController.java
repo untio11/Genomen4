@@ -17,10 +17,10 @@ public class AIController extends Controller {
         }
 
         if (xAxis > 0) {
-            player.moveRight(dt * yAxis);
+            player.moveRight(dt * xAxis);
         }
         if (xAxis < 0) {
-            player.moveLeft(dt * Math.abs(yAxis));
+            player.moveLeft(dt * Math.abs(xAxis));
         }
     }
 
