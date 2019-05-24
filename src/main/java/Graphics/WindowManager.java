@@ -228,7 +228,7 @@ public class WindowManager {
                     renderer.processTerrain(terrain);
                 }
 
-                renderer.processEntity(actor);
+                //renderer.processEntity(actor);
 
                 // render all processed models
             renderer.render(camera);

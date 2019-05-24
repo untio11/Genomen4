@@ -40,8 +40,8 @@ public class MasterRenderer {
         // Fetch the camera from the world
         this.camera = World.getInstance().getCamera();
         //don't render the back faces (which you don't see anyway)
-        GL11.glEnable(GL11.GL_CULL_FACE);
-        GL11.glCullFace(GL11.GL_BACK);
+//        GL11.glEnable(GL11.GL_CULL_FACE);
+//        GL11.glCullFace(GL11.GL_BACK);
         createProjectionMatrix();
         terrainRenderer = new TerrainRenderer(terrainShader, projectionMatrix);
         actorRenderer = new ActorRenderer(shader, projectionMatrix);
