@@ -8,6 +8,7 @@ import Graphics.Models.RawModel;
 import Graphics.Models.TexturedModel;
 import Graphics.RenderEngine.Loader;
 import Graphics.RenderEngine.MasterRenderer;
+import Graphics.RenderEngine.Model;
 import Graphics.RenderEngine.OBJLoader;
 import Graphics.Terrains.Terrain;
 import Graphics.Textures.ModelTexture;
@@ -47,15 +48,23 @@ public class WindowManager implements Runnable{
         this.world = world;
         windowGL = new WindowGL();
         inputhandler = new InputHandler(World.getInstance().getFather());
+
         window = windowGL.initGLFW();
         GL.createCapabilities();
-        loader = new Loader();
+
+
         renderer = new MasterRenderer();
+
+        loader = new Loader();
         RawModel playerModel = OBJLoader.loadObjModel("player", loader);
         ModelTexture playerTexture = new ModelTexture(loader.loadTexture("playerTexture"));
         TexturedModel texturedPlayer = new TexturedModel(playerModel, playerTexture);
         world.getFather().setModel(texturedPlayer);
+
+        Model fatherModel = new Model(world.getFather(), playerModel, playerTexture, 0.1f);
+
         initTileMap(loader);
+
         camera = new Camera(world.getFather());
         world.getFather().setScale(0.1f);
     }
@@ -90,19 +99,6 @@ public class WindowManager implements Runnable{
         // add every tile from map to a list, which is to be rendered
         terrainList = new ArrayList<>();
         TerrainTexture tileTexture;
-//        for (TileType tileType:TileType.values()) {
-//            for(int r = 0; r< World.getInstance().getWidth(); r++) {
-//                for (int c = 0; c < World.getInstance().getHeight(); c++) {
-//                    if( tileType == World.getInstance().getTileType(r, c)) {
-//                    //TileType tileType = World.getInstance().getTileType(r, c);
-//                        // get texture form hashmap, if it isn't there, use the backupTexture
-//                        tileTexture = textureHashMap.getOrDefault(tileType, backupTexture);
-//                        // add to terrainList, which will be processed in loop
-//                        terrainList.add(new Terrain(r, c, loader, tileTexture));
-//                    }
-//                }
-//            }
-//        }
 
             for(int r = 0; r< World.getInstance().getWidth(); r++) {
                 for (int c = 0; c < World.getInstance().getHeight(); c++) {
@@ -164,6 +160,8 @@ public class WindowManager implements Runnable{
 
                 //update game
                 inputhandler.update(UPDATE_CAP, windowGL.getPressedKeys());
+
+                //todo: put into inputhandler
                 camera.updatePosition();
 
                 if (frameTime >= 1.0) {

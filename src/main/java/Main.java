@@ -31,7 +31,7 @@ public class Main {
     public static void main(String[] args) {
         World.initWorld(60, 60);
         WindowManager wm = new WindowManager(World.getInstance());
-        wm.run();
+        wm.start();
     }
 }
 

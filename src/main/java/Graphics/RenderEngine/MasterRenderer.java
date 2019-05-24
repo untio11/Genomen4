@@ -32,6 +32,7 @@ public class MasterRenderer {
     private ActorRenderer actorRenderer;
 
     private Camera camera;
+    //todo; change to model
     private Map<TexturedModel, List<Actor>> entities = new HashMap<TexturedModel, List<Actor>>();
     private Map<TerrainTexture, List<Terrain>> terrainMap = new HashMap<>();
     //private List<Terrain> terrains = new ArrayList<>();
