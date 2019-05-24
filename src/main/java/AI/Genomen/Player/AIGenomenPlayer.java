@@ -32,7 +32,7 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
 
     // The number of values that the neural network should remember
     // These will be passed through in the next iteration
-    public static final int REMEMBER_COUNT = 3;
+    public static final int REMEMBER_COUNT = 0;
 
     // The maximum length of each ray coming from the player
     public static final int MAX_RAY_LENGTH = 3;
@@ -75,8 +75,8 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
         INDArray output = this.evaluateNetwork(indArray);
 
         // Process the output so that it can be used for moving the player
-        double xAxis = 0;
-        double yAxis = 0;
+        double xAxis = output.getDouble(0, 0);
+        double yAxis = output.getDouble(0, 1);
 
         // Set the movement axes of the player depending on the output
         this.setAxis(xAxis, yAxis);
@@ -91,11 +91,12 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     }
 
     private double[] processInput(double[][] input) {
-        double[] processed = new double[(INPUT_COUNT + 1) * 2];
+        double[] processed = new double[(INPUT_COUNT + 1) * 2 + 1];
         for (int i = 0; i < input.length; i++) {
             if (i == input.length - 1) {
                 processed[i*2] = input[i][0];
                 processed[i*2+1] = input[i][1];
+                processed[i*2+2] = input[i][2];
                 continue;
             }
             // Normalize the values and store them in the 1D array
@@ -127,16 +128,15 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
                 .miniBatch(false)
                 .list()
                 .layer(new DenseLayer.Builder()
-                        .nIn(PlayConnectFour.SIZE*PlayConnectFour.SIZE)
-                        .nOut(PlayConnectFour.SIZE*PlayConnectFour.SIZE)
-                        .activation(Activation.TANH)
+                        .nIn((INPUT_COUNT + 1) * 2 + 1 + REMEMBER_COUNT)
+                        .nOut((INPUT_COUNT + 1) * 2 + 1 + REMEMBER_COUNT)
+                        .activation(Activation.RELU)
                         .weightInit(new UniformDistribution(-1, 1))
                         .build())
                 .layer(new OutputLayer.Builder(LossFunctions.LossFunction.L2)
-                        .nOut(PlayConnectFour.SIZE*PlayConnectFour.SIZE)
-                        .activation(Activation.SOFTMAX)
-//                        .weightInit(WeightInit.DISTRIBUTION)
-                        .weightInit(new UniformDistribution(0, 1))
+                        .nOut(OUTPUT_COUNT + REMEMBER_COUNT)
+                        .activation(Activation.TANH)
+                        .weightInit(new UniformDistribution(-1, 1))
                         .build())
                 .build();
 
