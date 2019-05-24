@@ -82,8 +82,13 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     }
 
     private double[] processInput(double[][] input) {
-        double[] processed = new double[INPUT_COUNT * 2];
+        double[] processed = new double[(INPUT_COUNT + 1) * 2];
         for (int i = 0; i < input.length; i++) {
+            if (i == input.length - 1) {
+                processed[i*2] = input[i][0];
+                processed[i*2+1] = input[i][1];
+                continue;
+            }
             // Normalize the values and store them in the 1D array
             processed[i*2] = this.normalizeAccessible(input[i][0]);
             processed[i*2+1] = this.normalizeDistance(input[i][1]);
