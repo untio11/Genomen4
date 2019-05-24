@@ -219,7 +219,8 @@ public class Actor extends Entity {
             System.out.println("Player in sight! " + Arrays.toString(rayToOpponent));
         } else {
             rayToOpponent[0] = 0;
-            rayToOpponent[1] = maxRayLength;
+            rayToOpponent[1] = -1;
+            rayToOpponent[2] = -1;
             results[results.length - 1] = rayToOpponent;
         }
 

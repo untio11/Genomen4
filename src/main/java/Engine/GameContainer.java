@@ -1,5 +1,6 @@
 package Engine;
 
+import AI.Genomen.Player.AIGenomenPlayer;
 import Engine.Controller.AIController;
 import Engine.Controller.Controller;
 import Engine.Controller.KeyController;
@@ -217,18 +218,19 @@ public class GameContainer implements Runnable {
     }
 
     public static void main(String[] args) {
-        World.initWorld(100, 100);
+        World.initWorld(60, 60);
         GameContainer gc = new GameContainer(World.getInstance(), 1, true);
         gc.setFatherPlayer();
-        gc.setKidnapperPlayer();
+//        gc.setKidnapperPlayer();
 
         //Controller fatherController = new AIController();
         //fatherController.setPlayer(World.getInstance().getFather());
         //gc.setKidnapperAI(fatherController);
 
-        Controller kidnapperController = new AIController();
+        AIGenomenPlayer kidnapperController = new AIGenomenPlayer();
+        kidnapperController.init();
         kidnapperController.setPlayer(World.getInstance().getKidnapper());
-        //gc.setKidnapperAI(kidnapperController);
+        gc.setKidnapperAI(kidnapperController);
         gc.start();
         System.out.println(gc.isFatherWin() + " " + gc.getRemainingTime());
     }

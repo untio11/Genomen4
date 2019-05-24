@@ -28,4 +28,8 @@ public class AIController extends Controller {
         this.xAxis = Math.max(-1, Math.min(1, xAxis));
         this.yAxis = Math.max(-1, Math.min(1, yAxis));
     }
+
+    public double[][] getInput(int nRays, int maxLength) {
+        return this.player.castRays(nRays, maxLength);
+    }
 }
