@@ -105,6 +105,7 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
 
     protected void createNetwork() {
         // TODO: Improve dummy network
+        // TODO: Implement remembering in the network
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .updater(new Sgd(0.1))
                 .biasInit(0)
