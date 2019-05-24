@@ -8,7 +8,7 @@ import Graphics.Textures.TerrainTexture;
 
 public class Terrain {
 
-    private static final float SIZE = 4;   //scale for the size of map
+    private static final float SIZE = 1;   //scale for the size of map
     private static final int VERTEX_COUNT = 64;
 
     private float x;

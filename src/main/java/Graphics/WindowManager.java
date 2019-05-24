@@ -23,76 +23,46 @@ import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-public class WindowManager {
-    private long window; // The window handle
+public class WindowManager implements Runnable{
 
 
-
-    private InputHandler inputhandler;
+    private final int FPS = 60;
+    private final double UPDATE_CAP = 1.0 / FPS;
+    private boolean running = false;
+    private Thread thread = new Thread(this);
 
     private WindowGL windowGL;
+    private long window; // The window handle
 
-
-    private static MasterRenderer renderer;
-    private static Loader loader;
-    private static Camera camera;
+    private InputHandler inputhandler;
+    private MasterRenderer renderer;
+    private Loader loader;
+    private Camera camera;
     private List<Terrain> terrainList;
-    private static Actor stall, player;
+    private World world;
+
 
 
     public WindowManager(World world) {
+        this.world = world;
         windowGL = new WindowGL();
         inputhandler = new InputHandler(World.getInstance().getFather());
-
-    }
-
-
-
-    /**
-     * Start up the window and ensure that it is teared down properly on exit
-     */
-    public void run() {
-        init();
-        loop();
-        clean();
-    }
-
-    /**
-     * Initialize the window by setting up the callbacks and window properties, then initialize opengl.
-     */
-    private void init() {
         window = windowGL.initGLFW();
-        initGraphics();
-    }
-
-
-
-    /**
-     * Initialize openGL, the renderer and other stuff needed to draw something on the screen.
-     */
-    private void initGraphics() {
         GL.createCapabilities();
         loader = new Loader();
         renderer = new MasterRenderer();
-        //camera = new Camera();
-
-        //actorList = new ArrayList<>();
-        /*RawModel stallModel = OBJLoader.loadObjModel("stall", loader);
-        ModelTexture stallTexture = new ModelTexture(loader.loadTexture("stallTexture"));
-        TexturedModel texturedStall = new TexturedModel(stallModel, stallTexture);
-        stall = new Actor(World.getInstance(), texturedStall,1, new Vector3f(0,0,0), new Vector3f(0,0,0), 1, false);*/
-
         RawModel playerModel = OBJLoader.loadObjModel("player", loader);
         ModelTexture playerTexture = new ModelTexture(loader.loadTexture("playerTexture"));
         TexturedModel texturedPlayer = new TexturedModel(playerModel, playerTexture);
-        // player = new Actor(World.getInstance(), texturedPlayer,1, new Vector3f(0,0,0), new Vector3f(0,0,0), 1, false);
-        World.getInstance().getFather().setModel(texturedPlayer);
-        // actorList.add(actor);
-
+        world.getFather().setModel(texturedPlayer);
         initTileMap(loader);
-
-        camera = new Camera(World.getInstance().getFather());
+        camera = new Camera(world.getFather());
     }
+
+    public void start() {
+        thread.run();
+    }
+
 
     /**
      * Generates the map, loads the terrainTextures and creates a terrainTile for every tile in the map.
@@ -100,11 +70,6 @@ public class WindowManager {
      * @param loader
      */
     private void initTileMap(Loader loader) {
-        // Generate map
-//        MapGenerator mapGenerator = new MapGenerator();
-//        mapGenerator.generate(5, 5);
-//        System.out.println(mapGenerator.toString());
-
         // load terrain textures and put them in a hashmap
         HashMap<TileType, TerrainTexture> textureHashMap = new HashMap<>();
         // create textures
@@ -120,8 +85,6 @@ public class WindowManager {
 
         // backup texture
         TerrainTexture backupTexture = new TerrainTexture((loader.loadTexture("black")));
-
-
 
         // add every tile from map to a list, which is to be rendered
         terrainList = new ArrayList<>();
@@ -140,7 +103,7 @@ public class WindowManager {
         }
     }
 
-    private void clean() {
+    private void close() {
         renderer.cleanUp();
         loader.cleanUp();
 
@@ -153,29 +116,67 @@ public class WindowManager {
         glfwSetErrorCallback(null).free();
     }
 
-    private void loop() {
+    public void run() {
+        boolean render;
+
+        double firstTime;
+        double lastTime = System.nanoTime() / 1e9d;
+        double passedTime;
+        double unprocessedTime = 0;
+
+        double frameTime = 0;
+        int frames = 0;
+        int fps = 0;
+
         while (!glfwWindowShouldClose(window)) {
-            inputhandler.update(1/60f, windowGL.getPressedKeys());
-            camera.updatePosition();
+            render = false;
+            firstTime = System.nanoTime() / 1e9d;
+            passedTime = firstTime - lastTime;
+            lastTime = firstTime;
+            unprocessedTime += passedTime;
+            frameTime += passedTime;
 
+            //in case the game freezes, the while loop tries to catch up by updating faster
+            while (unprocessedTime >= UPDATE_CAP) {
+                render = true;
+                unprocessedTime -= UPDATE_CAP;
 
+                //update game
+                inputhandler.update(UPDATE_CAP, windowGL.getPressedKeys());
+                camera.updatePosition();
 
+                if (frameTime >= 1.0) {
+                    frameTime = 0;
+                    fps = frames;
+                    frames = 0;
+                    System.out.println(fps);
+                }
+            }
+
+            if (render) {
                 //process all terrains make in initTileMap()
                 for (Terrain terrain : terrainList) {
                     renderer.processTerrain(terrain);
                 }
-                
+
                 renderer.processEntity(World.getInstance().getFather());
                 // render all processed models
-            renderer.render(camera);
+                renderer.render(camera);
 
-            glfwSwapBuffers(window); // swap the color buffers
+                glfwSwapBuffers(window); // swap the color buffers
 
-            // Poll for window events. The key callback above will only be
-            // invoked during this call.
-            glfwPollEvents();
+                // Poll for window events. The key callback above will only be
+                // invoked during this call.
+                glfwPollEvents();
+
+                frames++;
+            } else {
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-
-
     }
 }

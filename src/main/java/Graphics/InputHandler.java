@@ -16,7 +16,7 @@ public class InputHandler {
         this.player = player;
     }
 
-    void update(Float dt, Set<Integer> pressedKeys) {
+    void update(double dt, Set<Integer> pressedKeys) {
         for (int keyPressed : pressedKeys) {
             switch (keyPressed) {
                 case GLFW_KEY_W:

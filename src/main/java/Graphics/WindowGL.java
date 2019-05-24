@@ -81,4 +81,8 @@ public class WindowGL {
     public Set<Integer> getPressedKeys() {
         return pressedKeys;
     }
+
+    public long getWindow() {
+        return window;
+    }
 }
