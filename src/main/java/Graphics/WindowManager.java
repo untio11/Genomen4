@@ -57,6 +57,7 @@ public class WindowManager implements Runnable{
         world.getFather().setModel(texturedPlayer);
         initTileMap(loader);
         camera = new Camera(world.getFather());
+        world.getFather().setScale(0.1f);
     }
 
     public void start() {
@@ -89,18 +90,38 @@ public class WindowManager implements Runnable{
         // add every tile from map to a list, which is to be rendered
         terrainList = new ArrayList<>();
         TerrainTexture tileTexture;
-        for (TileType tileType:TileType.values()) {
+//        for (TileType tileType:TileType.values()) {
+//            for(int r = 0; r< World.getInstance().getWidth(); r++) {
+//                for (int c = 0; c < World.getInstance().getHeight(); c++) {
+//                    if( tileType == World.getInstance().getTileType(r, c)) {
+//                    //TileType tileType = World.getInstance().getTileType(r, c);
+//                        // get texture form hashmap, if it isn't there, use the backupTexture
+//                        tileTexture = textureHashMap.getOrDefault(tileType, backupTexture);
+//                        // add to terrainList, which will be processed in loop
+//                        terrainList.add(new Terrain(r, c, loader, tileTexture));
+//                    }
+//                }
+//            }
+//        }
+
             for(int r = 0; r< World.getInstance().getWidth(); r++) {
                 for (int c = 0; c < World.getInstance().getHeight(); c++) {
-                    if( tileType == World.getInstance().getTileType(r, c)) {
-                        // get texture form hashmap, if it isn't there, use the backuptexture
+
+                        TileType tileType = World.getInstance().getTileType(r, c);
+                        // get texture form hashmap, if it isn't there, use the backupTexture
                         tileTexture = textureHashMap.getOrDefault(tileType, backupTexture);
+                    int height = 0;
+
+                    if (!tileType.isAccessible(tileType)) {
+                            height = 1;
+                        }
+
                         // add to terrainList, which will be processed in loop
-                        terrainList.add(new Terrain(r, c, loader, tileTexture));
-                    }
+                        terrainList.add(new Terrain(r, c, height, loader, tileTexture));
+
                 }
             }
-        }
+
     }
 
     private void close() {
@@ -159,7 +180,8 @@ public class WindowManager implements Runnable{
                     renderer.processTerrain(terrain);
                 }
 
-                renderer.processEntity(World.getInstance().getFather());
+                renderer.processEntity(world.getFather());
+
                 // render all processed models
                 renderer.render(camera);
 

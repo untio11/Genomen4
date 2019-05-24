@@ -2,12 +2,14 @@ package Graphics.RenderEngine;
 
 import GameState.Entities.Actor;
 import GameState.Entities.Camera;
+import GameState.TileType;
 import GameState.World;
 import Graphics.Models.TexturedModel;
 import Graphics.Shaders.ShaderProgram;
 import Graphics.Shaders.StaticShader;
 import Graphics.Terrains.Terrain;
 import Graphics.Shaders.TerrainShader;
+import Graphics.Textures.TerrainTexture;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
@@ -31,14 +33,15 @@ public class MasterRenderer {
 
     private Camera camera;
     private Map<TexturedModel, List<Actor>> entities = new HashMap<TexturedModel, List<Actor>>();
-    private List<Terrain> terrains = new ArrayList<>();
+    private Map<TerrainTexture, List<Terrain>> terrainMap = new HashMap<>();
+    //private List<Terrain> terrains = new ArrayList<>();
 
     public MasterRenderer() {
         // Fetch the camera from the world
         this.camera = World.getInstance().getCamera();
         //don't render the back faces (which you don't see anyway)
-        GL11.glEnable(GL11.GL_CULL_FACE);
-        GL11.glCullFace(GL11.GL_BACK);
+//        GL11.glEnable(GL11.GL_CULL_FACE);
+//        GL11.glCullFace(GL11.GL_BACK);
         createProjectionMatrix();
         terrainRenderer = new TerrainRenderer(terrainShader, projectionMatrix);
         actorRenderer = new ActorRenderer(shader, projectionMatrix);
@@ -58,9 +61,9 @@ public class MasterRenderer {
         // render terrain
         terrainShader.start();
         terrainShader.loadViewMatrix(camera);
-        terrainRenderer.render(terrains);
+        terrainRenderer.render(terrainMap);
         terrainShader.stop();
-        terrains.clear();
+        terrainMap.clear();
     }
 
     public void processEntity(Actor actor) {
@@ -76,7 +79,17 @@ public class MasterRenderer {
     }
 
     public void processTerrain(Terrain terrain) {
-        terrains.add(terrain);
+        //terrains.add(terrain);
+
+        TerrainTexture texture = terrain.getTexture();
+        List<Terrain> terrainBatch = terrainMap.get(texture);
+        if (terrainBatch != null) {
+            terrainBatch.add(terrain);
+        } else {
+            List<Terrain> newBatch = new ArrayList<>();
+            newBatch.add(terrain);
+            terrainMap.put(texture, newBatch);
+        }
     }
 
     public void cleanUp() {
