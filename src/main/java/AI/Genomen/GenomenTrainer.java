@@ -4,6 +4,8 @@ import AI.Genomen.Player.AIGenomenPlayer;
 import AI.Trainer.BiAIGameTrainer;
 import Engine.Controller.Controller;
 import Engine.GameContainer;
+import GameState.MapConfiguration;
+import GameState.MapConfigurations;
 import GameState.World;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import util.Pair;
@@ -14,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPlayer, GameContainer> {
+
+    private static MapConfiguration mapConfig = MapConfigurations.getStarterMap();
 
     public GenomenTrainer(int nPlayers, int iterations) {
         super(nPlayers, iterations);
@@ -34,7 +38,7 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
         LinkedHashMap<AIGenomenPlayer, Integer> sortedPlayers = trainer.getScoredPlayers1();
 
         // Play against the best father player
-        World.initWorld();
+        World.initWorld(mapConfig);
         final GameContainer game = new GameContainer(World.getInstance(), 1, true);
         Controller fatherAI = sortedPlayers.entrySet().iterator().next().getKey();
         fatherAI.setPlayer(World.getInstance().getFather());
@@ -90,7 +94,7 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
 
     @Override
     protected GameContainer createGame(Pair<AIGenomenPlayer, AIGenomenPlayer> players) {
-        World.initWorld();
+        World.initWorld(mapConfig);
         GameContainer gc = new GameContainer(World.getInstance(), 4, true);
         players.getFirst().setPlayer(World.getInstance().getFather());
         gc.setFatherAI(players.getFirst());
