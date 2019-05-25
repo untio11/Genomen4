@@ -197,12 +197,14 @@ public class GameContainer implements Runnable {
                 }
                 fatherWin = true;
                 running = false;
+                break;
             } else if (roundTime < 0) {
                 if (this.renderWindow) {
                     window.close();
                 }
                 fatherWin = false;
                 running = false;
+                break;
             }
 
 
