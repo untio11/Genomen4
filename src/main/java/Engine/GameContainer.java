@@ -150,12 +150,6 @@ public class GameContainer implements Runnable {
                 fatherWin = false;
                 running = false;
             }
-
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
     }
 
