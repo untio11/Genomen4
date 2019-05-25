@@ -244,7 +244,7 @@ public class GameContainer implements Runnable {
     }
 
     public static void main(String[] args) {
-        World.initWorld(MapConfigurations.getStarterMap());
+        World.initWorld(MapConfigurations.getEmptyMap());
         GameContainer gc = new GameContainer(World.getInstance(), true);
         gc.setFatherPlayer();
 //        gc.setKidnapperPlayer();

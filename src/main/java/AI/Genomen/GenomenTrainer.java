@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPlayer, GameContainer> {
 
-    private static MapConfiguration mapConfig = MapConfigurations.getStarterMap();
+    private static MapConfiguration mapConfig = MapConfigurations.getEmptyMap();
 
     public GenomenTrainer(int nPlayers, int iterations) {
         super(nPlayers, iterations);
