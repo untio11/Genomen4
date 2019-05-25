@@ -279,7 +279,7 @@ public class Actor extends Entity {
                 if (distance <= maxRayLength) {
                     return new double[] {0, distance, (double) angle};
                 } else {
-                    return new double[] {1, 3, (double) angle};
+                    return new double[] {1, maxRayLength, (double) angle};
                 }
 
             }
