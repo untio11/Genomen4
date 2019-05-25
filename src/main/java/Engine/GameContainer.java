@@ -151,7 +151,7 @@ public class GameContainer implements Runnable {
             }
 
             try {
-                Thread.sleep(0);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -216,12 +216,12 @@ public class GameContainer implements Runnable {
                 renderer.render();  //render game
                 window.update();    //draw window
                 frames++;
-            }
-
-            try {
-                Thread.sleep(0);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } else {
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -244,18 +244,18 @@ public class GameContainer implements Runnable {
 
     public static void main(String[] args) {
         World.initWorld(60, 60);
-        GameContainer gc = new GameContainer(World.getInstance(), false);
-        //gc.setFatherPlayer();
-        //gc.setKidnapperPlayer();
+        GameContainer gc = new GameContainer(World.getInstance(), true);
+        gc.setFatherPlayer();
+        gc.setKidnapperPlayer();
 
-        Controller fatherController = new AIController();
+        /*Controller fatherController = new AIController();
         fatherController.setPlayer(World.getInstance().getFather());
         gc.setFatherAI(fatherController);
 
         AIGenomenPlayer kidnapperController = new AIGenomenPlayer();
         kidnapperController.init();
         kidnapperController.setPlayer(World.getInstance().getKidnapper());
-        gc.setKidnapperAI(kidnapperController);
+        gc.setKidnapperAI(kidnapperController);*/
 
         gc.start();
         System.out.println(gc.isFatherWin() + " " + gc.getRemainingTime());
