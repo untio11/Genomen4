@@ -4,6 +4,7 @@ import AI.Genomen.Player.AIGenomenPlayer;
 import Engine.Controller.AIController;
 import Engine.Controller.Controller;
 import Engine.Controller.KeyController;
+import GameState.MapConfigurations;
 import GameState.World;
 
 import java.awt.event.KeyEvent;
@@ -218,7 +219,7 @@ public class GameContainer implements Runnable {
     }
 
     public static void main(String[] args) {
-        World.initWorld(60, 60);
+        World.initWorld(MapConfigurations.getStarterMap());
         GameContainer gc = new GameContainer(World.getInstance(), 1, true);
         gc.setFatherPlayer();
 //        gc.setKidnapperPlayer();

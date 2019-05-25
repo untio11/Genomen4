@@ -21,11 +21,11 @@ public class World {
     private Actor kidnapper;
     private Camera camera;
 
-    private World(int width, int height) {
-        this.width = width;
-        this.height = height;
+    private World(MapConfiguration mapConfig) {
+        this.width = mapConfig.getMapSize();
+        this.height = mapConfig.getMapSize();
 
-        this.data = new MapGenerator().generate(width, height);
+        this.data = new MapGenerator(mapConfig).generate();
 
         this.father = spawnActor(false);
         this.kidnapper = spawnActor(true);
@@ -46,8 +46,12 @@ public class World {
         return instance;
     }
 
-    public static void initWorld(int width, int height) {
-        instance = new World(width, height);
+    public static void initWorld() {
+        instance = new World(MapConfigurations.getNormalMap());
+    }
+
+    public static void initWorld(MapConfiguration mapConfig) {
+        instance = new World(mapConfig);
     }
 
     /**
