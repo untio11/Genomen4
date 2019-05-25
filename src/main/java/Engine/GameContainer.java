@@ -247,16 +247,16 @@ public class GameContainer implements Runnable {
         World.initWorld(MapConfigurations.getStarterMap());
         GameContainer gc = new GameContainer(World.getInstance(), true);
         gc.setFatherPlayer();
-        gc.setKidnapperPlayer();
+//        gc.setKidnapperPlayer();
 
-        /*Controller fatherController = new AIController();
-        fatherController.setPlayer(World.getInstance().getFather());
-        gc.setFatherAI(fatherController);
+//        Controller fatherController = new AIController();
+//        fatherController.setPlayer(World.getInstance().getFather());
+//        gc.setFatherAI(fatherController);
 
         AIGenomenPlayer kidnapperController = new AIGenomenPlayer();
         kidnapperController.init();
         kidnapperController.setPlayer(World.getInstance().getKidnapper());
-        gc.setKidnapperAI(kidnapperController);*/
+        gc.setKidnapperAI(kidnapperController);
 
         gc.start();
         System.out.println(gc.isFatherWin() + " " + gc.getRemainingTime());
