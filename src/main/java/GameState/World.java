@@ -109,10 +109,12 @@ public class World {
      * Returns whether the two actors are colliding.
      */
     public boolean isPlayerCollision() {
-        return !(father.getPosition().x - father.getSize() / 2 > kidnapper.getPosition().x + kidnapper.getSize() / 2 ||
-                father.getPosition().y - father.getSize() / 2 > kidnapper.getPosition().y + kidnapper.getSize() / 2 ||
-                kidnapper.getPosition().x - kidnapper.getSize() / 2 > father.getPosition().x + father.getSize() / 2 ||
-                kidnapper.getPosition().y - kidnapper.getSize() / 2 > father.getPosition().y + father.getSize() / 2);
+        float fatherSize = father.getSize() - 0.00001f;
+        float kidnapperSize = kidnapper.getSize() - 0.00001f;
+        return !(father.getPosition().x - fatherSize / 2 > kidnapper.getPosition().x + kidnapperSize / 2 ||
+                father.getPosition().y - fatherSize / 2 > kidnapper.getPosition().y + kidnapperSize / 2 ||
+                kidnapper.getPosition().x - kidnapperSize / 2 > father.getPosition().x + fatherSize / 2 ||
+                kidnapper.getPosition().y - kidnapperSize / 2 > father.getPosition().y + fatherSize / 2);
     }
 
     public TileType getTileType(int x, int y) { return getTile(x, y).getType(); }

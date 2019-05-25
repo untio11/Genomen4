@@ -35,13 +35,12 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
 
         // Play against the best father player
         World.initWorld(60, 60);
-        final GameContainer game = new GameContainer(World.getInstance(), 1, true);
+        final GameContainer game = new GameContainer(World.getInstance(),true);
         Controller fatherAI = sortedPlayers.entrySet().iterator().next().getKey();
         fatherAI.setPlayer(World.getInstance().getFather());
         game.setFatherAI(fatherAI);
         game.setKidnapperPlayer();
         game.start();
-
     }
 
     @Override
@@ -91,7 +90,7 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
     @Override
     protected GameContainer createGame(Pair<AIGenomenPlayer, AIGenomenPlayer> players) {
         World.initWorld(60, 60);
-        GameContainer gc = new GameContainer(World.getInstance(), 4, true);
+        GameContainer gc = new GameContainer(World.getInstance(),false);
         players.getFirst().setPlayer(World.getInstance().getFather());
         gc.setFatherAI(players.getFirst());
         players.getSecond().setPlayer(World.getInstance().getKidnapper());
