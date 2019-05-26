@@ -200,7 +200,7 @@ public class Actor extends Entity {
             angleDegrees += 360;
         }
 
-        System.out.println("Angle to Opponent: "+ angleDegrees);
+//        System.out.println("Angle to Opponent: "+ angleDegrees);
         double[] rayToOpponent = castRay(angleDegrees, maxRayLength, true);
 
         playerInSight = distanceToOpponent <= rayToOpponent[1] && distanceToOpponent <= maxRayLength;
@@ -216,7 +216,7 @@ public class Actor extends Entity {
             rayToOpponent[0] = 2;
             rayToOpponent[1] = distanceToOpponent;
             results[results.length - 1] = rayToOpponent;
-            System.out.println("Player in sight! " + Arrays.toString(rayToOpponent));
+//            System.out.println("Player in sight! " + Arrays.toString(rayToOpponent));
         } else {
             rayToOpponent[0] = 0;
             rayToOpponent[1] = -1;
@@ -230,7 +230,7 @@ public class Actor extends Entity {
     private double[] castRay(int angle, int maxRayLength, boolean ignoreWater) {
         float rayDirX = (float) Math.cos(Math.toRadians(angle));
         float rayDirY = (float) Math.sin(Math.toRadians(angle));
-        System.out.println("RayDirX: " + rayDirX + " RayDirY: " + rayDirY + " Angle in Radians: " + Math.toRadians(angle));
+//        System.out.println("RayDirX: " + rayDirX + " RayDirY: " + rayDirY + " Angle in Radians: " + Math.toRadians(angle));
         float sideDistX;
         float sideDistY;
         float deltaDistX = Math.abs(1 / rayDirX);
@@ -241,7 +241,7 @@ public class Actor extends Entity {
         int mapY = (int) position.y;
         float posX = position.x;
         float posY = position.y;
-        System.out.println("X: " + posX + " Y: " + posY + " mapX: " + mapX + " mapY: " + mapY);
+//        System.out.println("X: " + posX + " Y: " + posY + " mapX: " + mapX + " mapY: " + mapY);
         int hit = 0;
 
         //calculate step and initial sideDist
@@ -274,12 +274,12 @@ public class Actor extends Entity {
                 //double distance = Math.sqrt((Float.isInfinite(sideDistX) || sideDistX > 20 ? 0 : Math.pow(sideDistX - deltaDistX, 2))
                 //        + (Float.isInfinite(sideDistY) || sideDistY > 20 ? 0 : Math.pow(sideDistY - deltaDistY, 2)));
                 double distance = Math.sqrt(Math.pow(Math.abs(position.x - (mapX + 0.5)), 2) + Math.pow(Math.abs(position.y - (mapY + 0.5)), 2));
-                System.out.println("Hit: " + world.getTileType(mapX, mapY).toString()
-                        + " Distance: " + distance + " mapX: " + mapX + " mapY: " + mapY + " sideDistX: " + sideDistX + "sideDistY: " + sideDistY);
+//                System.out.println("Hit: " + world.getTileType(mapX, mapY).toString()
+//                        + " Distance: " + distance + " mapX: " + mapX + " mapY: " + mapY + " sideDistX: " + sideDistX + "sideDistY: " + sideDistY);
                 if (distance <= maxRayLength) {
                     return new double[] {0, distance, (double) angle};
                 } else {
-                    return new double[] {1, 3, (double) angle};
+                    return new double[] {1, maxRayLength, (double) angle};
                 }
 
             }

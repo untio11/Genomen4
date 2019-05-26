@@ -4,6 +4,7 @@ import AI.Genomen.Player.AIGenomenPlayer;
 import Engine.Controller.AIController;
 import Engine.Controller.Controller;
 import Engine.Controller.KeyController;
+import GameState.MapConfigurations;
 import GameState.World;
 
 import java.awt.event.KeyEvent;
@@ -149,12 +150,6 @@ public class GameContainer implements Runnable {
                 fatherWin = false;
                 running = false;
             }
-
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -202,12 +197,14 @@ public class GameContainer implements Runnable {
                 }
                 fatherWin = true;
                 running = false;
+                break;
             } else if (roundTime < 0) {
                 if (this.renderWindow) {
                     window.close();
                 }
                 fatherWin = false;
                 running = false;
+                break;
             }
 
 
@@ -243,19 +240,19 @@ public class GameContainer implements Runnable {
     }
 
     public static void main(String[] args) {
-        World.initWorld(60, 60);
+        World.initWorld(MapConfigurations.getEmptyMap());
         GameContainer gc = new GameContainer(World.getInstance(), true);
         gc.setFatherPlayer();
-        gc.setKidnapperPlayer();
+//        gc.setKidnapperPlayer();
 
-        /*Controller fatherController = new AIController();
-        fatherController.setPlayer(World.getInstance().getFather());
-        gc.setFatherAI(fatherController);
+//        Controller fatherController = new AIController();
+//        fatherController.setPlayer(World.getInstance().getFather());
+//        gc.setFatherAI(fatherController);
 
         AIGenomenPlayer kidnapperController = new AIGenomenPlayer();
         kidnapperController.init();
         kidnapperController.setPlayer(World.getInstance().getKidnapper());
-        gc.setKidnapperAI(kidnapperController);*/
+        gc.setKidnapperAI(kidnapperController);
 
         gc.start();
         System.out.println(gc.isFatherWin() + " " + gc.getRemainingTime());

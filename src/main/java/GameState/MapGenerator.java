@@ -10,7 +10,20 @@ public class MapGenerator {
     private int startRow;
     private int startWidthOffset;
 
-    public Tile[][] generate(int width, int height) {
+    private MapConfiguration config;
+
+    public MapGenerator() {
+        this.config = MapConfigurations.getNormalMap();
+    }
+
+
+    public MapGenerator(MapConfiguration config) {
+        this.config = config;
+    }
+
+    public Tile[][] generate() {
+        int width = config.getMapSize();
+        int height = config.getMapSize();
         worldWidth = width;
         worldHeight = height;
         startWidthOffset = 5;
@@ -63,7 +76,7 @@ public class MapGenerator {
             System.out.println(this.toString());
             return map;
         } else {
-            return generate(width, height);
+            return generate();
         }
 
     }
@@ -195,23 +208,7 @@ public class MapGenerator {
         TileType[] connectedTypes = connectedTo(r, c);
 
         //create the bayesian network
-        Map<Integer, double[]> chanceMap = new HashMap<>();
-        chanceMap.put(0, new double[] {0.39, 0.30, 0.30, 0.01});
-        chanceMap.put(1, new double[] {0.0, 0.15, 0.0, 0.85});
-        chanceMap.put(10, new double[] {0.05, 0.05, 0.90, 0.0});
-        chanceMap.put(11, new double[] {0.0, 1, 0.0, 0.0});
-        chanceMap.put(100, new double[] {0.35, 0.30, 0.20, 0.15});
-        chanceMap.put(101, new double[] {0.0, 0.50, 0.0, 0.50});
-        chanceMap.put(110, new double[] {0.05, 0.85, 0.05, 0.0});
-        chanceMap.put(111, new double[] {0.0, 1, 0.0, 0.0});
-        chanceMap.put(1000, new double[] {0.90, 0.05, 0.05, 0.0});
-        chanceMap.put(1001, new double[] {0.0, 1, 0.0, 0.0});
-        chanceMap.put(1010, new double[] {0.48, 0.05, 0.47, 0.0});
-        chanceMap.put(1011, new double[] {0.0, 1, 0.0, 0.0});
-        chanceMap.put(1100, new double[] {0.48, 0.47, 0.05, 0.0});
-        chanceMap.put(1101, new double[] {0.0, 1, 0.0, 0.0});
-        chanceMap.put(1110, new double[] {0.34, 0.33, 0.33, 0.0});
-        chanceMap.put(1111, new double[] {0.0, 1, 0.0, 0.0});
+        Map<Integer, double[]> chanceMap = config.getChanceMap();
 
         int keyToLookFor = (Arrays.asList(connectedTypes).contains(TileType.GRASS) ? 1000 : 0) +
                 (Arrays.asList(connectedTypes).contains(TileType.SAND) ? 100 : 0) +
@@ -234,7 +231,7 @@ public class MapGenerator {
         int pathLength = aStarPath();
         double accessTerrain = calculateAccessibleTerrain();
         System.out.println("Path found! Length: " + pathLength + " Terrain: " + accessTerrain);
-        return pathLength > worldWidth * 1.1 && accessTerrain > 0.74;
+        return pathLength > worldWidth * config.getMinPathLength() && accessTerrain > config.getAccessTerain();
     }
 
     private int aStarPath() {
