@@ -46,8 +46,17 @@ public class World {
         return instance;
     }
 
-    // TODO: make sure it cannot be initialized when a world is already there
-    public static void initWorld(int width, int height) {
+    /**
+     * Generate an instance of the world. Ensure that no world is current before calling this by using World.cleanWorld().
+     * @param width The width the world should have in tiles
+     * @param height The height the world should have in tiles.
+     * @throws IllegalStateException If there already is a current world.
+     */
+    public static void initWorld(int width, int height) throws IllegalStateException {
+        if (instance != null) {
+            throw new IllegalStateException("There is an instance of the world already. Clear it with World.cleanWorld() or fetch it with World.getInstance().");
+        }
+
         instance = new World(width, height);
     }
 
