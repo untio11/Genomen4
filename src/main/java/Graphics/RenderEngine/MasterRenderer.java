@@ -55,14 +55,12 @@ public class MasterRenderer implements AbstractRenderer {
         shader.loadViewMatrix(camera);
         actorRenderer.render(entities);
         shader.stop();
-        entities.clear();
 
         // render terrain
         terrainShader.start();
         terrainShader.loadViewMatrix(camera);
         terrainRenderer.render(terrain_map);
         terrainShader.stop();
-        terrain_map.clear();
     }
 
 

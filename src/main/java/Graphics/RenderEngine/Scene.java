@@ -90,7 +90,7 @@ public class Scene {
                 tileType = world.getTileType(r,c);
 
                 int height = 0; // TODO: Height can probably be decided inside the Terrain class too
-                if (!tileType.isAccessible(tileType)) { // TODO: Fix this to only make trees high
+                if (tileType == TileType.TREE) { // TODO: Fix this to only make trees high
                     height = 1;
                 }
 
