@@ -5,7 +5,7 @@ package Graphics.RenderEngine;
  */
 public interface AbstractRenderer {
     /**
-     * Prepare the renderer for use.
+     * Prepare the renderer for use. This could just be done in the constructor of the implementations I guess?
      */
     void init();
 

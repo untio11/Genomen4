@@ -134,5 +134,9 @@ public class World {
 
     public Actor getKidnapper() { return kidnapper; }
 
+    public Actor[] getActors() {
+        return new Actor[] {father, kidnapper};
+    };
+
     public Camera getCamera() { return this.camera; }
 }

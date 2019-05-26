@@ -80,15 +80,19 @@ public class Scene {
      */
     public void init() throws IllegalStateException {
         initTileMap();
+        initActors(world.getActors());
 
-        RawModel playerModel = OBJLoader.loadObjModel("player", loader);
-        ModelTexture playerTexture = new ModelTexture(loader.loadTexture("playerTexture"));
-
-        TexturedModel texturedPlayer = new TexturedModel(playerModel, playerTexture);
-        Actor father = world.getFather();
-        Model fatherModel = new Model(father, texturedPlayer, 0.2f);
-        entities.add(fatherModel);
         camera = world.getCamera();
+    }
+
+    private void initActors(Actor[] actors) {
+        for (Actor actor : actors) {
+            RawModel playerModel = OBJLoader.loadObjModel("player", loader); // TODO: get model and texture for thief
+            ModelTexture playerTexture = new ModelTexture(loader.loadTexture("playerTexture"));
+            TexturedModel texturedPlayer = new TexturedModel(playerModel, playerTexture);
+            Model actorModel = new Model(actor, texturedPlayer, 0.2f);
+            entities.add(actorModel);
+        }
     }
 
     /**
@@ -104,7 +108,7 @@ public class Scene {
                 tileType = world.getTileType(r,c);
 
                 int height = 0; // TODO: Height can probably be decided inside the Terrain class too
-                if (tileType == TileType.TREE) { // TODO: Fix this to only make trees high
+                if (tileType == TileType.TREE) {
                     height = 1;
                 }
 

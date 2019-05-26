@@ -11,8 +11,6 @@ import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class WindowManager implements Runnable{
-
-
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
     private boolean running = false;
@@ -53,7 +51,6 @@ public class WindowManager implements Runnable{
 
     public void run() {
         boolean render;
-
         double firstTime;
         double lastTime = System.nanoTime() / 1e9d;
         double passedTime;
@@ -82,15 +79,15 @@ public class WindowManager implements Runnable{
                 if (frameTime >= 1.0) {
                     frameTime = 0;
                     fps = frames;
+                    System.out.println(fps + "fps <=> " + (float) 1000/frames + "ms/frame");
                     frames = 0;
-                    System.out.println(fps);
                 }
             }
 
             if (render) {
-                // render all processed models
+                // render the given scene
                 renderer.render(scene);
-                glfwSwapBuffers(window); // swap the color buffers
+                glfwSwapBuffers(window); // swap the color buffers, that is: show on screen what is happening
 
                 // Poll for window events. The key callback above will only be
                 // invoked during this call.

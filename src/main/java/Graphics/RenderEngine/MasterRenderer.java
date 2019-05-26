@@ -1,7 +1,6 @@
 package Graphics.RenderEngine;
 
 import GameState.Entities.Camera;
-import GameState.World;
 import Graphics.Shaders.StaticShader;
 import Graphics.Terrains.Terrain;
 import Graphics.Shaders.TerrainShader;
@@ -20,31 +19,26 @@ public class MasterRenderer implements AbstractRenderer {
 
     private Matrix4f projectionMatrix;
 
-    private StaticShader shader = new StaticShader();
-    private TerrainRenderer terrainRenderer; // Can the renderers can be static?
-    private TerrainShader terrainShader = new TerrainShader();
-    private ActorRenderer actorRenderer;
+    private static StaticShader shader = new StaticShader();
+    private static TerrainRenderer terrainRenderer; // Can the renderers can be static?
+    private static TerrainShader terrainShader = new TerrainShader();
+    private static ActorRenderer actorRenderer;
 
     private Camera camera;
 
     public MasterRenderer() {
-        // Fetch the camera from the world
-        this.camera = World.getInstance().getCamera();
-        //don't render the back faces (which you don't see anyway)
-//        GL11.glEnable(GL11.GL_CULL_FACE);
-//        GL11.glCullFace(GL11.GL_BACK);
         createProjectionMatrix();
         terrainRenderer = new TerrainRenderer(terrainShader, projectionMatrix);
         actorRenderer = new ActorRenderer(shader, projectionMatrix);
     }
 
-    public void init() {
+    public void init() { // TODO: should this just all be done in the constructor?
 
     }
 
     // TODO: Make sure that this can just render a given scene
     public void render(Scene scene) {
-        //this.camera = camera;
+        this.camera = camera = scene.getCamera();
         prepare();
         List<Model> entities = scene.getEntities();
         Map<TerrainTexture, List<Terrain>> terrain_map = scene.getTexture_to_terrainlist_map();
@@ -62,8 +56,6 @@ public class MasterRenderer implements AbstractRenderer {
         terrainRenderer.render(terrain_map);
         terrainShader.stop();
     }
-
-
 
     public void clean() {
         shader.cleanUp();
