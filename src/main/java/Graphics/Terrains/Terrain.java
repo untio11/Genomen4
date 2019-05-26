@@ -17,11 +17,11 @@ public class Terrain {
     private RawModel model;
     private TerrainTexture texture;
 
-    public Terrain(int gridX, int gridZ, int height, Loader loader, TerrainTexture texture) {
+    public Terrain(int gridX, int gridZ, int height, Loader loader, TerrainTexture texture) { // TODO: Constructor can probably just take a Tile object for initialization instead of all these loose parameters
         this.texture = texture;
         this.x = gridX * SIZE;
         this.z = gridZ * SIZE;
-        this.height = height * 5;
+        this.height = height *10;
         this.model = generateTerrain(loader);
     }
 

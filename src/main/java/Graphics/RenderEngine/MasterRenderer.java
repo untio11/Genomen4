@@ -1,11 +1,7 @@
 package Graphics.RenderEngine;
 
-import GameState.Entities.Actor;
 import GameState.Entities.Camera;
-import GameState.TileType;
 import GameState.World;
-import Graphics.Models.TexturedModel;
-import Graphics.Shaders.ShaderProgram;
 import Graphics.Shaders.StaticShader;
 import Graphics.Terrains.Terrain;
 import Graphics.Shaders.TerrainShader;
@@ -13,12 +9,10 @@ import Graphics.Textures.TerrainTexture;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MasterRenderer {
+public class MasterRenderer implements AbstractRenderer {
 
     private static final float FOV = 100;
     private static final float NEAR_PLANE = 0.1f;
@@ -27,14 +21,11 @@ public class MasterRenderer {
     private Matrix4f projectionMatrix;
 
     private StaticShader shader = new StaticShader();
-    private TerrainRenderer terrainRenderer;
+    private TerrainRenderer terrainRenderer; // Can the renderers can be static?
     private TerrainShader terrainShader = new TerrainShader();
     private ActorRenderer actorRenderer;
 
     private Camera camera;
-    private Map<TexturedModel, List<Actor>> entities = new HashMap<TexturedModel, List<Actor>>();
-    private Map<TerrainTexture, List<Terrain>> terrainMap = new HashMap<>();
-    //private List<Terrain> terrains = new ArrayList<>();
 
     public MasterRenderer() {
         // Fetch the camera from the world
@@ -47,52 +38,34 @@ public class MasterRenderer {
         actorRenderer = new ActorRenderer(shader, projectionMatrix);
     }
 
-    public void render(Camera camera) {
-        this.camera = camera;
+    public void init() {
+
+    }
+
+    // TODO: Make sure that this can just render a given scene
+    public void render(Scene scene) {
+        //this.camera = camera;
         prepare();
+        List<Model> entities = scene.getEntities();
+        Map<TerrainTexture, List<Terrain>> terrain_map = scene.getTexture_to_terrainlist_map();
+
         // render entities
         shader.start();
         //shader.loadLight(player);
         shader.loadViewMatrix(camera);
         actorRenderer.render(entities);
         shader.stop();
-        entities.clear();
 
         // render terrain
         terrainShader.start();
         terrainShader.loadViewMatrix(camera);
-        terrainRenderer.render(terrainMap);
+        terrainRenderer.render(terrain_map);
         terrainShader.stop();
-        terrainMap.clear();
     }
 
-    public void processEntity(Actor actor) {
-        TexturedModel entityModel = actor.getModel();
-        List<Actor> batch = entities.get(entityModel);
-        if (batch != null) {
-            batch.add(actor);
-        } else {
-            List<Actor> newBatch = new ArrayList<>();
-            newBatch.add(actor);
-            entities.put(entityModel, newBatch);
-        }
-    }
 
-    public void processTerrain(Terrain terrain) {
-        //terrains.add(terrain);
 
-        TerrainTexture texture = terrain.getTexture();
-        List<Terrain> terrainBatch = terrainMap.get(texture);
-        if (terrainBatch != null) {
-            terrainBatch.add(terrain);
-        } else {
-            List<Terrain> newBatch = new ArrayList<>();
-            newBatch.add(terrain);
-            terrainMap.put(texture, newBatch);
-        }
-    }
-
-    public void cleanUp() {
+    public void clean() {
         shader.cleanUp();
         terrainShader.cleanUp();
     }

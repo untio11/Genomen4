@@ -2,6 +2,8 @@ package Graphics;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,8 +14,8 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class WindowGL {
 
-    private final int width;
-    private final int height;
+    private int width;
+    private int height;
     private long window; // The window handle
     private Set<Integer> pressedKeys; // To collect all pressed keys f
 
@@ -39,7 +41,11 @@ public class WindowGL {
         }
     }
 
-    public long initGLFW() {
+    /**
+     * Sets up a GLFW window with openGL context ready to use.
+      * @return Pointer to the window.
+     */
+    long initGLFW() {
         // Redirect errors to System.error for debugging
         GLFWErrorCallback.createPrint(System.err).set();
 
@@ -62,6 +68,7 @@ public class WindowGL {
         // Remember key state until it has been handled (AKA doesn't miss a key press)
         glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
         glfwSetKeyCallback(window, this::KeyCallback);
+        glfwSetWindowSizeCallback(window, this::windowSizeCallback);
 
         // Get the video mode to fetch the screen resolution
         GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -75,11 +82,19 @@ public class WindowGL {
         glfwMakeContextCurrent(window);
         // Enable v-sync
         glfwSwapInterval(1);
+        GL.createCapabilities();
         return window;
     }
 
     public Set<Integer> getPressedKeys() {
         return pressedKeys;
+    }
+
+    private void windowSizeCallback(long window, int width, int height) {
+        GL11.glViewport(0, 0, width, height);
+        this.width = width;
+        this.height = height;
+        //setupTexture();
     }
 
     public long getWindow() {

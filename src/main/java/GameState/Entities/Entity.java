@@ -67,7 +67,10 @@ public abstract class Entity {
      * @param position New position of the entity
      */
     public void setPosition(Vector3f position) {
-        this.position = position;
+        // Roundabout way to avoid aliasing.
+        this.position.x = position.x;
+        this.position.y = position.y;
+        this.position.z = position.z;
     }
 
     /**
