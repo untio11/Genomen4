@@ -1,5 +1,6 @@
 package Graphics.RenderEngine;
 
+import GameState.Entities.Actor;
 import GameState.Entities.Camera;
 import GameState.TileType;
 import GameState.World;
@@ -45,7 +46,7 @@ public class Scene {
     }
 
     /**
-     * Create a scene from the given world
+     * Create a scene from the given world. An OpenGL context has to be current for this to work.
      * @param world The world to make a scene from
      */
     public Scene(World world) {
@@ -66,15 +67,12 @@ public class Scene {
 
         RawModel playerModel = OBJLoader.loadObjModel("player", loader);
         ModelTexture playerTexture = new ModelTexture(loader.loadTexture("playerTexture"));
-        //TexturedModel texturedPlayer = new TexturedModel(playerModel, playerTexture);
-        //world.getFather().setModel(texturedPlayer); // TODO: the world doesn't need to know the texture, that is to be kept here.
 
-        Model fatherModel = new Model(world.getFather(), playerModel, playerTexture, 0.1f);
+        TexturedModel texturedPlayer = new TexturedModel(playerModel, playerTexture);
+        Actor father = world.getFather();
+        Model fatherModel = new Model(father, texturedPlayer, 0.2f);
         entities.add(fatherModel);
-
-
-        camera = new Camera(world.getFather());
-        //world.getFather().setScale(0.1f); // Again, the world should not be concerned with how the player model looks
+        camera = world.getCamera();
     }
 
     /**
@@ -134,7 +132,7 @@ public class Scene {
         return terrain_list;
     }
 
-    public Map<TerrainTexture, List<Terrain>> getTexture_to_terrainlist_map() {
+    Map<TerrainTexture, List<Terrain>> getTexture_to_terrainlist_map() {
         return texture_to_terrainlist_map;
     }
 

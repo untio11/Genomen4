@@ -26,27 +26,18 @@ public class WindowManager implements Runnable{
     private Scene scene;
     private World world;
 
-    public WindowManager(World world) {
-        this.world = world;
-        this.windowGL = new WindowGL();
+    public WindowManager() {
+        this.world = World.getInstance();
         this.inputhandler = new InputHandler(World.getInstance().getFather());
-
-        window = windowGL.initGLFW();
-        GL.createCapabilities();
-
-
+        this.windowGL = new WindowGL();
+        this.window = windowGL.initGLFW();
         renderer = new MasterRenderer();
         this.scene = new Scene(this.world); // First do window gl and initglfw, otherwise no openGL context will be available
-
-
     }
 
     public void start() {
         thread.run();
     }
-
-
-
 
     private void close() {
         renderer.clean();
@@ -88,9 +79,6 @@ public class WindowManager implements Runnable{
                 //update game
                 inputhandler.update(UPDATE_CAP, windowGL.getPressedKeys());
 
-                //todo: put into inputhandler
-                scene.getCamera().updatePosition();
-
                 if (frameTime >= 1.0) {
                     frameTime = 0;
                     fps = frames;
@@ -100,12 +88,8 @@ public class WindowManager implements Runnable{
             }
 
             if (render) {
-
-
-
                 // render all processed models
                 renderer.render(scene);
-
                 glfwSwapBuffers(window); // swap the color buffers
 
                 // Poll for window events. The key callback above will only be

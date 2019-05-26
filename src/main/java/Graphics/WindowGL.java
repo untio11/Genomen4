@@ -2,6 +2,7 @@ package Graphics;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 
 import java.util.HashSet;
@@ -40,7 +41,11 @@ public class WindowGL {
         }
     }
 
-    public long initGLFW() {
+    /**
+     * Sets up a GLFW window with openGL context ready to use.
+      * @return Pointer to the window.
+     */
+    long initGLFW() {
         // Redirect errors to System.error for debugging
         GLFWErrorCallback.createPrint(System.err).set();
 
@@ -77,6 +82,7 @@ public class WindowGL {
         glfwMakeContextCurrent(window);
         // Enable v-sync
         glfwSwapInterval(1);
+        GL.createCapabilities();
         return window;
     }
 

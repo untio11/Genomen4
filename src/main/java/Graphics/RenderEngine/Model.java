@@ -7,14 +7,24 @@ import Graphics.Textures.ModelTexture;
 import Toolbox.Maths;
 import org.joml.Matrix4f;
 
+/**
+ * Links a textured model to an actor
+ */
 public class Model {
     private Actor actor;
     private TexturedModel model;
     private float scale;
 
-    public Model(Actor actor, RawModel playerModel, ModelTexture modelTexture, float scale) {
-        this.model = new TexturedModel(playerModel, modelTexture);
+    /**
+     * Setup the link between the actor and the textured model
+     * @param actor The actor
+     * @param texturedModel The textured model that should be linked to this actor
+     * @param scale The scale of the model
+     */
+    Model(Actor actor, TexturedModel texturedModel, float scale) {
+        this.model = texturedModel;
         this.actor = actor;
+        this.scale = scale;
     }
 
     public Matrix4f getTransformationMatrix() {
@@ -29,5 +39,9 @@ public class Model {
 
     public Actor getActor() {
         return actor;
+    }
+
+    public float getScale() {
+        return scale;
     }
 }

@@ -33,7 +33,7 @@ public class ActorRenderer {
         for(Model model : entities) {
             TexturedModel textured_model = model.getModel();
             prepareTextureModel(textured_model);
-            prepareInstance(model.getActor());
+            prepareInstance(model);
             GL11.glDrawElements(GL11.GL_TRIANGLES, textured_model.getRawModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
             unbindTextureModel();
         }
@@ -58,9 +58,10 @@ public class ActorRenderer {
         GL30.glBindVertexArray(0);
     }
 
-    private void prepareInstance(Actor actor) {
+    private void prepareInstance(Model model) {
+        Actor actor = model.getActor();
         Matrix4f transformationMatrix = Maths.createTransformationMatrix(actor.get3DPosition(),
-                actor.getRotX(), actor.getRotY(), actor.getRotZ(), actor.getScale());
+                actor.getRotX(), actor.getRotY(), actor.getRotZ(), model.getScale());
         shader.loadTransformationMatrix(transformationMatrix);
     }
 

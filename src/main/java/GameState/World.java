@@ -30,7 +30,9 @@ public class World {
         this.father = spawnActor(false);
         this.kidnapper = spawnActor(true);
 
-        this.camera = new Camera(father.getPosition().add(0, 0, 10f)); // Put the camera above the fathers head
+        this.camera = new Camera(); // Camera will be put over the head later
+        camera.setPosition(new Vector3f(0.0f, 0.0f, 10.0f));
+        father.add(camera);
     }
 
     /**
@@ -95,11 +97,9 @@ public class World {
 
         return new Actor(
                 this,
-                null,
                 0.5f,
                 new Vector3f(spawn.x + 0.5f, spawn.y + 0.5f, 0f),
                 new Vector3f(0f, 0f, 0f),
-                1,
                 kidnapper
         );
     }

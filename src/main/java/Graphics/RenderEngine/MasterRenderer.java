@@ -21,7 +21,7 @@ public class MasterRenderer implements AbstractRenderer {
     private Matrix4f projectionMatrix;
 
     private StaticShader shader = new StaticShader();
-    private TerrainRenderer terrainRenderer;
+    private TerrainRenderer terrainRenderer; // Can the renderers can be static?
     private TerrainShader terrainShader = new TerrainShader();
     private ActorRenderer actorRenderer;
 
