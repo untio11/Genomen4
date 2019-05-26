@@ -36,6 +36,7 @@ public class Scene {
         TerrainTexture sand = new TerrainTexture(loader.loadTexture("sand"));
         TerrainTexture grass = new TerrainTexture((loader.loadTexture("grass")));
         TerrainTexture tree = new TerrainTexture((loader.loadTexture("tree")));
+        TerrainTexture shore = new TerrainTexture(loader.loadTexture("shore"));
         backupTexture = new TerrainTexture((loader.loadTexture("black")));
 
         // put them in the hashmap
@@ -43,6 +44,21 @@ public class Scene {
         terrain_type_to_texture_map.put(TileType.SAND, sand);
         terrain_type_to_texture_map.put(TileType.GRASS, grass);
         terrain_type_to_texture_map.put(TileType.TREE, tree);
+        terrain_type_to_texture_map.put(TileType.SHORE_T, shore);
+        terrain_type_to_texture_map.put(TileType.SHORE_R, shore);
+        terrain_type_to_texture_map.put(TileType.SHORE_D, shore);
+        terrain_type_to_texture_map.put(TileType.SHORE_L, shore);
+        terrain_type_to_texture_map.put(TileType.SHORE_RT, shore);
+        terrain_type_to_texture_map.put(TileType.SHORE_RD, shore);
+        terrain_type_to_texture_map.put(TileType.SHORE_LD, shore);
+        terrain_type_to_texture_map.put(TileType.SHORE_LT, shore);
+        terrain_type_to_texture_map.put(TileType.SHORE_TD, shore);
+        terrain_type_to_texture_map.put(TileType.SHORE_LR, shore);
+        terrain_type_to_texture_map.put(TileType.SHORE_RTD, shore);
+        terrain_type_to_texture_map.put(TileType.SHORE_LTD, shore);
+        terrain_type_to_texture_map.put(TileType.SHORE_LRD, shore);
+        terrain_type_to_texture_map.put(TileType.SHORE_LRT, shore);
+        terrain_type_to_texture_map.put(TileType.SHORE_LRTD, shore);
     }
 
     /**
