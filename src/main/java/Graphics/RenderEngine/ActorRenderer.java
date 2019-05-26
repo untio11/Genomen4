@@ -29,14 +29,12 @@ public class ActorRenderer {
 
 
 
-    public void render(Map<TexturedModel, List<Actor>> entities) {
-        for(TexturedModel model:entities.keySet()) {
-            prepareTextureModel(model);
-            List<Actor> batch = entities.get(model);
-            for (Actor entity:batch) {
-                prepareInstance(entity);
-                GL11.glDrawElements(GL11.GL_TRIANGLES, model.getRawModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
-            }
+    public void render(List<Model> entities) {
+        for(Model model : entities) {
+            TexturedModel textured_model = model.getModel();
+            prepareTextureModel(textured_model);
+            prepareInstance(model.getActor());
+            GL11.glDrawElements(GL11.GL_TRIANGLES, textured_model.getRawModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
             unbindTextureModel();
         }
     }

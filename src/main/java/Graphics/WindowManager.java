@@ -1,28 +1,14 @@
 package Graphics;
 
-import GameState.Entities.Actor;
-import GameState.Entities.Camera;
-import GameState.TileType;
 import GameState.World;
-import Graphics.Models.RawModel;
-import Graphics.Models.TexturedModel;
-import Graphics.RenderEngine.Loader;
+import Graphics.RenderEngine.AbstractRenderer;
 import Graphics.RenderEngine.MasterRenderer;
-import Graphics.RenderEngine.Model;
-import Graphics.RenderEngine.OBJLoader;
+import Graphics.RenderEngine.Scene;
 import Graphics.Terrains.Terrain;
-import Graphics.Textures.ModelTexture;
-import Graphics.Textures.TerrainTexture;
-import org.joml.Vector3f;
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
-
-import java.util.*;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class WindowManager implements Runnable{
 
@@ -36,37 +22,23 @@ public class WindowManager implements Runnable{
     private long window; // The window handle
 
     private InputHandler inputhandler;
-    private MasterRenderer renderer;
-    private Loader loader;
-    private Camera camera;
-    private List<Terrain> terrainList;
+    private AbstractRenderer renderer; // TODO: Add extra layer above MasterRenderer (AbstractRenderer?) to cover normal rasterizition shading and raytracing
+    private Scene scene;
     private World world;
-
-
 
     public WindowManager(World world) {
         this.world = world;
-        windowGL = new WindowGL();
-        inputhandler = new InputHandler(World.getInstance().getFather());
+        this.windowGL = new WindowGL();
+        this.inputhandler = new InputHandler(World.getInstance().getFather());
 
         window = windowGL.initGLFW();
         GL.createCapabilities();
 
 
         renderer = new MasterRenderer();
+        this.scene = new Scene(this.world); // First do window gl and initglfw, otherwise no openGL context will be available
 
-        loader = new Loader();
-        RawModel playerModel = OBJLoader.loadObjModel("player", loader);
-        ModelTexture playerTexture = new ModelTexture(loader.loadTexture("playerTexture"));
-        TexturedModel texturedPlayer = new TexturedModel(playerModel, playerTexture);
-        world.getFather().setModel(texturedPlayer);
 
-        Model fatherModel = new Model(world.getFather(), playerModel, playerTexture, 0.1f);
-
-        initTileMap(loader);
-
-        camera = new Camera(world.getFather());
-        world.getFather().setScale(0.1f);
     }
 
     public void start() {
@@ -74,55 +46,10 @@ public class WindowManager implements Runnable{
     }
 
 
-    /**
-     * Generates the map, loads the terrainTextures and creates a terrainTile for every tile in the map.
-     * Stores the terrainTiles into a terrainList, which is later processed in the loop
-     * @param loader
-     */
-    private void initTileMap(Loader loader) {
-        // load terrain textures and put them in a hashmap
-        HashMap<TileType, TerrainTexture> textureHashMap = new HashMap<>();
-        // create textures
-        TerrainTexture water = new TerrainTexture(loader.loadTexture("water"));
-        TerrainTexture sand = new TerrainTexture(loader.loadTexture("sand"));
-        TerrainTexture grass = new TerrainTexture((loader.loadTexture("grass")));
-        TerrainTexture tree = new TerrainTexture((loader.loadTexture("tree")));
-        // put them in the hashmap
-        textureHashMap.put(TileType.WATER, water);
-        textureHashMap.put(TileType.SAND, sand);
-        textureHashMap.put(TileType.GRASS, grass);
-        textureHashMap.put(TileType.TREE, tree);
 
-        // backup texture
-        TerrainTexture backupTexture = new TerrainTexture((loader.loadTexture("black")));
-
-        // add every tile from map to a list, which is to be rendered
-        terrainList = new ArrayList<>();
-        TerrainTexture tileTexture;
-
-            for(int r = 0; r< World.getInstance().getWidth(); r++) {
-                for (int c = 0; c < World.getInstance().getHeight(); c++) {
-
-                        TileType tileType = World.getInstance().getTileType(r, c);
-                        // get texture form hashmap, if it isn't there, use the backupTexture
-                        tileTexture = textureHashMap.getOrDefault(tileType, backupTexture);
-                    int height = 0;
-
-                    if (!tileType.isAccessible(tileType)) {
-                            height = 1;
-                        }
-
-                        // add to terrainList, which will be processed in loop
-                        terrainList.add(new Terrain(r, c, height, loader, tileTexture));
-
-                }
-            }
-
-    }
 
     private void close() {
-        renderer.cleanUp();
-        loader.cleanUp();
+        renderer.clean();
 
         // Free the window callbacks and destroy the window
         glfwFreeCallbacks(window);
@@ -145,7 +72,7 @@ public class WindowManager implements Runnable{
         int frames = 0;
         int fps = 0;
 
-        while (!glfwWindowShouldClose(window)) {
+        while (!glfwWindowShouldClose(window)) { // TODO: Have a genaral Renderer.render() function to call
             render = false;
             firstTime = System.nanoTime() / 1e9d;
             passedTime = firstTime - lastTime;
@@ -162,7 +89,7 @@ public class WindowManager implements Runnable{
                 inputhandler.update(UPDATE_CAP, windowGL.getPressedKeys());
 
                 //todo: put into inputhandler
-                camera.updatePosition();
+                scene.getCamera().updatePosition();
 
                 if (frameTime >= 1.0) {
                     frameTime = 0;
@@ -173,15 +100,11 @@ public class WindowManager implements Runnable{
             }
 
             if (render) {
-                //process all terrains make in initTileMap()
-                for (Terrain terrain : terrainList) {
-                    renderer.processTerrain(terrain);
-                }
 
-                renderer.processEntity(world.getFather());
+
 
                 // render all processed models
-                renderer.render(camera);
+                renderer.render(scene);
 
                 glfwSwapBuffers(window); // swap the color buffers
 

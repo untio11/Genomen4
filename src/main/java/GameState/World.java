@@ -46,6 +46,7 @@ public class World {
         return instance;
     }
 
+    // TODO: make sure it cannot be initialized when a world is already there
     public static void initWorld(int width, int height) {
         instance = new World(width, height);
     }

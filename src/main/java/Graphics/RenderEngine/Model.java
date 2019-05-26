@@ -22,4 +22,12 @@ public class Model {
                 actor.getRotX(), actor.getRotY(), actor.getRotZ(), scale);
         return transformationMatrix;
     }
+
+    public TexturedModel getModel() {
+        return model;
+    }
+
+    public Actor getActor() {
+        return actor;
+    }
 }
