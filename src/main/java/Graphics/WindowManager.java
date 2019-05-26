@@ -90,19 +90,6 @@ public class WindowManager implements Runnable{
         // add every tile from map to a list, which is to be rendered
         terrainList = new ArrayList<>();
         TerrainTexture tileTexture;
-//        for (TileType tileType:TileType.values()) {
-//            for(int r = 0; r< World.getInstance().getWidth(); r++) {
-//                for (int c = 0; c < World.getInstance().getHeight(); c++) {
-//                    if( tileType == World.getInstance().getTileType(r, c)) {
-//                    //TileType tileType = World.getInstance().getTileType(r, c);
-//                        // get texture form hashmap, if it isn't there, use the backupTexture
-//                        tileTexture = textureHashMap.getOrDefault(tileType, backupTexture);
-//                        // add to terrainList, which will be processed in loop
-//                        terrainList.add(new Terrain(r, c, loader, tileTexture));
-//                    }
-//                }
-//            }
-//        }
 
             for(int r = 0; r< World.getInstance().getWidth(); r++) {
                 for (int c = 0; c < World.getInstance().getHeight(); c++) {
@@ -116,12 +103,29 @@ public class WindowManager implements Runnable{
                             height = 1;
                         }
 
+                    int[] color = getTileColor(tileType);
+                    //System.out.println(color[0]+", "+color[1]+", "+color[2]);
                         // add to terrainList, which will be processed in loop
-                        terrainList.add(new Terrain(r, c, height, loader, tileTexture));
+                        terrainList.add(new Terrain(r, c, height, loader, tileTexture, color));
 
                 }
             }
 
+    }
+
+    private int[] getTileColor(TileType tileType) {
+        if(tileType == TileType.WATER) {
+            return new int[] {9, 67, 229};
+        } else if(tileType == TileType.GRASS) {
+            return  new int[] {5, 186, 17};
+        } else if(tileType == TileType.SAND) {
+            return  new int[] {255, 250, 124};
+        } else if(tileType == TileType.TREE) {
+            return  new int[] {5, 119, 66};
+        } else {    // else if shore
+            return new int[]{255, 252, 193};
+        }
+        //return new int[] {255,0,255};
     }
 
     private void close() {

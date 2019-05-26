@@ -1,8 +1,6 @@
 package Graphics.RenderEngine;
 
-import GameState.TileType;
 import Graphics.Models.RawModel;
-import Graphics.Models.TexturedModel;
 import Graphics.Terrains.Terrain;
 import Graphics.Shaders.TerrainShader;
 import Graphics.Textures.TerrainTexture;
@@ -29,14 +27,15 @@ public class TerrainRenderer {
         shader.stop();
     }
 
-    public void render(List<Terrain> terrains) {
-        for (Terrain terrain : terrains) {
-            prepareTerrain(terrain);
-            loadModelMatrix(terrain);
-            GL11.glDrawElements(GL11.GL_TRIANGLES, terrain.getModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
-            unbindTextureModel();
-        }
-    }
+    // old way of rendering terrain
+//    public void render(List<Terrain> terrains) {
+//        for (Terrain terrain : terrains) {
+//            prepareTerrain(terrain);
+//            loadModelMatrix(terrain);
+//            GL11.glDrawElements(GL11.GL_TRIANGLES, terrain.getModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+//            unbindTextureModel();
+//        }
+//    }
 
     public void render(Map<TerrainTexture, List<Terrain>> terrains) {
         for(TerrainTexture texture:terrains.keySet()) {
@@ -55,6 +54,8 @@ public class TerrainRenderer {
         GL30.glBindVertexArray(model.getVaoID());
         GL20.glEnableVertexAttribArray(0);  // position
         GL20.glEnableVertexAttribArray(1);  // texture coords
+        GL20.glEnableVertexAttribArray(2);  // normals
+        GL20.glEnableVertexAttribArray(3);  // colors
         bindTextures(terrain);
         //shader.loadShineVar
 
@@ -65,14 +66,13 @@ public class TerrainRenderer {
         // binds terrain texture to sampler 0
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, terrain.getTexture().getTextureID());
-        // binds second texture to sampler 1 (but not used now)
-//        GL13.glActiveTexture(GL13.GL_TEXTURE1);
-//        GL11.glBindTexture(GL11.GL_TEXTURE_2D, texturePack.getSand().getTextureID());
     }
 
     private void unbindTextureModel() {
         GL20.glDisableVertexAttribArray(0); // position
         GL20.glDisableVertexAttribArray(1); // texture coords
+        GL20.glDisableVertexAttribArray(2); // normals
+        GL20.glDisableVertexAttribArray(3); // colors
         GL30.glBindVertexArray(0);
     }
 
