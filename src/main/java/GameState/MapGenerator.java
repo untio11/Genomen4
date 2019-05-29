@@ -73,7 +73,7 @@ public class MapGenerator {
 
         if (mapValid()) {
             fixMap();
-            System.out.println(this.toString());
+//            System.out.println(this.toString());
             return map;
         } else {
             return generate();
@@ -230,7 +230,7 @@ public class MapGenerator {
     private boolean mapValid() {
         int pathLength = aStarPath();
         double accessTerrain = calculateAccessibleTerrain();
-        System.out.println("Path found! Length: " + pathLength + " Terrain: " + accessTerrain);
+//        System.out.println("Path found! Length: " + pathLength + " Terrain: " + accessTerrain);
         return pathLength > worldWidth * config.getMinPathLength() && accessTerrain > config.getAccessTerain();
     }
 
@@ -254,7 +254,7 @@ public class MapGenerator {
                 t.setParent(q);
                 //Check if goal
                 if (t.getRow() == startRow && t.getColumn() == worldWidth - startWidthOffset)  {
-                    System.out.println("Path found!");
+//                    System.out.println("Path found!");
                     return q.getgCost() + 1;
                 }
 
@@ -275,7 +275,7 @@ public class MapGenerator {
             }
             closedList.add(q);
         }
-        System.out.println("No Path found!");
+//        System.out.println("No Path found!");
         return -1;
     }
 
