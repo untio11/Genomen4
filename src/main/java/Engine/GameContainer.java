@@ -8,6 +8,8 @@ import GameState.MapConfigurations;
 import GameState.World;
 
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 
 public class GameContainer implements Runnable {
 
@@ -242,17 +244,53 @@ public class GameContainer implements Runnable {
     public static void main(String[] args) {
         World.initWorld(MapConfigurations.getEmptyMap());
         GameContainer gc = new GameContainer(World.getInstance(), true);
-        gc.setFatherPlayer();
-//        gc.setKidnapperPlayer();
 
-//        Controller fatherController = new AIController();
-//        fatherController.setPlayer(World.getInstance().getFather());
-//        gc.setFatherAI(fatherController);
+        boolean fatherAI = false;
+        boolean fatherLoad = true;
 
-        AIGenomenPlayer kidnapperController = new AIGenomenPlayer();
-        kidnapperController.init();
-        kidnapperController.setPlayer(World.getInstance().getKidnapper());
-        gc.setKidnapperAI(kidnapperController);
+        boolean kidnapperAI = true;
+        boolean kidnapperLoad = true;
+
+        if (!fatherAI) {
+            gc.setFatherPlayer();
+        }
+
+        if (!kidnapperAI) {
+            gc.setKidnapperPlayer();
+        }
+
+        if (fatherAI) {
+            AIGenomenPlayer fatherController = new AIGenomenPlayer();
+            if (!fatherLoad) {
+                fatherController.init();
+            } else {
+                File f = new File("res/network/1558898711357-genomen-1-114.net");
+                try {
+                    fatherController.loadNetwork(f);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            fatherController.setPlayer(World.getInstance().getFather());
+            gc.setFatherAI(fatherController);
+        }
+
+        if (kidnapperAI) {
+            AIGenomenPlayer kidnapperController = new AIGenomenPlayer();
+            if (!kidnapperLoad) {
+                kidnapperController.init();
+            } else {
+                File f = new File("res/network/1558898711357-genomen-2-6000.net");
+                try {
+                    kidnapperController.loadNetwork(f);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            kidnapperController.setPlayer(World.getInstance().getKidnapper());
+            gc.setKidnapperAI(kidnapperController);
+        }
 
         gc.start();
         System.out.println(gc.isFatherWin() + " " + gc.getRemainingTime());
