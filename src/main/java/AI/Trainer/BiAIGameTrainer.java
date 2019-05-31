@@ -84,7 +84,24 @@ public abstract class BiAIGameTrainer<A extends TrainerAIPlayer, B extends Train
         String fileName2 = date.getTime() + "-" + this.getName() + "-2" + "-" + bestPlayer2Entry.getValue();
         this.savePlayer(bestPlayer2Entry.getKey(), fileName2);
 
-        System.out.println("Best Scores: \t" + bestPlayer1Entry.getValue() + "\t | \t" + bestPlayer2Entry.getValue());
+        // Compute the average scores
+        int sum1 = 0;
+        for (Map.Entry<A, Integer> entry : sortedPlayers1.entrySet()) {
+            sum1 += entry.getValue();
+        }
+
+        // Compute the average scores
+        int sum2 = 0;
+        for (Map.Entry<B, Integer> entry : sortedPlayers2.entrySet()) {
+            sum2 += entry.getValue();
+        }
+
+        double avg1 = sum1 * 1f / sortedPlayers1.size();
+        double avg2 = sum2 * 1f / sortedPlayers2.size();
+
+        System.out.print("Best Scores: \t" + bestPlayer1Entry.getValue() + "\t | \t" + bestPlayer2Entry.getValue());
+
+        System.out.println("\t Average Scores: \t" + avg1 + "\t | \t" + avg2);
     }
 
     @Override
