@@ -9,6 +9,8 @@ public class GeneticAlgorithm<A extends TrainerAIPlayer> {
 
     private BaseAIGameTrainer<?>.AIPlayerBuilder<A> playerBuilder;
 
+    private float crossoverProbability = 0.5f;
+
     private float mutateProbability = 0.005f;
     private float mutatePercentage = 0.0005f;
 
@@ -101,7 +103,7 @@ public class GeneticAlgorithm<A extends TrainerAIPlayer> {
 
     private INDArray crossoverINDArray(INDArray a1, INDArray a2) {
         INDArray mask = Nd4j.zeros(a1.shape());
-        createRandomMask(mask, 0.5f);
+        createRandomMask(mask, crossoverProbability);
         return a1.putWhereWithMask(mask, a2);
     }
 
