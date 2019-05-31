@@ -1,8 +1,10 @@
 package Engine;
 
+import AI.Genomen.Player.AIGenomenPlayer;
 import Engine.Controller.AIController;
 import Engine.Controller.Controller;
 import Engine.Controller.KeyController;
+import GameState.MapConfigurations;
 import GameState.World;
 
 import java.awt.event.KeyEvent;
@@ -10,15 +12,14 @@ import java.awt.event.KeyEvent;
 public class GameContainer implements Runnable {
 
     private static final double ROUND_TIME = 100;
-
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
     private boolean running = false;
     private Thread thread = new Thread(this);
-    private float speed;
+    private float speed = 1;
     private boolean renderWindow;
     private boolean humanPlayer = false;
-    private double roundTime = ROUND_TIME;
+    private double roundTime;
     private boolean fatherWin;
 
     private int pixelWidth, pixelHeight;
@@ -30,14 +31,12 @@ public class GameContainer implements Runnable {
     private Controller kidnapperController, fatherController;
 
     /**
-     * @param speed time speed multiplier
      * @param renderWindow whether to render
      */
-    public GameContainer(World world, float speed, boolean renderWindow) {
+    public GameContainer(World world, boolean renderWindow) {
         this.world = world;
         pixelWidth = Renderer.TS * (world.getWidth());
         pixelHeight = Renderer.TS * (world.getHeight());
-        this.speed = speed;
         this.renderWindow = renderWindow;
         if (renderWindow) {
             window = new Window(pixelWidth, pixelHeight, scale);
@@ -45,14 +44,10 @@ public class GameContainer implements Runnable {
         }
     }
 
-
     /**
      * Initialise game and run.
      */
     public void start() {
-        if (renderWindow) {
-            window.display();
-        }
         if (kidnapperController != null || fatherController != null) {     //if all the controllers have been initialized
             thread.run();
         } else {
@@ -134,49 +129,56 @@ public class GameContainer implements Runnable {
      */
     public void run() {
         running = true;
+        roundTime = ROUND_TIME;
+        if (renderWindow) {
+            windowed();
+        } else {
+            headless();
+        }
+    }
 
+    public void headless() {
+        while (running){
+            kidnapperController.update(UPDATE_CAP);
+            fatherController.update(UPDATE_CAP);
+            roundTime -= UPDATE_CAP;
+
+            if (world.isPlayerCollision()) {
+                fatherWin = true;
+                running = false;
+            } else if (roundTime < 0) {
+                fatherWin = false;
+                running = false;
+            }
+        }
+    }
+
+    public void windowed(){
         boolean render;
-
         double firstTime;
         double lastTime = speed * System.nanoTime() / 1e9d;
         double passedTime;
         double unprocessedTime = 0;
-
         double frameTime = 0;
         int frames = 0;
         int fps = 0;
 
-        while (running) {
-            if (world.isPlayerCollision()) {
-                if (this.renderWindow) {
-                    window.close();
-                }
-                fatherWin = true;
-                break;
-            } else if (roundTime < 0) {
-                if (this.renderWindow) {
-                    window.close();
-                }
-                fatherWin = false;
-                break;
-            }
+        window.display();
 
+        while (running) {
             render = false;
             firstTime = speed * System.nanoTime() / 1e9d;
             passedTime = firstTime - lastTime;
             lastTime = firstTime;
             unprocessedTime += passedTime;
             frameTime += passedTime;
-
             roundTime -= passedTime;
 
             //in case the game freezes, the while loop tries to catch up by updating faster
             while (unprocessedTime >= UPDATE_CAP) {
 
                 unprocessedTime -= UPDATE_CAP;
-                if (renderWindow) {
-                    render = true;
-                }
+                render = true;
 
                 //update game
                 kidnapperController.update(UPDATE_CAP);
@@ -188,6 +190,23 @@ public class GameContainer implements Runnable {
                     frames = 0;
                 }
             }
+
+            if (world.isPlayerCollision()) {
+                if (this.renderWindow) {
+                    window.close();
+                }
+                fatherWin = true;
+                running = false;
+                break;
+            } else if (roundTime < 0) {
+                if (this.renderWindow) {
+                    window.close();
+                }
+                fatherWin = false;
+                running = false;
+                break;
+            }
+
 
             if (render) {
                 renderer.clear();   //clear window
@@ -216,20 +235,25 @@ public class GameContainer implements Runnable {
         return ROUND_TIME;
     }
 
+    public void setSpeed(float speed) {
+        this.speed = speed;
+    }
+
     public static void main(String[] args) {
-
-        World.initWorld(100, 100);
-        GameContainer gc = new GameContainer(World.getInstance(), 1, true);
+        World.initWorld(MapConfigurations.getEmptyMap());
+        GameContainer gc = new GameContainer(World.getInstance(), true);
         gc.setFatherPlayer();
-        gc.setKidnapperPlayer();
+//        gc.setKidnapperPlayer();
 
-        //Controller fatherController = new AIController();
-        //fatherController.setPlayer(World.getInstance().getFather());
-        //gc.setKidnapperAI(fatherController);
+//        Controller fatherController = new AIController();
+//        fatherController.setPlayer(World.getInstance().getFather());
+//        gc.setFatherAI(fatherController);
 
-        //Controller kidnapperController = new AIController();
-        //kidnapperController.setPlayer(World.getInstance().getKidnapper());
-        //gc.setKidnapperAI(kidnapperController);
+        AIGenomenPlayer kidnapperController = new AIGenomenPlayer();
+        kidnapperController.init();
+        kidnapperController.setPlayer(World.getInstance().getKidnapper());
+        gc.setKidnapperAI(kidnapperController);
+
         gc.start();
         System.out.println(gc.isFatherWin() + " " + gc.getRemainingTime());
     }

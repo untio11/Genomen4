@@ -17,15 +17,19 @@ public class AIController extends Controller {
         }
 
         if (xAxis > 0) {
-            player.moveRight(dt * yAxis);
+            player.moveRight(dt * xAxis);
         }
         if (xAxis < 0) {
-            player.moveLeft(dt * Math.abs(yAxis));
+            player.moveLeft(dt * Math.abs(xAxis));
         }
     }
 
     public void setAxis(double xAxis, double yAxis) {
         this.xAxis = Math.max(-1, Math.min(1, xAxis));
         this.yAxis = Math.max(-1, Math.min(1, yAxis));
+    }
+
+    public double[][] getInput(int nRays, int maxLength) {
+        return this.player.castRays(nRays, maxLength);
     }
 }
