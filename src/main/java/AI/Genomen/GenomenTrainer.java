@@ -30,7 +30,7 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
 
     public static void main(String[] args) {
         int players = 2;
-        GenomenTrainer trainer = new GenomenTrainer(players, 1);
+        GenomenTrainer trainer = new GenomenTrainer(players, 2);
 
         trainer.init();
         trainer.runGeneticAlgorithm();
@@ -125,5 +125,7 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
 
         this.setResults1(fatherPlayer, fatherScore);
         this.setResults2(kidnapperPlayer, kidnapperScore);
+
+        World.cleanWorld();
     }
 }
