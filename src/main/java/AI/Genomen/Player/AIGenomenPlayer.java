@@ -34,7 +34,7 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     public static final int REMEMBER_COUNT = 3;
 
     // The maximum length of each ray coming from the player
-    public static final int MAX_RAY_LENGTH = 3;
+    public static final int MAX_RAY_LENGTH = 6;
 
     // The current number of frames elapsed since the last update
     protected int frame = 0;
@@ -147,6 +147,16 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
                         .nIn((INPUT_COUNT + 1) * 2 + 1 + REMEMBER_COUNT)
                         .nOut((INPUT_COUNT + 1) * 2 + 1 + REMEMBER_COUNT)
                         .activation(Activation.RELU)
+                        .weightInit(new UniformDistribution(-1, 1))
+                        .build())
+                .layer(new DenseLayer.Builder()
+                        .nOut(100)
+                        .activation(Activation.RELU)
+                        .weightInit(new UniformDistribution(-1, 1))
+                        .build())
+                .layer(new DenseLayer.Builder()
+                        .nOut(20)
+                        .activation(Activation.TANH)
                         .weightInit(new UniformDistribution(-1, 1))
                         .build())
                 .layer(new OutputLayer.Builder(LossFunctions.LossFunction.L2)
