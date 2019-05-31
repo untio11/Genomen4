@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPlayer, GameContainer> {
 
@@ -32,8 +33,16 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
         int players = 2;
         GenomenTrainer trainer = new GenomenTrainer(players, 1);
 
+        long startTime = System.nanoTime();
+
         trainer.init();
         trainer.runGeneticAlgorithm();
+
+        long endTime = System.nanoTime();
+        long durationNano = endTime - startTime;
+        long durationSecs = TimeUnit.NANOSECONDS.toSeconds(durationNano);
+
+        System.out.println("Genetic algorithm duration: " +  durationSecs + " seconds");
 
         LinkedHashMap<AIGenomenPlayer, Integer> sortedPlayers = trainer.getScoredPlayers2();
 
