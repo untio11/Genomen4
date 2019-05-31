@@ -1,6 +1,5 @@
 package AI.Genomen.Player;
 
-import AI.ConnectFour.PlayConnectFour;
 import AI.Trainer.TrainerAIPlayer;
 import Engine.Controller.AIController;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -32,7 +31,7 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
 
     // The number of values that the neural network should remember
     // These will be passed through in the next iteration
-    public static final int REMEMBER_COUNT = 0;
+    public static final int REMEMBER_COUNT = 3;
 
     // The maximum length of each ray coming from the player
     public static final int MAX_RAY_LENGTH = 3;
@@ -85,8 +84,19 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     private INDArray inputToINDArray(double[][] input) {
         // Process the input array from a 2D double array to 1D double array and normalize values if necessary
         double[] processedInput = this.processInput(input);
+
+        // adding the remembered inputs to the processed inputs
+        double[] netInput = new double[processedInput.length + REMEMBER_COUNT];
+        for (int i = 0; i < processedInput.length + REMEMBER_COUNT; i++) {
+            if (i < processedInput.length) {
+                netInput[i] = processedInput[i];
+            } else {
+                netInput[i] = rememberInputs[i - processedInput.length];
+            }
+        }
+
         // Convert the processed inputs to an INDArray
-        INDArray indArray = Nd4j.create(processedInput, new int[]{1, processedInput.length});
+        INDArray indArray = Nd4j.create(netInput, new int[]{1, netInput.length});
         return indArray;
     }
 
@@ -116,7 +126,13 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
 
     private INDArray evaluateNetwork(INDArray indArray) {
         // Evaluate the neural network with set input and return the output
-        return net.output(indArray);
+        INDArray output = net.output(indArray);
+        // set rememberInputs to the last part of the output
+        for (int i = 0; i < REMEMBER_COUNT; i++) {
+            rememberInputs[i] = output.getDouble(0, i + OUTPUT_COUNT);
+        }
+
+        return output;
     }
 
     protected void createNetwork() {
