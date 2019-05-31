@@ -30,7 +30,7 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
 
     public static void main(String[] args) {
         int players = 2;
-        GenomenTrainer trainer = new GenomenTrainer(players, 2);
+        GenomenTrainer trainer = new GenomenTrainer(players, 1);
 
         trainer.init();
         trainer.runGeneticAlgorithm();
