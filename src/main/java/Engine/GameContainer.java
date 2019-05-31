@@ -32,11 +32,17 @@ public class GameContainer implements Runnable {
     private World world;
     private Controller kidnapperController, fatherController;
 
+    private int maxDistance;
+
     /**
      * @param renderWindow whether to render
      */
     public GameContainer(World world, boolean renderWindow) {
         this.world = world;
+        int size = world.getMapConfig().getMapSize();
+        int sizeSquared = size * size;
+        this.maxDistance = (int) Math.sqrt(sizeSquared + sizeSquared);
+
         pixelWidth = Renderer.TS * (world.getWidth());
         pixelHeight = Renderer.TS * (world.getHeight());
         this.renderWindow = renderWindow;
@@ -239,6 +245,10 @@ public class GameContainer implements Runnable {
 
     public void setSpeed(float speed) {
         this.speed = speed;
+    }
+
+    public int getMaxDistance() {
+        return maxDistance;
     }
 
     public static void main(String[] args) {

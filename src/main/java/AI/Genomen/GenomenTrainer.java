@@ -7,6 +7,7 @@ import Engine.GameContainer;
 import GameState.MapConfiguration;
 import GameState.MapConfigurations;
 import GameState.World;
+import org.joml.Vector3f;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import util.Pair;
 
@@ -130,7 +131,14 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
         kidnapperScore += roundTime - remainingTime;
 
         AIGenomenPlayer fatherPlayer = (AIGenomenPlayer) game.getFatherController();
+        Vector3f fatherPos = fatherPlayer.getPlayer().getPosition();
         AIGenomenPlayer kidnapperPlayer = (AIGenomenPlayer) game.getKidnapperController();
+        Vector3f kidnapperPos = kidnapperPlayer.getPlayer().getPosition();
+
+        int distance = (int) fatherPos.distance(kidnapperPos);
+
+        kidnapperScore += distance;
+        fatherScore += game.getMaxDistance() - distance;
 
         this.setResults1(fatherPlayer, fatherScore);
         this.setResults2(kidnapperPlayer, kidnapperScore);

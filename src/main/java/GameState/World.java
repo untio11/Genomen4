@@ -20,10 +20,12 @@ public class World {
     private Actor father;
     private Actor kidnapper;
     private Camera camera;
+    private MapConfiguration mapConfig;
 
     private double randomStart;
 
     private World(MapConfiguration mapConfig) {
+        this.mapConfig = mapConfig;
         this.width = mapConfig.getMapSize();
         this.height = mapConfig.getMapSize();
 
@@ -153,5 +155,9 @@ public class World {
 
     public Tile[][] getTiles() {
         return data;
+    }
+
+    public MapConfiguration getMapConfig() {
+        return this.mapConfig;
     }
 }

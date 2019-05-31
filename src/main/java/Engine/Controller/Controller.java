@@ -10,6 +10,10 @@ public abstract class Controller {
         this.player = player;
     }
 
+    public Actor getPlayer() {
+        return this.player;
+    }
+
     public abstract void update(double dt);
 
 }
