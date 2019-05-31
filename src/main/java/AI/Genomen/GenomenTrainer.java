@@ -35,15 +35,15 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
         trainer.init();
         trainer.runGeneticAlgorithm();
 
-        LinkedHashMap<AIGenomenPlayer, Integer> sortedPlayers = trainer.getScoredPlayers1();
+        LinkedHashMap<AIGenomenPlayer, Integer> sortedPlayers = trainer.getScoredPlayers2();
 
         // Play against the best father player
         World.initWorld(mapConfig);
         final GameContainer game = new GameContainer(World.getInstance(), true);
-        Controller fatherAI = sortedPlayers.entrySet().iterator().next().getKey();
-        fatherAI.setPlayer(World.getInstance().getFather());
-        game.setFatherAI(fatherAI);
-        game.setKidnapperPlayer();
+        Controller kidnapperAI = sortedPlayers.entrySet().iterator().next().getKey();
+        kidnapperAI.setPlayer(World.getInstance().getKidnapper());
+        game.setKidnapperAI(kidnapperAI);
+        game.setFatherPlayer();
         game.start();
     }
 
