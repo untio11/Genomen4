@@ -31,7 +31,7 @@ public class GeneticAlgorithm<A extends TrainerAIPlayer> {
         // Copy parents from old generation
         int numberOfParents = (int) Math.ceil(sortedPlayers.size() * copyParentPercentage);
         for (int i = 0; i < numberOfParents; i++) {
-            A parent = this.selectParent(accumulatedPlayers, sum);
+            A parent = this.selectParent(sortedPlayers, sum);
             A copyParent = playerBuilder.createPlayer(parent.getNetwork().paramTable());
             newPlayers.add(copyParent);
         }
@@ -40,8 +40,8 @@ public class GeneticAlgorithm<A extends TrainerAIPlayer> {
         for (int i = newPlayers.size(); i < sortedPlayers.size(); i++) {
             // -> Selection
             // Select two random parents for the child with a higher probability of well performing players
-            A parent1 = this.selectParent(accumulatedPlayers, sum);
-            A parent2 = this.selectParent(accumulatedPlayers, sum);
+            A parent1 = this.selectParent(sortedPlayers, sum);
+            A parent2 = this.selectParent(sortedPlayers, sum);
             // There is a probability that both parents are equal but this should not matter too much
 
             // Create a new network for the new child
