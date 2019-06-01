@@ -1,6 +1,7 @@
 package Engine;
 
 import AI.Genomen.Player.AIGenomenPlayer;
+import AI.Genomen.Player.SimpleGenomenPlayer;
 import Engine.Controller.AIController;
 import Engine.Controller.Controller;
 import Engine.Controller.KeyController;
@@ -252,7 +253,7 @@ public class GameContainer implements Runnable {
     }
 
     public static void main(String[] args) {
-        World.initWorld(MapConfigurations.getEmptyMap());
+        World.initWorld(MapConfigurations.getBigEmptyMap());
         GameContainer gc = new GameContainer(World.getInstance(), true);
 
         boolean fatherAI = false;
@@ -286,17 +287,17 @@ public class GameContainer implements Runnable {
         }
 
         if (kidnapperAI) {
-            AIGenomenPlayer kidnapperController = new AIGenomenPlayer();
-            if (!kidnapperLoad) {
-                kidnapperController.init();
-            } else {
-                File f = new File("res/network/1558898711357-genomen-2-6000.net");
-                try {
-                    kidnapperController.loadNetwork(f);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            SimpleGenomenPlayer kidnapperController = new SimpleGenomenPlayer();
+//            if (!kidnapperLoad) {
+//                kidnapperController.init();
+//            } else {
+//                File f = new File("res/network/1558898711357-genomen-2-6000.net");
+//                try {
+//                    kidnapperController.loadNetwork(f);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
 
             kidnapperController.setPlayer(World.getInstance().getKidnapper());
             gc.setKidnapperAI(kidnapperController);
