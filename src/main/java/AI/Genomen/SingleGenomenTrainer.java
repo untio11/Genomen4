@@ -26,7 +26,7 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
 
     private static final int GAMES = 4;
 
-    private static MapConfiguration mapConfig = MapConfigurations.getEmptyMap();
+    private static MapConfiguration mapConfig = MapConfigurations.getBigEmptyMap();
 
     public SingleGenomenTrainer(int nPlayers, int iterations) {
         super(nPlayers, iterations);
