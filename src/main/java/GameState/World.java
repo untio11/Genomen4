@@ -92,7 +92,7 @@ public class World {
         // TODO: Check if the actor spawns on a non-walkable tile
 
         double radians = this.randomStart * 2 * Math.PI;
-        double radius = this.width / 2 - 2;
+        double radius = this.width / 2 - mapConfig.getStartRadius();
 
         double yOffset = Math.sin(radians) * radius;
         double xOffset = Math.cos(radians) * radius;

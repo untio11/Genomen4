@@ -55,8 +55,9 @@ public class MapConfigurations {
         double minPathLength = 0.1;
         double accessTerrain = 0.74;
         int mapSize = 50;
+        int startRadius = 20;
 
-        return new MapConfiguration(chanceMap, minPathLength, accessTerrain, mapSize);
+        return new MapConfiguration(chanceMap, minPathLength, accessTerrain, mapSize, startRadius);
     }
 
     public static MapConfiguration getStarterMap() {
