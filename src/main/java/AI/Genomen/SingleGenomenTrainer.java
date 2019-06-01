@@ -24,6 +24,8 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
     // Boolean for choosing between the father and kidnapper
     private boolean fatherAI = true;
 
+    private static final int GAMES = 4;
+
     private static MapConfiguration mapConfig = MapConfigurations.getEmptyMap();
 
     public SingleGenomenTrainer(int nPlayers, int iterations) {
@@ -36,8 +38,8 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
     }
 
     public static void main(String[] args) {
-        int players = 500;
-        SingleGenomenTrainer trainer = new SingleGenomenTrainer(players, 20);
+        int players = 100;
+        SingleGenomenTrainer trainer = new SingleGenomenTrainer(players, 10);
 
         long startTime = System.nanoTime();
 
@@ -89,7 +91,9 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
         // Create a bipartite graph as the competition
         for (AIGenomenPlayer player1 : players1) {
             for (Controller player2 : players2) {
-                competition.add(new Pair<>(player1, player2));
+                for (int i = 0; i < GAMES; i++) {
+                    competition.add(new Pair<>(player1, player2));
+                }
             }
         }
 
