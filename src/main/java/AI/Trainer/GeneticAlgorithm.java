@@ -11,8 +11,8 @@ public class GeneticAlgorithm<A extends TrainerAIPlayer> {
 
     private float crossoverProbability = 0.05f;
 
-    private float mutateProbability = 0.005f;
-    private float mutatePercentage = 0.0005f;
+    private float mutateProbability = 0.05f;
+    private float mutatePercentage = 0.05f;
 
     private float copyParentPercentage = 0.15f;
 
