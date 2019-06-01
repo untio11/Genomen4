@@ -83,16 +83,6 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
     }
 
     @Override
-    protected Controller createPlayer2() {
-        return null;
-    }
-
-    @Override
-    protected Controller createPlayer2(Map<String, INDArray> paramTable) {
-        return null;
-    }
-
-    @Override
     protected List<Pair<AIGenomenPlayer, Controller>> createCompetition(List<AIGenomenPlayer> players1, List<Controller> players2) {
         List<Pair<AIGenomenPlayer, Controller>> competition = new ArrayList<>();
 

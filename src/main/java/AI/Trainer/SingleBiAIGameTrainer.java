@@ -123,10 +123,6 @@ public abstract class SingleBiAIGameTrainer<A extends TrainerAIPlayer, B, G> ext
 
     protected abstract void createPlayers2(List<B> players);
 
-    protected abstract B createPlayer2();
-
-    protected abstract B createPlayer2(Map<String, INDArray> paramTable);
-
     protected abstract List<Pair<A, B>> createCompetition(List<A> players1, List<B> players2);
 
     protected abstract G createGame(Pair<A, B> players);
