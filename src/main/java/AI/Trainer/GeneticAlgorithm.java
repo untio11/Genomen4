@@ -127,6 +127,7 @@ public class GeneticAlgorithm<A extends TrainerAIPlayer> {
         INDArray mask = Nd4j.zeros(a.shape());
         createRandomMask(mask, mutateProbability);
         INDArray rand = Nd4j.rand(a.shape());
+        rand.muli(2).subi(1);
         rand.muli(mutatePercentage);
         a.addi(rand);
     }
