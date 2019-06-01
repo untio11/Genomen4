@@ -16,6 +16,8 @@ public class GeneticAlgorithm<A extends TrainerAIPlayer> {
 
     private float copyParentPercentage = 0.15f;
 
+    private boolean copyBestParent = true;
+
     public GeneticAlgorithm(BaseAIGameTrainer<?>.AIPlayerBuilder<A> playerBuilder) {
         this.playerBuilder = playerBuilder;
     }
@@ -31,7 +33,15 @@ public class GeneticAlgorithm<A extends TrainerAIPlayer> {
         // Copy parents from old generation
         int numberOfParents = (int) Math.ceil(sortedPlayers.size() * copyParentPercentage);
         for (int i = 0; i < numberOfParents; i++) {
-            A parent = this.selectParent(sortedPlayers, sum);
+            A parent;
+            if (i == 0 && copyBestParent) {
+                // The first copied parent is always the best parent
+                // This way, the best parent does not get lost
+                parent = sortedPlayers.entrySet().iterator().next().getKey();
+            } else {
+                // For the other copied parents, select a parent from the sorted players
+                parent = this.selectParent(sortedPlayers, sum);
+            }
             A copyParent = playerBuilder.createPlayer(parent.getNetwork().paramTable());
             newPlayers.add(copyParent);
         }
