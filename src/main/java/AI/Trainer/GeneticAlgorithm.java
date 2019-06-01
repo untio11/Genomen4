@@ -87,9 +87,15 @@ public class GeneticAlgorithm<A extends TrainerAIPlayer> {
         return accPlayers;
     }
 
+    private double convertValue(double x) {
+        return x * x;
+    }
+
     private A selectParent(LinkedHashMap<A, Integer> players, int sum) {
         Random r = new Random();
-        int v = r.nextInt(Math.max(1, sum));
+//        int v = r.nextInt(Math.max(1, sum));
+
+        int v = (int) (convertValue(r.nextDouble()) * sum);
         Iterator<Map.Entry<A, Integer>> iterator = players.entrySet().iterator();
         A parent = null;
         while(v >= 0 && iterator.hasNext()) {
