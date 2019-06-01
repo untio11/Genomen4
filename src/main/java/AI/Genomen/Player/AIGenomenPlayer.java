@@ -105,8 +105,16 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
         for (int i = 0; i < input.length; i++) {
             if (i == input.length - 1) {
                 processed[i*2] = input[i][0];
-                processed[i*2+1] = input[i][1];
-                processed[i*2+2] = input[i][2];
+
+                double magnitude = input[i][1];
+                double angle = input[i][2];
+                double angleOffset = 0;
+
+                double xOffset = Math.cos(Math.toRadians(angle + angleOffset));
+                double yOffset = Math.sin(Math.toRadians(angle + angleOffset));
+
+                processed[i*2+1] = xOffset; //input[i][1];
+                processed[i*2+2] = yOffset; //input[i][2];
                 continue;
             }
             // Normalize the values and store them in the 1D array
