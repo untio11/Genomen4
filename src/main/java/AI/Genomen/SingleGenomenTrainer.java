@@ -27,6 +27,10 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
 
     private static final int GAMES = 4;
 
+    private static final int WINNING_FACTOR = 4;
+
+    private static final int TIME_FACTOR = 2;
+
     private static MapConfiguration mapConfig = MapConfigurations.getBigEmptyMap();
 
     public SingleGenomenTrainer(int nPlayers, int iterations) {
@@ -123,12 +127,12 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
         int kidnapperScore = 0;
 
         if (fatherWins) {
-            fatherScore += roundTime;
+            fatherScore += roundTime * WINNING_FACTOR;
         } else {
-            kidnapperScore += roundTime;
+            kidnapperScore += roundTime * WINNING_FACTOR;
         }
-        fatherScore += remainingTime;
-        kidnapperScore += roundTime - remainingTime;
+        fatherScore += remainingTime * TIME_FACTOR;
+        kidnapperScore += (roundTime - remainingTime) * TIME_FACTOR;
 
         Controller fatherPlayer = game.getFatherController();
         Vector3f fatherPos = fatherPlayer.getPlayer().getPosition();

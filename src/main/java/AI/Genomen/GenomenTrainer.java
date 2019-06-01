@@ -19,6 +19,10 @@ import java.util.concurrent.TimeUnit;
 
 public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPlayer, GameContainer> {
 
+    private static final int WINNING_FACTOR = 4;
+
+    private static final int TIME_FACTOR = 2;
+
     private static MapConfiguration mapConfig = MapConfigurations.getEmptyMap();
 
     public GenomenTrainer(int nPlayers, int iterations) {
@@ -123,12 +127,12 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
         int kidnapperScore = 0;
 
         if (fatherWins) {
-            fatherScore += roundTime;
+            fatherScore += roundTime * WINNING_FACTOR;
         } else {
-            kidnapperScore += roundTime;
+            kidnapperScore += roundTime * WINNING_FACTOR;
         }
-        fatherScore += remainingTime;
-        kidnapperScore += roundTime - remainingTime;
+        fatherScore += remainingTime * TIME_FACTOR;
+        kidnapperScore += (roundTime - remainingTime) * TIME_FACTOR;
 
         AIGenomenPlayer fatherPlayer = (AIGenomenPlayer) game.getFatherController();
         Vector3f fatherPos = fatherPlayer.getPlayer().getPosition();
