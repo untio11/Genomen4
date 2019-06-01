@@ -23,7 +23,7 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
 
     private static final int TIME_FACTOR = 2;
 
-    private static MapConfiguration mapConfig = MapConfigurations.getEmptyMap();
+    private static MapConfiguration mapConfig = MapConfigurations.getBigEmptyMap();
 
     public GenomenTrainer(int nPlayers, int iterations) {
         super(nPlayers, iterations);
@@ -35,8 +35,8 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
     }
 
     public static void main(String[] args) {
-        int players = 50;
-        GenomenTrainer trainer = new GenomenTrainer(players, 30);
+        int players = 30;
+        GenomenTrainer trainer = new GenomenTrainer(players, 20);
 
         long startTime = System.nanoTime();
 

@@ -9,10 +9,10 @@ public class GeneticAlgorithm<A extends TrainerAIPlayer> {
 
     private BaseAIGameTrainer<?>.AIPlayerBuilder<A> playerBuilder;
 
-    private float crossoverProbability = 0.05f;
+    private float crossoverProbability = 0.01f;
 
-    private float mutateProbability = 0.05f;
-    private float mutatePercentage = 0.05f;
+    private float mutateProbability = 0.02f;
+    private float mutatePercentage = 0.04f;
 
     private float copyParentPercentage = 0.15f;
 
