@@ -24,7 +24,7 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     public static final int UPDATE_FREQUENCY = 30;
 
     // The number of inputs of the neural network
-    public static final int INPUT_COUNT = 0;
+    public static final int INPUT_COUNT = 4;
 
     // Add the player position to the input
     public static final boolean ADD_POSITION = true;
@@ -35,10 +35,10 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
 
     // The number of values that the neural network should remember
     // These will be passed through in the next iteration
-    public static final int REMEMBER_COUNT = 0;
+    public static final int REMEMBER_COUNT = 2;
 
     // The maximum length of each ray coming from the player
-    public static final int MAX_RAY_LENGTH = 20;
+    public static final int MAX_RAY_LENGTH = 6;
 
     // The current number of frames elapsed since the last update
     protected int frame = 0;

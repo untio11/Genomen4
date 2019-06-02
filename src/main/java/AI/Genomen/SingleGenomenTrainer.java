@@ -3,6 +3,7 @@ package AI.Genomen;
 import AI.Genomen.Player.AIGenomenPlayer;
 import AI.Genomen.Player.RandomGenomenPlayer;
 import AI.Genomen.Player.SimpleGenomenPlayer;
+import AI.Genomen.Player.StaticGenomenPlayer;
 import AI.Trainer.SingleBiAIGameTrainer;
 import Engine.Controller.Controller;
 import Engine.GameContainer;
@@ -25,13 +26,13 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
     // Boolean for choosing between the father and kidnapper
     private boolean fatherAI = true;
 
-    private static final int GAMES = 10;
+    private static final int GAMES = 3;
 
     private static final int WINNING_FACTOR = 4;
 
     private static final int TIME_FACTOR = 2;
 
-    private static MapConfiguration mapConfig = MapConfigurations.getBigEmptyMap();
+    private static MapConfiguration mapConfig = MapConfigurations.getStarterMap();
 
     public SingleGenomenTrainer(int nPlayers, int iterations) {
         super(nPlayers, iterations);
@@ -86,6 +87,8 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
 
     @Override
     protected void createPlayers2(List<Controller> players) {
+        players.add(new StaticGenomenPlayer());
+        players.add(new RandomGenomenPlayer());
         players.add(new SimpleGenomenPlayer());
     }
 
