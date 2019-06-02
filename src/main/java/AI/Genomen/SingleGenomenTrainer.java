@@ -44,8 +44,8 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
     }
 
     public static void main(String[] args) {
-        int players = 80;
-        SingleGenomenTrainer trainer = new SingleGenomenTrainer(players, 60);
+        int players = 100;
+        SingleGenomenTrainer trainer = new SingleGenomenTrainer(players, 300);
 
         long startTime = System.nanoTime();
 
