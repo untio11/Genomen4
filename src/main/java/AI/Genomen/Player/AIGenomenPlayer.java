@@ -26,6 +26,10 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     // The number of inputs of the neural network
     public static final int INPUT_COUNT = 0;
 
+    // Add the player position to the input
+    public static final boolean ADD_POSITION = true;
+    public static final int POSITION_COUNT = ADD_POSITION ? 2 : 0;
+
     // The number of outputs of the neural network
     public static final int OUTPUT_COUNT = 2;
 
@@ -66,9 +70,14 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     }
 
     protected void movePlayer() {
+        double[] position = new double[0];
+        if (ADD_POSITION) {
+            position = this.getPosition();
+        }
+
         double[][] input = this.getInput(INPUT_COUNT, MAX_RAY_LENGTH);
         // Process the input so the neural network can accept it
-        INDArray indArray = this.inputToINDArray(input);
+        INDArray indArray = this.inputToINDArray(position, input);
 
         // Evaluate the network with the processed input
         INDArray output = this.evaluateNetwork(indArray);
@@ -81,17 +90,20 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
         this.setAxis(xAxis, yAxis);
     }
 
-    private INDArray inputToINDArray(double[][] input) {
+    private INDArray inputToINDArray(double[] position, double[][] input) {
         // Process the input array from a 2D double array to 1D double array and normalize values if necessary
         double[] processedInput = this.processInput(input);
 
         // adding the remembered inputs to the processed inputs
-        double[] netInput = new double[processedInput.length + REMEMBER_COUNT];
-        for (int i = 0; i < processedInput.length + REMEMBER_COUNT; i++) {
-            if (i < processedInput.length) {
-                netInput[i] = processedInput[i];
+        int length = position.length + processedInput.length + REMEMBER_COUNT;
+        double[] netInput = new double[length];
+        for (int i = 0; i < length; i++) {
+            if (i < position.length) {
+                netInput[i] = position[i];
+            } else if (i < position.length + processedInput.length) {
+                netInput[i] = processedInput[i - position.length];
             } else {
-                netInput[i] = rememberInputs[i - processedInput.length];
+                netInput[i] = rememberInputs[i - position.length - processedInput.length];
             }
         }
 
@@ -152,8 +164,8 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
                 .miniBatch(false)
                 .list()
                 .layer(new DenseLayer.Builder()
-                        .nIn((INPUT_COUNT + 1) * 2 + 1 + REMEMBER_COUNT)
-                        .nOut((INPUT_COUNT + 1) * 2 + 1 + REMEMBER_COUNT)
+                        .nIn((INPUT_COUNT + 1) * 2 + 1 + REMEMBER_COUNT + POSITION_COUNT)
+                        .nOut((INPUT_COUNT + 1) * 2 + 1 + REMEMBER_COUNT + POSITION_COUNT)
                         .activation(Activation.RELU)
                         .weightInit(new UniformDistribution(-1, 1))
                         .build())
