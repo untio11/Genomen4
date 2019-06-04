@@ -21,11 +21,11 @@ public class World {
     private Actor kidnapper;
     private Camera camera;
 
-    private World(int width, int height) {
-        this.width = width;
-        this.height = height;
+    private World(MapConfiguration mapConfig) {
+        this.width = mapConfig.getMapSize();
+        this.height = mapConfig.getMapSize();
 
-        this.data = new MapGenerator().generate(width, height);
+        this.data = new MapGenerator(mapConfig).generate();
 
         this.father = spawnActor(false);
         this.kidnapper = spawnActor(true);
@@ -54,12 +54,19 @@ public class World {
      * @param height The height the world should have in tiles.
      * @throws IllegalStateException If there already is a current world.
      */
-    public static void initWorld(int width, int height) throws IllegalStateException {
+
+    public static void initWorld() throws IllegalStateException {
         if (instance != null) {
             throw new IllegalStateException("There is an instance of the world already. Clear it with World.cleanWorld() or fetch it with World.getInstance().");
         }
+        instance = new World(MapConfigurations.getNormalMap());
+    }
 
-        instance = new World(width, height);
+    public static void initWorld(MapConfiguration mapConfig) throws IllegalStateException {
+        if (instance != null) {
+            throw new IllegalStateException("There is an instance of the world already. Clear it with World.cleanWorld() or fetch it with World.getInstance().");
+        }
+        instance = new World(mapConfig);
     }
 
     /**
@@ -88,12 +95,13 @@ public class World {
      * Spawn an actor on a random tile.
      */
     private Actor spawnActor(boolean kidnapper) {
-        //todo: place the actors in specific positions instead random, because it sometimes messes up the map generation due to the random player distance
-        //find an accessible tile for the player spawn
-        Position spawn = getRandomTile();
-        while (getCollision(spawn.x, spawn.y)) {
-            spawn = getRandomTile();
+        Position spawn = new Position(0, 0);
+        if (kidnapper) {
+            spawn.x = width - 5;
+        } else {
+            spawn.x = 5;
         }
+        spawn.y = height / 2;
 
         return new Actor(
                 this,
@@ -118,10 +126,12 @@ public class World {
      * Returns whether the two actors are colliding.
      */
     public boolean isPlayerCollision() {
-        return !(father.getPosition().x - father.getSize() / 2 > kidnapper.getPosition().x + kidnapper.getSize() / 2 ||
-                father.getPosition().y - father.getSize() / 2 > kidnapper.getPosition().y + kidnapper.getSize() / 2 ||
-                kidnapper.getPosition().x - kidnapper.getSize() / 2 > father.getPosition().x + father.getSize() / 2 ||
-                kidnapper.getPosition().y - kidnapper.getSize() / 2 > father.getPosition().y + father.getSize() / 2);
+        float fatherSize = father.getSize() - 0.00001f;
+        float kidnapperSize = kidnapper.getSize() - 0.00001f;
+        return !(father.getPosition().x - fatherSize / 2 > kidnapper.getPosition().x + kidnapperSize / 2 ||
+                father.getPosition().y - fatherSize / 2 > kidnapper.getPosition().y + kidnapperSize / 2 ||
+                kidnapper.getPosition().x - kidnapperSize / 2 > father.getPosition().x + fatherSize / 2 ||
+                kidnapper.getPosition().y - kidnapperSize / 2 > father.getPosition().y + fatherSize / 2);
     }
 
     public TileType getTileType(int x, int y) { return getTile(x, y).getType(); }
@@ -139,4 +149,8 @@ public class World {
     };
 
     public Camera getCamera() { return this.camera; }
+
+    public Tile[][] getTiles() {
+        return data;
+    }
 }

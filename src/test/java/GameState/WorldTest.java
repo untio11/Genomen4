@@ -6,12 +6,12 @@ import org.junit.Test;
 
 public class WorldTest {
     static World world;
-    static int width = 42;
-    static int height = 69;
+    static int width = 60;
+    static int height = 60;
 
     @BeforeClass
     public static void createWorld() {
-        World.initWorld(width, height);
+        World.initWorld();
         world = World.getInstance();
     }
 

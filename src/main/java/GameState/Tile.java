@@ -80,7 +80,7 @@ public class Tile {
             case TREE:
                 return "Tree";
             default:
-                return "Shore";
+                return this.getType().toString();
         }
     }
 }
