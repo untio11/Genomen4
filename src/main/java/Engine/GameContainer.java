@@ -8,6 +8,7 @@ import GameState.MapConfigurations;
 import GameState.World;
 
 import java.awt.event.KeyEvent;
+import java.io.File;
 
 public class GameContainer implements Runnable {
 
@@ -240,7 +241,7 @@ public class GameContainer implements Runnable {
     }
 
     public static void main(String[] args) {
-        World.initWorld(MapConfigurations.getEmptyMap());
+        /*World.initWorld(MapConfigurations.getEmptyMap());
         GameContainer gc = new GameContainer(World.getInstance(), true);
         gc.setFatherPlayer();
 //        gc.setKidnapperPlayer();
@@ -255,7 +256,11 @@ public class GameContainer implements Runnable {
         gc.setKidnapperAI(kidnapperController);
 
         gc.start();
-        System.out.println(gc.isFatherWin() + " " + gc.getRemainingTime());
+        System.out.println(gc.isFatherWin() + " " + gc.getRemainingTime());*/
+
+        SoundClip clip = new SoundClip("/src/res/SoundCoin.wav");
+        File file = new File("src/res/SoundCoin.wav");
+        System.out.println(file.exists());
     }
 
 }
