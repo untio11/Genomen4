@@ -18,6 +18,8 @@ public abstract class BiAIGameTrainer<A extends TrainerAIPlayer, B extends Train
     private GeneticAlgorithm<A> geneticAlgorithm1;
     private GeneticAlgorithm<B> geneticAlgorithm2;
 
+    private int iter = 0;
+
     public BiAIGameTrainer(int nPlayers, int iterations) {
         super(nPlayers, iterations);
         players1 = new ArrayList<>();
@@ -99,7 +101,9 @@ public abstract class BiAIGameTrainer<A extends TrainerAIPlayer, B extends Train
         double avg1 = sum1 * 1f / sortedPlayers1.size();
         double avg2 = sum2 * 1f / sortedPlayers2.size();
 
-        System.out.print("Best Scores: \t" + bestPlayer1Entry.getValue() + "\t | \t" + bestPlayer2Entry.getValue());
+        iter++;
+
+        System.out.print("i: "+ iter + "\tBest Scores: \t" + bestPlayer1Entry.getValue() + "\t | \t" + bestPlayer2Entry.getValue());
 
         System.out.println("\t Average Scores: \t" + avg1 + "\t | \t" + avg2);
     }

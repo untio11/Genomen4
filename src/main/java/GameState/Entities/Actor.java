@@ -18,6 +18,8 @@ public class Actor extends Entity {
     private float size;
     private boolean kidnapper;
     private World world;
+    private int rayCalls = 0;
+    private double previousAngle;
 
     /**
      * Initialize a actor with the appropriate properties
@@ -215,13 +217,27 @@ public class Actor extends Entity {
         if (playerInSight) {
             rayToOpponent[0] = 2;
             rayToOpponent[1] = distanceToOpponent;
+            previousAngle = rayToOpponent[2];
             results[results.length - 1] = rayToOpponent;
 //            System.out.println("Player in sight! " + Arrays.toString(rayToOpponent));
         } else {
             rayToOpponent[0] = 0;
             rayToOpponent[1] = -1;
-            rayToOpponent[2] = -1;
+
+            if (rayCalls != 0) {
+                rayToOpponent[2] = previousAngle;
+            } else {
+                previousAngle = rayToOpponent[2];
+            }
+
             results[results.length - 1] = rayToOpponent;
+        }
+
+        //castRays is called every 30 frames, which is 0.5 seconds. So now, every 7 seconds, a scream happens and the
+        //angle is updated.
+        rayCalls++;
+        if (rayCalls >= 14) {
+            rayCalls = 0;
         }
 
         return results;
