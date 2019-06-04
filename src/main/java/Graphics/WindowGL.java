@@ -67,6 +67,7 @@ public class WindowGL {
 
         // Remember key state until it has been handled (AKA doesn't miss a key press)
         glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
+        glfwSetWindowAspectRatio(window, 16, 9);
         glfwSetKeyCallback(window, this::KeyCallback);
         glfwSetWindowSizeCallback(window, this::windowSizeCallback);
 
