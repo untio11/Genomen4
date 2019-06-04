@@ -21,7 +21,7 @@ public class Terrain {
         this.texture = texture;
         this.x = gridX * SIZE;
         this.z = gridZ * SIZE;
-        this.height = height *10;
+        this.height = height * 10;
         this.model = generateTerrain(loader);
     }
 
@@ -108,7 +108,7 @@ public class Terrain {
                 0, height, 0,   //V0
                 0, height, 1,   //V1
                 1, height, 1,   //V2
-                1, height, 0,    //V3
+                1, height, 0,   //V3
                 // Left side
                 0, height, 0,    //V4
                 0, 0, 0,        //V5

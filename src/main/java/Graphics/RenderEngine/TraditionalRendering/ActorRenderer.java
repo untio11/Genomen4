@@ -1,8 +1,9 @@
-package Graphics.RenderEngine;
+package Graphics.RenderEngine.TraditionalRendering;
 
 import GameState.Entities.Actor;
 import Graphics.Models.RawModel;
 import Graphics.Models.TexturedModel;
+import Graphics.RenderEngine.Model;
 import Graphics.Shaders.StaticShader;
 import Graphics.Textures.ModelTexture;
 import Toolbox.Maths;

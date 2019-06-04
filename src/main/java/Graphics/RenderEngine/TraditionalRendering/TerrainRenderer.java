@@ -1,4 +1,4 @@
-package Graphics.RenderEngine;
+package Graphics.RenderEngine.TraditionalRendering;
 
 import GameState.TileType;
 import Graphics.Models.RawModel;
@@ -57,7 +57,6 @@ public class TerrainRenderer {
         GL20.glEnableVertexAttribArray(1);  // texture coords
         bindTextures(terrain);
         //shader.loadShineVar
-
     }
 
     // binds textures for the shader

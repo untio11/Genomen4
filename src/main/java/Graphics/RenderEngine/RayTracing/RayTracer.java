@@ -1,5 +1,8 @@
-package Graphics.RenderEngine;
+package Graphics.RenderEngine.RayTracing;
 
+import Graphics.RenderEngine.AbstractRenderer;
+import Graphics.RenderEngine.Scene;
+import org.joml.Matrix3f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.*;
@@ -24,7 +27,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class RayTracer implements AbstractRenderer {
     private static int width, height;
     // VAO, VBO & SSBO stuff
-    private static int vaoId, IndexVBO, vertexSSBO, normalSSBO;
+    private static int vaoId, IndexVBO;
 
     // Shader stuff
     private static int rayProgram, quadProgram;
@@ -34,8 +37,8 @@ public class RayTracer implements AbstractRenderer {
     private static float[] quad_vertices = {
             -1f,  1f, 0f, 1f, // 1/6 -> ID:0
             -1f, -1f, 0f, 1f, // 2   -> ID:1
-            1f, -1f, 0f, 1f, // 3/4 -> ID:2
-            1f,  1f, 0f, 1f, // 5   -> ID:3
+             1f, -1f, 0f, 1f, // 3/4 -> ID:2
+             1f,  1f, 0f, 1f, // 5   -> ID:3
     };
     private static byte[] quad_indices = {
             0, 1, 2,
@@ -45,9 +48,11 @@ public class RayTracer implements AbstractRenderer {
     // Camera stuff
     private static Vector3f camera;
     private static float fov = 1.2f; // Camera to viewport distance. smaller fov => wider viewangle
-    private static Vector3f forward = new Vector3f(0f, -1f, 0f);
-    private static Vector3f up = new Vector3f(0f, 0f, -1f);
-    private static Vector3f right = new Vector3f(1f, 0f, 0f);
+    private static float[] transform = {
+            1f,  0f,  0f, // Right
+            0f,  0f, -1f, // Up
+            0f, -1f,  0f  // Forward
+    };
 
     public RayTracer(int _width, int _height) {
         setDimensions(_width, _height);
@@ -75,11 +80,7 @@ public class RayTracer implements AbstractRenderer {
 
         GL41.glProgramUniform3f(rayProgram, 0, camera.x, camera.y, camera.z);
         GL41.glProgramUniform1f(rayProgram, 1, fov);
-        GL41.glProgramUniformMatrix3fv(rayProgram, 2, false, new float[] {
-                right.x, right.y, right.z,
-                up.x, up.y, up.z,
-                forward.x, forward.y, forward.z
-        });
+        GL41.glProgramUniformMatrix3fv(rayProgram, 2, false, transform);
 
         glUseProgram(rayProgram);
 

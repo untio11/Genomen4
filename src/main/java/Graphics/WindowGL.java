@@ -1,6 +1,6 @@
 package Graphics;
 
-import Graphics.RenderEngine.RayTracer;
+import Graphics.RenderEngine.RayTracing.RayTracer;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;

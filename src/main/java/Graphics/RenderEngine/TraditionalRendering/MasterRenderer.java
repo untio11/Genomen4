@@ -1,6 +1,9 @@
-package Graphics.RenderEngine;
+package Graphics.RenderEngine.TraditionalRendering;
 
 import GameState.Entities.Camera;
+import Graphics.RenderEngine.AbstractRenderer;
+import Graphics.RenderEngine.Model;
+import Graphics.RenderEngine.Scene;
 import Graphics.Shaders.StaticShader;
 import Graphics.Terrains.Terrain;
 import Graphics.Shaders.TerrainShader;

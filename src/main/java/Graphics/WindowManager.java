@@ -2,17 +2,15 @@ package Graphics;
 
 import GameState.World;
 import Graphics.RenderEngine.AbstractRenderer;
-import Graphics.RenderEngine.MasterRenderer;
-import Graphics.RenderEngine.RayTracer;
+import Graphics.RenderEngine.TraditionalRendering.MasterRenderer;
+import Graphics.RenderEngine.RayTracing.RayTracer;
 import Graphics.RenderEngine.Scene;
-import Graphics.Terrains.Terrain;
-import org.lwjgl.opengl.GL;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class WindowManager implements Runnable{
-    public static boolean RAY_TRACING = true;
+    public static boolean RAY_TRACING = false;
 
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;

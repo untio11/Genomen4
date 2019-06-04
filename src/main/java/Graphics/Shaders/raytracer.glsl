@@ -6,7 +6,23 @@ layout(rgba32f, binding = 0) uniform image2D img_output;
 layout(location = 0) uniform vec3  camera;
 layout(location = 1) uniform float fov;
 layout(location = 2) uniform mat3  transform;
-layout(location = 3) uniform int tringle_amount;
+layout(location = 3) uniform int   tringle_amount;
+
+layout(std430, binding = 1) buffer VertexPositions {
+    vec4 parsed_positions[];
+};
+
+layout(std430, binding = 2) buffer VertexNormals {
+    vec4 parsed_normals[];
+};
+
+layout(std430, binding = 3) buffer TexCoods {
+    vec2 parsed_tex[];
+};
+
+layout(std430, binding = 4) buffer Indices {
+    ivec3 indices[];
+};
 
 ivec2 pixel_coords;
 
