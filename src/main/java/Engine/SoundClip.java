@@ -1,5 +1,7 @@
 package Engine;
 
+import org.bytedeco.javacv.FrameFilter;
+
 import javax.sound.sampled.*;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -13,26 +15,15 @@ public class SoundClip {
 
     public SoundClip(String path) {
         try {
-            InputStream audiSrc = SoundClip.class.getResourceAsStream(path);
-            InputStream bufferedIn = new BufferedInputStream(audiSrc);
-            AudioInputStream ais = AudioSystem.getAudioInputStream(bufferedIn);
-            AudioFormat baseFormat = ais.getFormat();
-            AudioFormat decodeFormat = new AudioFormat(AudioFormat.Encoding.PCM_UNSIGNED,
-                    baseFormat.getSampleRate(),
-                    16,
-                    baseFormat.getChannels(),
-                    baseFormat.getChannels() * 2,
-                    baseFormat.getSampleRate(),
-                    false);
-            AudioInputStream dais = AudioSystem.getAudioInputStream(decodeFormat, ais);
-
-            clip = AudioSystem.getClip();
-            clip.open(dais);
-
+            File file = new File(path);
+            AudioInputStream ais = AudioSystem.getAudioInputStream(file);
+            AudioFormat format = ais.getFormat();
+            DataLine.Info info = new DataLine.Info(Clip.class, format);
+            clip = (Clip) AudioSystem.getLine(info);
+            clip.open(ais);
             gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-
-
-        } catch (UnsupportedAudioFileException | LineUnavailableException | IOException e) {
+            setVolume(-10f);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

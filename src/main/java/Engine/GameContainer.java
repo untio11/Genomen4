@@ -9,10 +9,12 @@ import GameState.World;
 
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.util.ArrayList;
 
 public class GameContainer implements Runnable {
 
     private static final double ROUND_TIME = 60;
+    private double cryInterval = 5;
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
     private boolean running = false;
@@ -30,11 +32,20 @@ public class GameContainer implements Runnable {
     private Renderer renderer;
     private World world;
     private Controller kidnapperController, fatherController;
-
+    ArrayList<SoundClip> clips;
+    SoundClip music;
     /**
      * @param renderWindow whether to render
      */
     public GameContainer(World world, boolean renderWindow) {
+        music = new SoundClip("res/music.wav");
+        clips = new ArrayList<SoundClip>();
+        SoundClip clip1 = new SoundClip("res/cry1.wav");
+        SoundClip clip2 = new SoundClip("res/cry2.wav");
+        SoundClip clip3 = new SoundClip("res/cry3.wav");
+        clips.add(clip1);
+        clips.add(clip2);
+        clips.add(clip3);
         this.world = world;
         pixelWidth = Renderer.TS * (world.getWidth());
         pixelHeight = Renderer.TS * (world.getHeight());
@@ -163,9 +174,11 @@ public class GameContainer implements Runnable {
         double frameTime = 0;
         int frames = 0;
         int fps = 0;
+        double cryTimer = cryInterval;
+        int cryNumber = 0;
 
         window.display();
-
+        music.loop();
         while (running) {
             render = false;
             firstTime = speed * System.nanoTime() / 1e9d;
@@ -175,6 +188,12 @@ public class GameContainer implements Runnable {
             frameTime += passedTime;
             roundTime -= passedTime;
 
+            cryTimer -= passedTime;
+            if (cryTimer < 0) {
+                cryTimer = cryInterval;
+                clips.get(cryNumber).play();
+                cryNumber = (cryNumber + 1) % clips.size();
+            }
             //in case the game freezes, the while loop tries to catch up by updating faster
             while (unprocessedTime >= UPDATE_CAP) {
 
@@ -222,6 +241,7 @@ public class GameContainer implements Runnable {
                 }
             }
         }
+        music.stop();
     }
 
     public double getRemainingTime() {
@@ -241,7 +261,7 @@ public class GameContainer implements Runnable {
     }
 
     public static void main(String[] args) {
-        /*World.initWorld(MapConfigurations.getEmptyMap());
+        World.initWorld(MapConfigurations.getEmptyMap());
         GameContainer gc = new GameContainer(World.getInstance(), true);
         gc.setFatherPlayer();
 //        gc.setKidnapperPlayer();
@@ -256,11 +276,7 @@ public class GameContainer implements Runnable {
         gc.setKidnapperAI(kidnapperController);
 
         gc.start();
-        System.out.println(gc.isFatherWin() + " " + gc.getRemainingTime());*/
-
-        SoundClip clip = new SoundClip("/src/res/SoundCoin.wav");
-        File file = new File("src/res/SoundCoin.wav");
-        System.out.println(file.exists());
+        System.out.println(gc.isFatherWin() + " " + gc.getRemainingTime());
     }
 
 }
