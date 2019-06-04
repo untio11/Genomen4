@@ -1,5 +1,6 @@
 package Graphics;
 
+import Graphics.RenderEngine.RayTracer;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -13,7 +14,6 @@ import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class WindowGL {
-
     private int width;
     private int height;
     private long window; // The window handle
@@ -81,7 +81,7 @@ public class WindowGL {
         // Make the OpenGL context current
         glfwMakeContextCurrent(window);
         // Enable v-sync
-        glfwSwapInterval(1);
+        glfwSwapInterval(0);
         GL.createCapabilities();
         return window;
     }
@@ -94,10 +94,20 @@ public class WindowGL {
         GL11.glViewport(0, 0, width, height);
         this.width = width;
         this.height = height;
-        //setupTexture();
+        if (WindowManager.RAY_TRACING) { // Make sure to notify the raytracer so it can upscale the resolution
+            RayTracer.setDimensions(width, height);
+        }
     }
 
     public long getWindow() {
         return window;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 }

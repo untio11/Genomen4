@@ -3,6 +3,7 @@ package Graphics;
 import GameState.World;
 import Graphics.RenderEngine.AbstractRenderer;
 import Graphics.RenderEngine.MasterRenderer;
+import Graphics.RenderEngine.RayTracer;
 import Graphics.RenderEngine.Scene;
 import Graphics.Terrains.Terrain;
 import org.lwjgl.opengl.GL;
@@ -11,6 +12,8 @@ import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class WindowManager implements Runnable{
+    public static boolean RAY_TRACING = true;
+
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
     private boolean running = false;
@@ -29,7 +32,7 @@ public class WindowManager implements Runnable{
         this.inputhandler = new InputHandler(World.getInstance().getFather());
         this.windowGL = new WindowGL();
         this.window = windowGL.initGLFW();
-        renderer = new MasterRenderer();
+        renderer = RAY_TRACING ? new RayTracer(windowGL.getWidth(), windowGL.getHeight()) : new MasterRenderer();
         this.scene = new Scene(this.world); // First do window gl and initglfw, otherwise no openGL context will be available
     }
 
