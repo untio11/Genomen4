@@ -64,8 +64,6 @@ public class RayTracer implements AbstractRenderer {
         createQuadProgram();
         setupTexture();
         createRayProgram();
-        // Load shaders
-        // Set compute shader parameters
     }
 
     private void executeRay() {
@@ -175,7 +173,7 @@ public class RayTracer implements AbstractRenderer {
     }
 
     private void createRayProgram() {
-        int ray_shader = loadShader("src/main/java/Graphics/Shaders//raytracer.glsl", GL_COMPUTE_SHADER);
+        int ray_shader = loadShader("src/main/java/Graphics/Shaders/raytracer.glsl", GL_COMPUTE_SHADER);
         System.out.println("[RayTracerShader]: " + GL43.glGetShaderInfoLog(ray_shader));
 
         rayProgram = glCreateProgram();
