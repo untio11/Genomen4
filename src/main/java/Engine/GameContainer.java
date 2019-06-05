@@ -162,6 +162,8 @@ public class GameContainer implements Runnable {
     public void scream(double passedTime) {
         cryTimer -= passedTime;
         if (cryTimer < 0) {
+            World.getInstance().getKidnapper().receiveScream();
+            World.getInstance().getFather().receiveScream();
             cryTimer = cryInterval;
             clips.get(cryNumber).play();
             cryNumber = (cryNumber + 1) % clips.size();
