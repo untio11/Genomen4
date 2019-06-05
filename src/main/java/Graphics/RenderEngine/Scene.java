@@ -9,11 +9,12 @@ import Graphics.Models.ActorModel;
 import Graphics.Models.BaseModel;
 import Graphics.Models.TerrainModel;
 import Graphics.Terrains.TerrainGenerator;
+import org.apache.commons.lang3.ArrayUtils;
+import org.bytedeco.opencv.presets.opencv_core;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.FloatBuffer;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Convert the state of the world to models for the renderer.
@@ -244,13 +245,44 @@ public class Scene {
 
     public class Chunk {
         List<TerrainModel> data;
+        private int vertex_count;
+        private int tringle_count;
+        private int coordinate_amount;
+        private float[] coordinate_stream;
 
         Chunk(List<TerrainModel> tiles) {
             this.data = tiles;
+            this.vertex_count = computeVertexCount();
+            this.tringle_count = vertex_count / 3;
+
+            Stream<Float> stream = Stream.of();
+            for (TerrainModel tile : tiles) {
+                Float[] tile_coordinates = ArrayUtils.toObject(tile.getPosition_data());
+                stream = Stream.concat(stream, Arrays.stream(tile_coordinates));
+            }
+
+            this.coordinate_stream = ArrayUtils.toPrimitive(stream.toArray(Float[]::new));
+            this.coordinate_amount = coordinate_stream.length;
         }
 
-        long getVertexCount() {
-            long sum = 0;
+        public float[] getCoordinateStream() {
+            return coordinate_stream;
+        }
+
+        public int getVertexCount() {
+            return vertex_count;
+        }
+
+        public int getTringleCount() {
+            return tringle_count;
+        }
+
+        public int getCoordinate_amount() {
+            return coordinate_amount;
+        }
+
+        private int computeVertexCount() {
+            int sum = 0;
 
             for (TerrainModel tile : data) {
                 sum += tile.getVertexCount();

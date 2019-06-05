@@ -34,7 +34,7 @@ public class MasterRenderer implements AbstractRenderer {
         actorRenderer = new ActorRenderer(shader, projectionMatrix);
     }
 
-    public void init() { // TODO: should this just all be done in the constructor?
+    public void init(Scene scene) { // TODO: should this just all be done in the constructor?
 
     }
 

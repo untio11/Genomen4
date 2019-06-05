@@ -2,7 +2,6 @@ package Graphics.RenderEngine.RayTracing;
 
 import Graphics.RenderEngine.AbstractRenderer;
 import Graphics.RenderEngine.Scene;
-import org.joml.Matrix3f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.*;
@@ -10,8 +9,8 @@ import org.lwjgl.opengl.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 import static org.lwjgl.opengl.GL11C.*;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
@@ -27,7 +26,8 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class RayTracer implements AbstractRenderer {
     private static int width, height;
     // VAO, VBO & SSBO stuff
-    private static int vaoId, IndexVBO;
+    private static int vaoId, IndexVBO, chunkSSBO;
+    private static Scene.Chunk chunker;
 
     // Shader stuff
     private static int rayProgram, quadProgram;
@@ -40,14 +40,14 @@ public class RayTracer implements AbstractRenderer {
              1f, -1f, 0f, 1f, // 3/4 -> ID:2
              1f,  1f, 0f, 1f, // 5   -> ID:3
     };
-    private static byte[] quad_indices = {
+    private static int[] quad_indices = {
             0, 1, 2,
             2, 3, 0
     };
 
     // Camera stuff
     private static Vector3f camera;
-    private static float fov = 1.2f; // Camera to viewport distance. smaller fov => wider viewangle
+    private static float fov = 0.2f; // Camera to viewport distance. smaller fov => wider viewangle
     private static float[] transform = {
             1f,  0f,  0f, // Right
             0f,  0f, -1f, // Up
@@ -56,7 +56,6 @@ public class RayTracer implements AbstractRenderer {
 
     public RayTracer(int _width, int _height) {
         setDimensions(_width, _height);
-        init();
     }
 
     public static void setDimensions(int _width, int _height) {
@@ -64,11 +63,15 @@ public class RayTracer implements AbstractRenderer {
         height = _height;
     }
 
-    public void init() {
+    public void init(Scene scene) {
         setupQuad();
         createQuadProgram();
         setupTexture();
         createRayProgram();
+
+        // TODO: Bind the chunk buffers to the correct binding points.
+        chunker = scene.getVisibileChunks(scene.getCamera().getPosition().x, scene.getCamera().getPosition().y)[0];
+        chunkSSBO = TerrainLoader.load(chunker);
     }
 
     private void executeRay() {
@@ -84,6 +87,8 @@ public class RayTracer implements AbstractRenderer {
 
         glUseProgram(rayProgram);
 
+        GL43.glProgramUniform1i(rayProgram, 3, chunker.getTringleCount());
+        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 1, chunkSSBO);
         glDispatchCompute(work_x, work_y, 1);
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
     }
@@ -94,7 +99,6 @@ public class RayTracer implements AbstractRenderer {
      */
     private void prepare(Scene scene) {
         camera = scene.getCamera().getPosition();
-        TerrainLoader.load(scene.getVisibileChunks(camera.x, camera.z));
     }
 
     public void render(Scene scene) { // TODO: load the data from the scene object into the compute shader
@@ -142,7 +146,7 @@ public class RayTracer implements AbstractRenderer {
         GL30.glBindVertexArray(vaoId);
 
         FloatBuffer verticesBuffer = createBuffer(quad_vertices);
-        ByteBuffer indexBuffer = createBuffer(quad_indices);
+        IntBuffer indexBuffer = createBuffer(quad_indices);
 
         int vertexVBO = GL15.glGenBuffers();
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexVBO);
@@ -206,7 +210,7 @@ public class RayTracer implements AbstractRenderer {
      * @param data The data that should be put in the buffer
      * @return The buffer with the original data, flipped and ready
      */
-    private FloatBuffer createBuffer(float[] data) {
+    public static FloatBuffer createBuffer(float[] data) {
         FloatBuffer buffer = BufferUtils.createFloatBuffer(data.length);
         buffer.put(data);
         buffer.flip();
@@ -214,12 +218,12 @@ public class RayTracer implements AbstractRenderer {
     }
 
     /**
-     * Convert an array of bytes to a ByteBuffer
+     * Convert an array of bytes to an IntBuffer
      * @param data The data that should be put in the buffer
      * @return The buffer with the original data, flipped and ready
      */
-    private ByteBuffer createBuffer(byte[] data) {
-        ByteBuffer buffer = BufferUtils.createByteBuffer(data.length);
+    public static IntBuffer createBuffer(int[] data) {
+        IntBuffer buffer = BufferUtils.createIntBuffer(data.length);
         buffer.put(data);
         buffer.flip();
         return buffer;

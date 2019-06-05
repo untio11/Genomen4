@@ -17,9 +17,7 @@ public class ActorModel extends BaseModel {
      * @param baseModel The base model with the rendering data.
      */
     public ActorModel(Actor actor, BaseModel baseModel) {
-        super(baseModel.getVaoID(), baseModel.getDataBufferIDs(), baseModel.getVertexCount());
-        setTexture(baseModel.getTextureID());
-        setScale(baseModel.getScale());
+        super(baseModel);
         this.actor = actor;
     }
 

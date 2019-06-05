@@ -10,7 +10,7 @@ import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class WindowManager implements Runnable{
-    public static boolean RAY_TRACING = false;
+    public static boolean RAY_TRACING = true;
 
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
@@ -60,6 +60,8 @@ public class WindowManager implements Runnable{
         double frameTime = 0;
         int frames = 0;
         int fps = 0;
+
+        renderer.init(scene);
 
         while (!glfwWindowShouldClose(window)) { // TODO: Have a genaral Renderer.render() function to call
             render = false;
