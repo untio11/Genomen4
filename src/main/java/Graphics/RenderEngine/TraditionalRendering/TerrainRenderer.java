@@ -1,11 +1,7 @@
 package Graphics.RenderEngine.TraditionalRendering;
 
-import GameState.TileType;
-import Graphics.Models.RawModel;
-import Graphics.Models.TexturedModel;
-import Graphics.Terrains.Terrain;
+import Graphics.Models.TerrainModel;
 import Graphics.Shaders.TerrainShader;
-import Graphics.Textures.TerrainTexture;
 import Toolbox.Maths;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -29,30 +25,30 @@ public class TerrainRenderer {
         shader.stop();
     }
 
-    public void render(List<Terrain> terrains) {
-        for (Terrain terrain : terrains) {
+    public void render(List<TerrainModel> terrains) {
+        for (TerrainModel terrain : terrains) {
             prepareTerrain(terrain);
             loadModelMatrix(terrain);
-            GL11.glDrawElements(GL11.GL_TRIANGLES, terrain.getModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+            GL11.glDrawElements(GL11.GL_TRIANGLES, terrain.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
             unbindTextureModel();
         }
     }
 
-    public void render(Map<TerrainTexture, List<Terrain>> terrains) {
-        for(TerrainTexture texture:terrains.keySet()) {
-            List<Terrain> batch = terrains.get(texture);
+    public void render(Map<Integer, List<TerrainModel>> terrains) {
+        for (Integer texture : terrains.keySet()) {
+            List<TerrainModel> batch = terrains.get(texture);
             prepareTerrain(batch.get(0));
-            for (Terrain terrain:batch) {
+
+            for (TerrainModel terrain : batch) {
                 loadModelMatrix(terrain);
-                GL11.glDrawElements(GL11.GL_TRIANGLES, terrain.getModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+                GL11.glDrawElements(GL11.GL_TRIANGLES, terrain.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
             }
             unbindTextureModel();
         }
     }
 
-    private void prepareTerrain(Terrain terrain) {
-        RawModel model = terrain.getModel();
-        GL30.glBindVertexArray(model.getVaoID());
+    private void prepareTerrain(TerrainModel terrain) {
+        GL30.glBindVertexArray(terrain.getVaoID());
         GL20.glEnableVertexAttribArray(0);  // position
         GL20.glEnableVertexAttribArray(1);  // texture coords
         bindTextures(terrain);
@@ -60,13 +56,10 @@ public class TerrainRenderer {
     }
 
     // binds textures for the shader
-    private void bindTextures(Terrain terrain) {
+    private void bindTextures(TerrainModel terrain) {
         // binds terrain texture to sampler 0
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, terrain.getTexture().getTextureID());
-        // binds second texture to sampler 1 (but not used now)
-//        GL13.glActiveTexture(GL13.GL_TEXTURE1);
-//        GL11.glBindTexture(GL11.GL_TEXTURE_2D, texturePack.getSand().getTextureID());
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, terrain.getTextureID());
     }
 
     private void unbindTextureModel() {
@@ -75,9 +68,9 @@ public class TerrainRenderer {
         GL30.glBindVertexArray(0);
     }
 
-    private void loadModelMatrix(Terrain terrain) {
+    private void loadModelMatrix(TerrainModel terrain) {
         Matrix4f transformationMatrix = Maths.createTransformationMatrix(
-                new Vector3f(terrain.getX(), 0, terrain.getZ()), 0, 0, 0, 1);
+                new Vector3f(terrain.getX(), 0, terrain.getY()), 0, 0, 0, 1);
         shader.loadTransformationMatrix(transformationMatrix);
     }
 }

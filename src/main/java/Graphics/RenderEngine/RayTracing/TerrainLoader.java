@@ -1,13 +1,13 @@
 package Graphics.RenderEngine.RayTracing;
 
-import Graphics.Terrains.Terrain;
-import Graphics.Textures.TerrainTexture;
+import Graphics.RenderEngine.Scene;
 
-import java.util.List;
-import java.util.Map;
-
-public class TerrainLoader {
-    public static void load(Map<TerrainTexture, List<Terrain>> terrains) {
+class TerrainLoader {
+    /**
+     * Bind the data in the given chunks to the SSBO binding points for the compute shader.
+     * @param chunks The chunks to be rendered.
+     */
+    static void load(Scene.Chunk[] chunks) {
 
     }
 }

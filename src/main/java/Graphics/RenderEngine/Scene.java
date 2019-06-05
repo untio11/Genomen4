@@ -5,11 +5,10 @@ import GameState.Entities.Camera;
 import GameState.Tile;
 import GameState.TileType;
 import GameState.World;
-import Graphics.Models.RawModel;
-import Graphics.Models.TexturedModel;
-import Graphics.Terrains.Terrain;
-import Graphics.Textures.ModelTexture;
-import Graphics.Textures.TerrainTexture;
+import Graphics.Models.ActorModel;
+import Graphics.Models.BaseModel;
+import Graphics.Models.TerrainModel;
+import Graphics.Terrains.TerrainGenerator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,27 +25,28 @@ public class Scene {
     private static final int Y_TILES_TO_EDGE = 7;
     private int x_chunks;
     private int y_chunks;
+    private static Chunk[][] chunks;
 
     private static Loader loader;
     private Camera camera;
     private World world;
-    private List<Model> entities;
-    private List<Terrain> terrain_list;
-    private Map<String, Terrain> terrain_map;
-    private Map<TerrainTexture, List<Terrain>> texture_to_terrainlist_map;
-    private static final Map<TileType, TerrainTexture> terrain_type_to_texture_map;
-    private static final TerrainTexture backupTexture;
+    private List<ActorModel> entities;
+    private List<TerrainModel> terrain_list;
+    private Map<String, TerrainModel> terrain_map;
+    private Map<Integer, List<TerrainModel>> texture_to_terrainlist_map;
+    private static final Map<TileType, Integer> terrain_type_to_texture_map;
+    private static final int backupTexture;
 
     static {
         loader = new Loader();
         terrain_type_to_texture_map = new HashMap<>();
         // create textures
-        TerrainTexture water = new TerrainTexture(loader.loadTexture("water"));
-        TerrainTexture sand = new TerrainTexture(loader.loadTexture("sand"));
-        TerrainTexture grass = new TerrainTexture((loader.loadTexture("grass")));
-        TerrainTexture tree = new TerrainTexture((loader.loadTexture("tree")));
-        TerrainTexture shore = new TerrainTexture(loader.loadTexture("shore"));
-        backupTexture = new TerrainTexture((loader.loadTexture("black")));
+        int water = loader.loadTexture("water");
+        int sand =  loader.loadTexture("sand");
+        int grass = loader.loadTexture("grass");
+        int tree =  loader.loadTexture("tree");
+        int shore = loader.loadTexture("shore");
+        backupTexture = loader.loadTexture("black");
 
         // put them in the hashmap
         terrain_type_to_texture_map.put(TileType.WATER, water);
@@ -93,7 +93,6 @@ public class Scene {
         initActors(world.getActors());
         generateChunks();
         camera = world.getCamera();
-        getVisibileChunks(camera.getPosition().x, camera.getPosition().z);
     }
 
     private void generateChunks() {
@@ -106,7 +105,7 @@ public class Scene {
         int left_spillover = (int) Math.floor(x_spillover / 2);
         int top_spillover =  (int) Math.floor(y_spillover / 2);
 
-        Chunk[][] chunks = new Chunk[x_chunks][y_chunks];
+        chunks = new Chunk[x_chunks][y_chunks];
         for (int x = 0; x < x_chunks; x++) {
             for (int y = 0; y < y_chunks; y++) {
                 chunks[x][y] = fillChunk(x, y, top_spillover, left_spillover);
@@ -122,14 +121,17 @@ public class Scene {
      * @param leftpad Amount of water tiles to be added at the left
      */
     private Chunk fillChunk(int x, int y, int toppad, int leftpad) {
-        List<Terrain> tiles = new ArrayList<>();
+        List<TerrainModel> tiles = new ArrayList<>();
         int world_width = World.getInstance().getWidth();
         int world_height = World.getInstance().getHeight();
+        int water_texture = terrain_type_to_texture_map.getOrDefault(TileType.WATER, backupTexture);
 
         for (int c = x * CHUNK_WIDTH - leftpad; c < (x * CHUNK_WIDTH - leftpad) + CHUNK_WIDTH; c++) {
             for (int r = y * CHUNK_HEIGHT - toppad; r < (y * CHUNK_HEIGHT - toppad) + CHUNK_HEIGHT; r++) {
                 if (r < 0 || c < 0 || r > world_height || c > world_width) {
-                    tiles.add(new Terrain(r, c, 0, loader, terrain_type_to_texture_map.getOrDefault(TileType.WATER, backupTexture)));
+
+                    tiles.add(TerrainGenerator.generateTerrain(World.getInstance().getTile(c, r), water_texture, loader));
+
                 } else {
                     tiles.add(terrain_map.get(String.format("(%d,%d)", c, r)));
                 }
@@ -141,26 +143,36 @@ public class Scene {
 
     /**
      * Return the chunks that should be in the viewport. From testing, there seem to be 23 _tiles_ in the horizontal direction
-     * and 13 _tiles_ in the vertical direction. Best case these are 4x5 chunks, worst case there are 5x6 chunks.
+     * and 13 _tiles_ in the vertical direction. Generally there are 4x5 chunks, worst case there are 5x6 chunks, and near
+     * the edges even 3x6 is possible or even smaller (maybe).
      * @param x The x component of the middle of the current viewport in world space coordinates.
      * @param y The y component of the middle of the current viewport in world space coordinates.
-     * @return A 2D array of chunks with indices x,y.
+     * @return An array of chunks that should at least be partly visible on screen.
      */
-    public Chunk[][] getVisibileChunks(float x, float y) {
+    public Chunk[] getVisibileChunks(float x, float y) {
         int left_x_chunk = Math.max((int) ((x - X_TILES_TO_EDGE) / CHUNK_WIDTH), 0);
-        int bottom_y_chunk = Math.max((int) ((y - Y_TILES_TO_EDGE) / CHUNK_HEIGHT), 0);
         int right_x_chunk = Math.min((int) ((x + X_TILES_TO_EDGE) / CHUNK_WIDTH), x_chunks);
         int top_y_chunk = Math.min((int) ((y + Y_TILES_TO_EDGE) / CHUNK_HEIGHT), y_chunks);
-        return null;
+        int bottom_y_chunk = Math.max((int) ((y - Y_TILES_TO_EDGE) / CHUNK_HEIGHT), 0);
+        Chunk[] result = new Chunk[(1 + right_x_chunk - left_x_chunk) * (1 + top_y_chunk - bottom_y_chunk)];
+
+        int counter = 0;
+        for (int i = left_x_chunk; i < right_x_chunk; i++) {
+            for (int j = bottom_y_chunk; j < top_y_chunk; j++) {
+                result[counter++] = chunks[i][j];
+            }
+        }
+
+        return result;
     }
 
     private void initActors(Actor[] actors) {
         for (Actor actor : actors) {
-            RawModel playerModel = OBJLoader.loadObjModel("player", loader); // TODO: get model and texture for thief
-            ModelTexture playerTexture = new ModelTexture(loader.loadTexture("playerTexture"));
-            TexturedModel texturedPlayer = new TexturedModel(playerModel, playerTexture);
-            Model actorModel = new Model(actor, texturedPlayer, 0.2f);
-            entities.add(actorModel);
+            BaseModel playerModel = OBJLoader.loadObjModelInVao("player", loader); // TODO: get model and texture for thief
+            int playerTexture = loader.loadTexture("playerTexture");
+            playerModel.setTexture(playerTexture);
+
+            entities.add(new ActorModel(actor, playerModel));
         }
     }
 
@@ -170,22 +182,19 @@ public class Scene {
      */
     private void initTileMap() { // TODO: can we make this static?
         texture_to_terrainlist_map.clear();
-        TileType tileType;
+        Tile tile;
+        int texture;
 
-        for(int r = 0; r < World.getInstance().getWidth(); r++) {
-            for (int c = 0; c < World.getInstance().getHeight(); c++) {
+        for(int x = 0; x < World.getInstance().getWidth(); x++) {
+            for (int y = 0; y < World.getInstance().getHeight(); y++) {
                 // get texture form hashmap, if it isn't there, use the backupTexture
-                tileType = world.getTileType(r,c);
+                tile = World.getInstance().getTile(x, y);
+                texture = terrain_type_to_texture_map.getOrDefault(tile.getType(), backupTexture);
+                TerrainModel terrain = TerrainGenerator.generateTerrain(tile, texture, loader);
 
-                int height = 0; // TODO: Height can probably be decided inside the Terrain class too
-                if (tileType == TileType.TREE) {
-                    height = 1;
-                }
-
-                Terrain terrain = new Terrain(r, c, height, loader, terrain_type_to_texture_map.getOrDefault(tileType, backupTexture));
                 // add to terrainList, which will be processed in loop
                 terrain_list.add(terrain);
-                terrain_map.put(String.format("(%d,%d)", r, c), terrain);
+                terrain_map.put(String.format("(%d,%d)", x, y), terrain);
                 processTerrain(terrain);
             }
         }
@@ -195,13 +204,14 @@ public class Scene {
      * Puts the given terrain in the texture to terrain list map
      * @param terrain The terrain to be added to the map.
      */
-    private void processTerrain(Terrain terrain) {
-        TerrainTexture texture = terrain.getTexture();
-        List<Terrain> terrainBatch = texture_to_terrainlist_map.get(texture);
+    private void processTerrain(TerrainModel terrain) {
+        int texture = terrain.getTextureID();
+        List<TerrainModel> terrainBatch = texture_to_terrainlist_map.get(texture);
+
         if (terrainBatch != null) {
             terrainBatch.add(terrain);
         } else {
-            List<Terrain> newBatch = new ArrayList<>();
+            List<TerrainModel> newBatch = new ArrayList<>();
             newBatch.add(terrain);
             texture_to_terrainlist_map.put(texture, newBatch);
         }
@@ -211,7 +221,7 @@ public class Scene {
         loader.cleanUp();
     }
 
-    public List<Model> getEntities() {
+    public List<ActorModel> getEntities() {
         return entities;
     }
 
@@ -219,11 +229,11 @@ public class Scene {
      * To fetch all the terrain objects in the scene
      * @return The list of all terrain objects in the scene
      */
-    public List<Terrain> getTerrainList() {
+    public List<TerrainModel> getTerrainList() {
         return terrain_list;
     }
 
-    public Map<TerrainTexture, List<Terrain>> getTexture_to_terrainlist_map() {
+    public Map<Integer, List<TerrainModel>> getTexture_to_terrainlist_map() {
         return texture_to_terrainlist_map;
     }
 
@@ -231,18 +241,18 @@ public class Scene {
         return camera;
     }
 
-    private class Chunk {
-        List<Terrain> data;
+    public class Chunk {
+        List<TerrainModel> data;
 
-        Chunk(List<Terrain> tiles) {
+        Chunk(List<TerrainModel> tiles) {
             this.data = tiles;
         }
 
         long getVertexCount() {
             long sum = 0;
 
-            for (Terrain tile : data) {
-                sum += tile.getModel().getVertexCount();
+            for (TerrainModel tile : data) {
+                sum += tile.getVertexCount();
             }
 
             return sum;

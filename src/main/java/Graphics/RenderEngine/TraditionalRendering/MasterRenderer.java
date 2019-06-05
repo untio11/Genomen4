@@ -1,13 +1,12 @@
 package Graphics.RenderEngine.TraditionalRendering;
 
 import GameState.Entities.Camera;
+import Graphics.Models.ActorModel;
+import Graphics.Models.TerrainModel;
 import Graphics.RenderEngine.AbstractRenderer;
-import Graphics.RenderEngine.Model;
 import Graphics.RenderEngine.Scene;
 import Graphics.Shaders.StaticShader;
-import Graphics.Terrains.Terrain;
 import Graphics.Shaders.TerrainShader;
-import Graphics.Textures.TerrainTexture;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
@@ -43,8 +42,8 @@ public class MasterRenderer implements AbstractRenderer {
     public void render(Scene scene) {
         camera = scene.getCamera();
         prepare();
-        List<Model> entities = scene.getEntities();
-        Map<TerrainTexture, List<Terrain>> terrain_map = scene.getTexture_to_terrainlist_map();
+        List<ActorModel> entities = scene.getEntities();
+        Map<Integer, List<TerrainModel>> terrain_map = scene.getTexture_to_terrainlist_map();
 
         // render entities
         shader.start();

@@ -1,11 +1,8 @@
 package Graphics.RenderEngine;
 
-import Graphics.Models.RawModel;
+import Graphics.Models.BaseModel;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.*;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.ByteBuffer;
@@ -22,14 +19,22 @@ public class Loader {
     private List<Integer> vbos = new ArrayList<>();
     private List<Integer> textures = new ArrayList<>();
 
-    public RawModel loadToVAO(float[] positions, float[] textureCoords, float[] normals, int[] indices) {
+    public BaseModel loadToModel(float[] positions, float[] textureCoords, float[] normals, int[] indices) {
         int vaoID = createVAO();
         bindIndicesBuffer(indices);
         storeDataInAttributeList(0, 3, positions);
         storeDataInAttributeList(1, 2, textureCoords);
         storeDataInAttributeList(2, 3, normals);
         unbindVAO();
-        return new RawModel(vaoID, indices.length);
+
+        int[] bufferIDs = {
+            storeDataInBareBuffer(positions),
+            storeDataInBareBuffer(normals),
+            storeDataInBareBuffer(textureCoords),
+            storeDataInBareBuffer(indices)
+        };
+
+        return new BaseModel(vaoID, bufferIDs, indices.length);
     }
 
     public int loadTexture(String fileName) {
@@ -89,6 +94,30 @@ public class Loader {
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
         GL20.glVertexAttribPointer(attrNum, coordSize, GL11.GL_FLOAT, false, 0, 0);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+    }
+
+    /**
+     * Store the given data into a buffer to be used by the compute shader and return th ID to that buffer.
+     * @param data The data to be put in the buffer.
+     * @return Pointer to the generated buffer.
+     */
+    private int storeDataInBareBuffer(float[] data) {
+        int SSBOID = GL15.glGenBuffers();
+        GL43.glBindBuffer(GL43.GL_ARRAY_BUFFER, SSBOID);
+        GL43.glBufferData(GL43.GL_ARRAY_BUFFER, storeDataInFLoatBuffer(data), GL43.GL_STATIC_DRAW);
+        return  SSBOID;
+    }
+
+    /**
+     * Store the given data into a buffer to be used by the compute shader.
+     * @param data The data to be put in the buffer.
+     * @return Pointer to the generated buffer.
+     */
+    private int storeDataInBareBuffer(int[] data) {
+        int SSBOID = GL15.glGenBuffers();
+        GL43.glBindBuffer(GL43.GL_ARRAY_BUFFER, SSBOID);
+        GL43.glBufferData(GL43.GL_ARRAY_BUFFER, storeDataInIntBuffer(data), GL43.GL_STATIC_DRAW);
+        return  SSBOID;
     }
 
     private void unbindVAO() {

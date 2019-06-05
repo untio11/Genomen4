@@ -94,6 +94,7 @@ public class RayTracer implements AbstractRenderer {
      */
     private void prepare(Scene scene) {
         camera = scene.getCamera().getPosition();
+        TerrainLoader.load(scene.getVisibileChunks(camera.x, camera.z));
     }
 
     public void render(Scene scene) { // TODO: load the data from the scene object into the compute shader
