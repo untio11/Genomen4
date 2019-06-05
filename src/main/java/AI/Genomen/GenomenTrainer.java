@@ -125,5 +125,7 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
 
         this.setResults1(fatherPlayer, fatherScore);
         this.setResults2(kidnapperPlayer, kidnapperScore);
+
+        World.cleanWorld();
     }
 }

@@ -5,6 +5,10 @@ import GameState.Entities.Actor;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Set;
+
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 
 public class KeyController extends Controller implements KeyListener {
 
@@ -17,9 +21,12 @@ public class KeyController extends Controller implements KeyListener {
     private int right = KeyEvent.VK_D;
     private int rKey = KeyEvent.VK_R;
 
+
     public KeyController(Window window) {
         window.getCanvas().addKeyListener(this);
     }
+
+
 
     public void setKeys(int up, int down, int left, int right) {
         this.up = up;
