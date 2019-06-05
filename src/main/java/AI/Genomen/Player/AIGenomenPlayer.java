@@ -1,6 +1,5 @@
 package AI.Genomen.Player;
 
-import AI.ConnectFour.PlayConnectFour;
 import AI.Trainer.TrainerAIPlayer;
 import Engine.Controller.AIController;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
@@ -25,17 +24,21 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     public static final int UPDATE_FREQUENCY = 30;
 
     // The number of inputs of the neural network
-    public static final int INPUT_COUNT = 8;
+    public static final int INPUT_COUNT = 4;
+
+    // Add the player position to the input
+    public static final boolean ADD_POSITION = true;
+    public static final int POSITION_COUNT = ADD_POSITION ? 2 : 0;
 
     // The number of outputs of the neural network
     public static final int OUTPUT_COUNT = 2;
 
     // The number of values that the neural network should remember
     // These will be passed through in the next iteration
-    public static final int REMEMBER_COUNT = 0;
+    public static final int REMEMBER_COUNT = 2;
 
     // The maximum length of each ray coming from the player
-    public static final int MAX_RAY_LENGTH = 3;
+    public static final int MAX_RAY_LENGTH = 6;
 
     // The current number of frames elapsed since the last update
     protected int frame = 0;
@@ -67,9 +70,14 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     }
 
     protected void movePlayer() {
+        double[] position = new double[0];
+        if (ADD_POSITION) {
+            position = this.getPosition();
+        }
+
         double[][] input = this.getInput(INPUT_COUNT, MAX_RAY_LENGTH);
         // Process the input so the neural network can accept it
-        INDArray indArray = this.inputToINDArray(input);
+        INDArray indArray = this.inputToINDArray(position, input);
 
         // Evaluate the network with the processed input
         INDArray output = this.evaluateNetwork(indArray);
@@ -82,11 +90,25 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
         this.setAxis(xAxis, yAxis);
     }
 
-    private INDArray inputToINDArray(double[][] input) {
+    private INDArray inputToINDArray(double[] position, double[][] input) {
         // Process the input array from a 2D double array to 1D double array and normalize values if necessary
         double[] processedInput = this.processInput(input);
+
+        // adding the remembered inputs to the processed inputs
+        int length = position.length + processedInput.length + REMEMBER_COUNT;
+        double[] netInput = new double[length];
+        for (int i = 0; i < length; i++) {
+            if (i < position.length) {
+                netInput[i] = position[i];
+            } else if (i < position.length + processedInput.length) {
+                netInput[i] = processedInput[i - position.length];
+            } else {
+                netInput[i] = rememberInputs[i - position.length - processedInput.length];
+            }
+        }
+
         // Convert the processed inputs to an INDArray
-        INDArray indArray = Nd4j.create(processedInput, new int[]{1, processedInput.length});
+        INDArray indArray = Nd4j.create(netInput, new int[]{1, netInput.length});
         return indArray;
     }
 
@@ -95,8 +117,16 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
         for (int i = 0; i < input.length; i++) {
             if (i == input.length - 1) {
                 processed[i*2] = input[i][0];
-                processed[i*2+1] = input[i][1];
-                processed[i*2+2] = input[i][2];
+
+                double magnitude = input[i][1];
+                double angle = input[i][2];
+                double angleOffset = 0;
+
+                double xOffset = Math.cos(Math.toRadians(angle + angleOffset));
+                double yOffset = Math.sin(Math.toRadians(angle + angleOffset));
+
+                processed[i*2+1] = xOffset; //input[i][1];
+                processed[i*2+2] = yOffset; //input[i][2];
                 continue;
             }
             // Normalize the values and store them in the 1D array
@@ -116,7 +146,13 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
 
     private INDArray evaluateNetwork(INDArray indArray) {
         // Evaluate the neural network with set input and return the output
-        return net.output(indArray);
+        INDArray output = net.output(indArray);
+        // set rememberInputs to the last part of the output
+        for (int i = 0; i < REMEMBER_COUNT; i++) {
+            rememberInputs[i] = output.getDouble(0, i + OUTPUT_COUNT);
+        }
+
+        return output;
     }
 
     protected void createNetwork() {
@@ -128,9 +164,19 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
                 .miniBatch(false)
                 .list()
                 .layer(new DenseLayer.Builder()
-                        .nIn((INPUT_COUNT + 1) * 2 + 1 + REMEMBER_COUNT)
-                        .nOut((INPUT_COUNT + 1) * 2 + 1 + REMEMBER_COUNT)
+                        .nIn((INPUT_COUNT + 1) * 2 + 1 + REMEMBER_COUNT + POSITION_COUNT)
+                        .nOut((INPUT_COUNT + 1) * 2 + 1 + REMEMBER_COUNT + POSITION_COUNT)
                         .activation(Activation.RELU)
+                        .weightInit(new UniformDistribution(-1, 1))
+                        .build())
+                .layer(new DenseLayer.Builder()
+                        .nOut(20)
+                        .activation(Activation.TANH)
+                        .weightInit(new UniformDistribution(-1, 1))
+                        .build())
+                .layer(new DenseLayer.Builder()
+                        .nOut(10)
+                        .activation(Activation.TANH)
                         .weightInit(new UniformDistribution(-1, 1))
                         .build())
                 .layer(new OutputLayer.Builder(LossFunctions.LossFunction.L2)

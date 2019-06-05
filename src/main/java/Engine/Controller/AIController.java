@@ -1,6 +1,7 @@
 package Engine.Controller;
 
-import GameState.Entities.Actor;
+import GameState.World;
+import org.joml.Vector3f;
 
 public class AIController extends Controller {
 
@@ -31,5 +32,15 @@ public class AIController extends Controller {
 
     public double[][] getInput(int nRays, int maxLength) {
         return this.player.castRays(nRays, maxLength);
+    }
+
+    public double[] getPosition() {
+        Vector3f pos = this.player.getPosition();
+        World w = World.getInstance();
+        double x = pos.x / w.getWidth();
+        double y = pos.y / w.getHeight();
+        x = x * 2 - 1;
+        y = y * 2 - 1;
+        return new double[] {x, y};
     }
 }

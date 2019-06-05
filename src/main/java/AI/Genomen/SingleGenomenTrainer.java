@@ -1,7 +1,10 @@
 package AI.Genomen;
 
 import AI.Genomen.Player.AIGenomenPlayer;
-import AI.Trainer.BiAIGameTrainer;
+import AI.Genomen.Player.RandomGenomenPlayer;
+import AI.Genomen.Player.SimpleGenomenPlayer;
+import AI.Genomen.Player.StaticGenomenPlayer;
+import AI.Trainer.SingleBiAIGameTrainer;
 import Engine.Controller.Controller;
 import Engine.GameContainer;
 import GameState.MapConfiguration;
@@ -11,32 +14,38 @@ import org.joml.Vector3f;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import util.Pair;
 
+import javax.naming.ldap.Control;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPlayer, GameContainer> {
+public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer, Controller, GameContainer> {
+
+    // Boolean for choosing between the father and kidnapper
+    private boolean fatherAI = true;
+
+    private static final int GAMES = 3;
 
     private static final int WINNING_FACTOR = 4;
 
     private static final int TIME_FACTOR = 2;
 
-    private static MapConfiguration mapConfig = MapConfigurations.getBigEmptyMap();
+    private static MapConfiguration mapConfig = MapConfigurations.getStarterMap();
 
-    public GenomenTrainer(int nPlayers, int iterations) {
+    public SingleGenomenTrainer(int nPlayers, int iterations) {
         super(nPlayers, iterations);
     }
 
     @Override
     protected String getName() {
-        return "genomen";
+        return "single-genomen";
     }
 
     public static void main(String[] args) {
-        int players = 30;
-        GenomenTrainer trainer = new GenomenTrainer(players, 20);
+        int players = 100;
+        SingleGenomenTrainer trainer = new SingleGenomenTrainer(players, 300);
 
         long startTime = System.nanoTime();
 
@@ -49,15 +58,15 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
 
         System.out.println("Genetic algorithm duration: " +  durationSecs + " seconds");
 
-        LinkedHashMap<AIGenomenPlayer, Integer> sortedPlayers = trainer.getScoredPlayers2();
+        LinkedHashMap<AIGenomenPlayer, Integer> sortedPlayers = trainer.getScoredPlayers1();
 
         // Play against the best father player
         World.initWorld(mapConfig);
         final GameContainer game = new GameContainer(World.getInstance(), true);
-        Controller kidnapperAI = sortedPlayers.entrySet().iterator().next().getKey();
-        kidnapperAI.setPlayer(World.getInstance().getKidnapper());
-        game.setKidnapperAI(kidnapperAI);
-        game.setFatherPlayer();
+        Controller fatherAI = sortedPlayers.entrySet().iterator().next().getKey();
+        fatherAI.setPlayer(World.getInstance().getFather());
+        game.setFatherAI(fatherAI);
+        game.setKidnapperPlayer();
         game.start();
     }
 
@@ -77,28 +86,22 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
     }
 
     @Override
-    protected AIGenomenPlayer createPlayer2() {
-        AIGenomenPlayer player = new AIGenomenPlayer();
-        player.init();
-        return player;
+    protected void createPlayers2(List<Controller> players) {
+        players.add(new StaticGenomenPlayer());
+        players.add(new RandomGenomenPlayer());
+        players.add(new SimpleGenomenPlayer());
     }
 
     @Override
-    protected AIGenomenPlayer createPlayer2(Map<String, INDArray> paramTable) {
-        AIGenomenPlayer player = new AIGenomenPlayer();
-        player.init();
-        player.getNetwork().setParamTable(paramTable);
-        return player;
-    }
-
-    @Override
-    protected List<Pair<AIGenomenPlayer, AIGenomenPlayer>> createCompetition(List<AIGenomenPlayer> players1, List<AIGenomenPlayer> players2) {
-        List<Pair<AIGenomenPlayer, AIGenomenPlayer>> competition = new ArrayList<>();
+    protected List<Pair<AIGenomenPlayer, Controller>> createCompetition(List<AIGenomenPlayer> players1, List<Controller> players2) {
+        List<Pair<AIGenomenPlayer, Controller>> competition = new ArrayList<>();
 
         // Create a bipartite graph as the competition
         for (AIGenomenPlayer player1 : players1) {
-            for (AIGenomenPlayer player2 : players2) {
-                competition.add(new Pair<>(player1, player2));
+            for (Controller player2 : players2) {
+                for (int i = 0; i < GAMES; i++) {
+                    competition.add(new Pair<>(player1, player2));
+                }
             }
         }
 
@@ -106,7 +109,7 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
     }
 
     @Override
-    protected GameContainer createGame(Pair<AIGenomenPlayer, AIGenomenPlayer> players) {
+    protected GameContainer createGame(Pair<AIGenomenPlayer, Controller> players) {
         World.initWorld(mapConfig);
         GameContainer gc = new GameContainer(World.getInstance(), false);
         players.getFirst().setPlayer(World.getInstance().getFather());
@@ -134,9 +137,9 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
         fatherScore += remainingTime * TIME_FACTOR;
         kidnapperScore += (roundTime - remainingTime) * TIME_FACTOR;
 
-        AIGenomenPlayer fatherPlayer = (AIGenomenPlayer) game.getFatherController();
+        Controller fatherPlayer = game.getFatherController();
         Vector3f fatherPos = fatherPlayer.getPlayer().getPosition();
-        AIGenomenPlayer kidnapperPlayer = (AIGenomenPlayer) game.getKidnapperController();
+        Controller kidnapperPlayer = game.getKidnapperController();
         Vector3f kidnapperPos = kidnapperPlayer.getPlayer().getPosition();
 
         int distance = (int) fatherPos.distance(kidnapperPos);
@@ -144,9 +147,10 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
         kidnapperScore += distance;
         fatherScore += game.getMaxDistance() - distance;
 
-        this.setResults1(fatherPlayer, fatherScore);
-        this.setResults2(kidnapperPlayer, kidnapperScore);
-
-        World.cleanWorld();
+        if (fatherAI) {
+            this.setResults1((AIGenomenPlayer) fatherPlayer, fatherScore);
+        } else {
+            this.setResults1((AIGenomenPlayer) kidnapperPlayer, kidnapperScore);
+        }
     }
 }

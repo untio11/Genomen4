@@ -20,10 +20,17 @@ public class World {
     private Actor father;
     private Actor kidnapper;
     private Camera camera;
+    private MapConfiguration mapConfig;
+
+    private double randomStart;
 
     private World(MapConfiguration mapConfig) {
+        this.mapConfig = mapConfig;
         this.width = mapConfig.getMapSize();
         this.height = mapConfig.getMapSize();
+
+        Random r = new Random();
+        this.randomStart = r.nextDouble();
 
         this.data = new MapGenerator(mapConfig).generate();
 
@@ -96,12 +103,25 @@ public class World {
      */
     private Actor spawnActor(boolean kidnapper) {
         Position spawn = new Position(0, 0);
+
+        // TODO: Check if the actor spawns on a non-walkable tile
+
+        double radians = this.randomStart * 2 * Math.PI;
+        double radius = this.width / 2 - mapConfig.getStartRadius();
+
+        double yOffset = Math.sin(radians) * radius;
+        double xOffset = Math.cos(radians) * radius;
+
         if (kidnapper) {
-            spawn.x = width - 5;
-        } else {
-            spawn.x = 5;
+            yOffset *= -1;
+            xOffset *= -1;
         }
-        spawn.y = height / 2;
+
+        double y = height * 1f / 2 + yOffset;
+        double x = width * 1f / 2 + xOffset;
+
+        spawn.y = (int) y;
+        spawn.x = (int) x;
 
         return new Actor(
                 this,
@@ -152,5 +172,9 @@ public class World {
 
     public Tile[][] getTiles() {
         return data;
+    }
+
+    public MapConfiguration getMapConfig() {
+        return this.mapConfig;
     }
 }
