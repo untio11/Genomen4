@@ -18,6 +18,7 @@ public class Renderer {
     }
 
     public void render() {
+        clear();
         renderTiles();
         renderPlayer(world.getFather());
         renderPlayer(world.getKidnapper());

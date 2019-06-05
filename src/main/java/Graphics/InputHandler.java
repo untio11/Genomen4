@@ -4,19 +4,28 @@ import Engine.Controller.Controller;
 import GameState.Entities.Actor;
 import GameState.Entities.Camera;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class InputHandler {
+public class InputHandler extends Controller {
 
     private Actor player;
+    Set<Integer> pressedKeys;
 
     public InputHandler(Actor player) {
         this.player = player;
+        this.pressedKeys = new HashSet<>();
     }
 
-    void update(double dt, Set<Integer> pressedKeys) {
+    @Override
+    public void passInput(Set<Integer> pressedKeys) {
+        this.pressedKeys = pressedKeys;
+    }
+
+    @Override
+    public void update(double dt) {
         for (int keyPressed : pressedKeys) {
             switch (keyPressed) {
                 case GLFW_KEY_W:

@@ -34,12 +34,13 @@ public class GameContainer implements Runnable {
 
     private Window window;
     private Renderer renderer;
-    private World world;
     private Controller kidnapperController, fatherController;
+
     ArrayList<SoundClip> clips;
     SoundClip music;
-
+    private World world;
     private int maxDistance;
+
     /**
      * @param renderWindow whether to render
      */
@@ -52,14 +53,15 @@ public class GameContainer implements Runnable {
         clips.add(clip1);
         clips.add(clip2);
         clips.add(clip3);
+
         this.world = world;
         int size = world.getMapConfig().getMapSize();
         int sizeSquared = size * size;
         this.maxDistance = (int) Math.sqrt(sizeSquared + sizeSquared);
+        this.renderWindow = renderWindow;
 
         pixelWidth = Renderer.TS * (world.getWidth());
         pixelHeight = Renderer.TS * (world.getHeight());
-        this.renderWindow = renderWindow;
         if (renderWindow) {
             window = new Window(pixelWidth, pixelHeight, scale);
             renderer = new Renderer(window, world);
@@ -146,6 +148,8 @@ public class GameContainer implements Runnable {
         return this.kidnapperController;
     }
 
+    public void close() {}
+
     /**
      * Game Loop
      */
@@ -153,6 +157,7 @@ public class GameContainer implements Runnable {
         running = true;
         roundTime = ROUND_TIME;
         if (renderWindow) {
+            window.display();
             windowed();
         } else {
             headless();
@@ -176,8 +181,7 @@ public class GameContainer implements Runnable {
         cryNumber = 0;
 
         while (running){
-            kidnapperController.update(UPDATE_CAP);
-            fatherController.update(UPDATE_CAP);
+            updateActor();
             roundTime -= UPDATE_CAP;
             passedTime += UPDATE_CAP;
 
@@ -206,7 +210,6 @@ public class GameContainer implements Runnable {
         cryTimer = cryInterval;
         cryNumber = 0;
 
-        window.display();
         music.loop();
         while (running) {
             render = false;
@@ -222,16 +225,16 @@ public class GameContainer implements Runnable {
             //in case the game freezes, the while loop tries to catch up by updating faster
             while (unprocessedTime >= UPDATE_CAP) {
 
-                unprocessedTime -= UPDATE_CAP;
                 render = true;
+                unprocessedTime -= UPDATE_CAP;
 
                 //update game
-                kidnapperController.update(UPDATE_CAP);
-                fatherController.update(UPDATE_CAP);
+                updateActor();
 
                 if (frameTime >= 1.0) {
                     frameTime = 0;
                     fps = frames;
+                    System.out.println(fps + "fps <=> " + (float) 1000/frames + "ms/frame");
                     frames = 0;
                 }
             }
@@ -254,9 +257,8 @@ public class GameContainer implements Runnable {
 
 
             if (render) {
-                renderer.clear();   //clear window
-                renderer.render();  //render game
-                window.update();    //draw window
+                finalRender();
+
                 frames++;
             } else {
                 try {
@@ -267,6 +269,17 @@ public class GameContainer implements Runnable {
             }
         }
         music.stop();
+        close();
+    }
+
+    public void finalRender() {
+        renderer.render();  //render game
+        window.update();    //draw window
+    }
+
+    public void updateActor() {
+        fatherController.update(UPDATE_CAP);
+        kidnapperController.update(UPDATE_CAP);
     }
 
     public double getRemainingTime() {
