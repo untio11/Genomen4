@@ -26,6 +26,8 @@ public class GameContainer implements Runnable {
     private boolean humanPlayer = false;
     private double roundTime;
     private boolean fatherWin;
+    double cryTimer;
+    int cryNumber;
 
     private int pixelWidth, pixelHeight;
     private float scale = 0.5f;
@@ -157,11 +159,27 @@ public class GameContainer implements Runnable {
         }
     }
 
+    public void scream(double passedTime) {
+        cryTimer -= passedTime;
+        if (cryTimer < 0) {
+            cryTimer = cryInterval;
+            clips.get(cryNumber).play();
+            cryNumber = (cryNumber + 1) % clips.size();
+        }
+    }
+
     public void headless() {
+        double passedTime = 0;
+        cryTimer = cryInterval;
+        cryNumber = 0;
+
         while (running){
             kidnapperController.update(UPDATE_CAP);
             fatherController.update(UPDATE_CAP);
             roundTime -= UPDATE_CAP;
+            passedTime += UPDATE_CAP;
+
+            scream(passedTime);
 
             if (world.isPlayerCollision()) {
                 fatherWin = true;
@@ -173,6 +191,7 @@ public class GameContainer implements Runnable {
         }
     }
 
+
     public void windowed(){
         boolean render;
         double firstTime;
@@ -182,8 +201,8 @@ public class GameContainer implements Runnable {
         double frameTime = 0;
         int frames = 0;
         int fps = 0;
-        double cryTimer = cryInterval;
-        int cryNumber = 0;
+        cryTimer = cryInterval;
+        cryNumber = 0;
 
         window.display();
         music.loop();
@@ -196,14 +215,8 @@ public class GameContainer implements Runnable {
             frameTime += passedTime;
             roundTime -= passedTime;
 
-            cryTimer -= passedTime;
-            if (cryTimer < 0) {
-                cryTimer = cryInterval;
-                clips.get(cryNumber).play();
-                cryNumber = (cryNumber + 1) % clips.size();
-            }
+            scream(passedTime);
 
-            
             //in case the game freezes, the while loop tries to catch up by updating faster
             while (unprocessedTime >= UPDATE_CAP) {
 
