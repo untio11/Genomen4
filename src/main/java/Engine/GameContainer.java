@@ -165,7 +165,6 @@ public class GameContainer implements Runnable {
             World.getInstance().getKidnapper().receiveScream();
             World.getInstance().getFather().receiveScream();
             cryTimer = cryInterval;
-            clips.get(cryNumber).play();
             cryNumber = (cryNumber + 1) % clips.size();
         }
     }
@@ -218,6 +217,7 @@ public class GameContainer implements Runnable {
             roundTime -= passedTime;
 
             scream(passedTime);
+            clips.get(cryNumber).play();
 
             //in case the game freezes, the while loop tries to catch up by updating faster
             while (unprocessedTime >= UPDATE_CAP) {
