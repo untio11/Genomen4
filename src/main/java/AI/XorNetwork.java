@@ -17,6 +17,8 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
+import java.util.Map;
+
 /**
  * Example taken from https://github.com/deeplearning4j/dl4j-examples/blob/master/dl4j-examples/src/main/java/org/deeplearning4j/examples/feedforward/xor/XorExample.java
  */
@@ -51,6 +53,24 @@ public class XorNetwork {
         Evaluation eval = new Evaluation();
         eval.eval(dataset.getLabels(), output);
         System.out.println(eval.stats());
+
+        // The learning of the network is done, now create a new network that is a copy of the original to test the param tables
+
+        System.out.println("=================");
+
+        Map<String, INDArray> paramTable = net.paramTable();
+
+        this.createNetwork();
+
+        this.net.setParamTable(paramTable);
+
+        INDArray output2 = net.output(dataset.getFeatures());
+        System.out.println(output2);
+
+        Evaluation eval2 = new Evaluation();
+        eval2.eval(dataset.getLabels(), output2);
+        System.out.println(eval2.stats());
+
     }
 
     protected void createData() {

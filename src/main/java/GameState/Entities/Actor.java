@@ -21,6 +21,8 @@ public class Actor extends Entity implements Observable {
     private float size;
     private boolean kidnapper;
     private World world;
+    private int rayCalls = 0;
+    private double previousAngle;
 
     // Turnspeed has to be a divisor of 90
     private float turnSpeed = 30f;
@@ -37,7 +39,7 @@ public class Actor extends Entity implements Observable {
         this.rotation = rotation;
         this.size = size;
         this.kidnapper = kidnapper;
-        this.speed = kidnapper ? 6 : 7; //different speed for the two players
+        this.speed = kidnapper ? 3 : 4; //different speed for the two players
         this.world = world;
         this.observers = new ArrayList<>();
     }
@@ -277,13 +279,27 @@ public class Actor extends Entity implements Observable {
         if (playerInSight) {
             rayToOpponent[0] = 2;
             rayToOpponent[1] = distanceToOpponent;
+            previousAngle = rayToOpponent[2];
             results[results.length - 1] = rayToOpponent;
 //            System.out.println("Player in sight! " + Arrays.toString(rayToOpponent));
         } else {
             rayToOpponent[0] = 0;
             rayToOpponent[1] = -1;
-            rayToOpponent[2] = -1;
+
+            if (rayCalls != 0) {
+                rayToOpponent[2] = previousAngle;
+            } else {
+                previousAngle = rayToOpponent[2];
+            }
+
             results[results.length - 1] = rayToOpponent;
+        }
+
+        //castRays is called every 30 frames, which is 0.5 seconds. So now, every 7 seconds, a scream happens and the
+        //angle is updated.
+        rayCalls++;
+        if (rayCalls >= 14) {
+            rayCalls = 0;
         }
 
         return results;

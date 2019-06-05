@@ -20,6 +20,11 @@ public class GeneticAlgorithmTest {
         INDArray zeros = Nd4j.rand(5, 5); //Nd4j.zeros(5, 5);
         INDArray ones = Nd4j.rand(5, 5); //Nd4j.ones(5, 5);
 
+        zeros.subi(0.5);
+        zeros = zeros.mul(zeros).mul(zeros);
+        zeros.muli(8);
+
+//        zeros.muli(2).subi(1);
 
         System.out.println(zeros);
         System.out.println(ones);
