@@ -168,11 +168,12 @@ public class Scene {
 
     private void initActors(Actor[] actors) {
         for (Actor actor : actors) {
-            BaseModel playerModel = OBJLoader.loadObjModelInVao("player", loader); // TODO: get model and texture for thief
+            BaseModel playerBase = OBJLoader.loadObjModelInVao("player", loader); // TODO: get model and texture for thief
             int playerTexture = loader.loadTexture("playerTexture");
-            playerModel.setTexture(playerTexture);
+            playerBase.setTexture(playerTexture);
+            playerBase.setScale(0.2f);
 
-            entities.add(new ActorModel(actor, playerModel));
+            entities.add(new ActorModel(actor, playerBase));
         }
     }
 

@@ -8,6 +8,8 @@ public class TerrainModel extends BaseModel { // Note: could be more efficient w
 
     public TerrainModel(Tile tile, BaseModel base) {
         super(base.getVaoID(), base.getDataBufferIDs(), base.getVertexCount());
+        setTexture(base.getTextureID());
+        setScale(base.getScale());
         this.x = tile.getColumn() * SIZE;
         this.y = tile.getRow() * SIZE;
     }

@@ -15,6 +15,7 @@ public class TerrainGenerator {
     public static TerrainModel generateTerrain(Tile tile, int texture, Loader loader) {
         height = (tile.getType() == TileType.TREE) ? 10 : 0;
         BaseModel base = generateTerrainBase(loader);
+        base.setTexture(texture);
         return new TerrainModel(tile, base);
     }
 

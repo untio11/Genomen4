@@ -8,11 +8,11 @@ import org.joml.Vector3f;
  * Base model with all the necessary data for rendering
  */
 public class BaseModel {
-    protected int vaoID;
-    protected int[] dataBufferIDs;
-    protected int textureID;
-    protected int vertexCount;
-    protected float scale;
+    protected int vaoID = -1;
+    protected int[] dataBufferIDs = {-1, -1, -1, -1};
+    protected int textureID = -1;
+    protected int vertexCount = -1;
+    protected float scale = 1f;
 
     /**
      * Set the initial model data for rendering.
