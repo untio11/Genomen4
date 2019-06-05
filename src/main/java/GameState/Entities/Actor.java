@@ -39,7 +39,7 @@ public class Actor extends Entity implements Observable {
         this.rotation = rotation;
         this.size = size;
         this.kidnapper = kidnapper;
-        this.speed = kidnapper ? 6 : 7; //different speed for the two players
+        this.speed = kidnapper ? 3 : 4; //different speed for the two players
         this.world = world;
         this.observers = new ArrayList<>();
     }
