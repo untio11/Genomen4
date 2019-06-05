@@ -1,6 +1,5 @@
 package Graphics;
 
-import com.sun.javafx.PlatformUtil;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -57,7 +56,7 @@ public class WindowGL {
         glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_TRUE); // The window will minimize when out of focus and in full screen
 
         // We need at least openGL version 4.3 for the compute shaders.
-        if(PlatformUtil.isMac()){
+        if(System.getProperty("os.name").startsWith("Mac")){
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);

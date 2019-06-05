@@ -10,11 +10,13 @@ import GameState.World;
 
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.util.ArrayList;
 import java.io.IOException;
 
 public class GameContainer implements Runnable {
-
+    
     private static final double ROUND_TIME = 60;
+    private double cryInterval = 7;
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
     private boolean running = false;
@@ -24,6 +26,8 @@ public class GameContainer implements Runnable {
     private boolean humanPlayer = false;
     private double roundTime;
     private boolean fatherWin;
+    double cryTimer;
+    int cryNumber;
 
     private int pixelWidth, pixelHeight;
     private float scale = 0.5f;
@@ -32,13 +36,22 @@ public class GameContainer implements Runnable {
     private Renderer renderer;
     private World world;
     private Controller kidnapperController, fatherController;
+    ArrayList<SoundClip> clips;
+    SoundClip music;
 
     private int maxDistance;
-
     /**
      * @param renderWindow whether to render
      */
     public GameContainer(World world, boolean renderWindow) {
+        music = new SoundClip("res/music.wav");
+        clips = new ArrayList<SoundClip>();
+        SoundClip clip1 = new SoundClip("res/cry1.wav");
+        SoundClip clip2 = new SoundClip("res/cry2.wav");
+        SoundClip clip3 = new SoundClip("res/cry3.wav");
+        clips.add(clip1);
+        clips.add(clip2);
+        clips.add(clip3);
         this.world = world;
         int size = world.getMapConfig().getMapSize();
         int sizeSquared = size * size;
@@ -146,11 +159,29 @@ public class GameContainer implements Runnable {
         }
     }
 
+    public void scream(double passedTime) {
+        cryTimer -= passedTime;
+        if (cryTimer < 0) {
+            World.getInstance().getKidnapper().receiveScream();
+            World.getInstance().getFather().receiveScream();
+            cryTimer = cryInterval;
+            clips.get(cryNumber).play();
+            cryNumber = (cryNumber + 1) % clips.size();
+        }
+    }
+
     public void headless() {
+        double passedTime = 0;
+        cryTimer = cryInterval;
+        cryNumber = 0;
+
         while (running){
             kidnapperController.update(UPDATE_CAP);
             fatherController.update(UPDATE_CAP);
             roundTime -= UPDATE_CAP;
+            passedTime += UPDATE_CAP;
+
+            scream(passedTime);
 
             if (world.isPlayerCollision()) {
                 fatherWin = true;
@@ -162,6 +193,7 @@ public class GameContainer implements Runnable {
         }
     }
 
+
     public void windowed(){
         boolean render;
         double firstTime;
@@ -171,9 +203,11 @@ public class GameContainer implements Runnable {
         double frameTime = 0;
         int frames = 0;
         int fps = 0;
+        cryTimer = cryInterval;
+        cryNumber = 0;
 
         window.display();
-
+        music.loop();
         while (running) {
             render = false;
             firstTime = speed * System.nanoTime() / 1e9d;
@@ -182,6 +216,8 @@ public class GameContainer implements Runnable {
             unprocessedTime += passedTime;
             frameTime += passedTime;
             roundTime -= passedTime;
+
+            scream(passedTime);
 
             //in case the game freezes, the while loop tries to catch up by updating faster
             while (unprocessedTime >= UPDATE_CAP) {
@@ -230,6 +266,7 @@ public class GameContainer implements Runnable {
                 }
             }
         }
+        music.stop();
     }
 
     public double getRemainingTime() {

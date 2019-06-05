@@ -257,14 +257,9 @@ public class Actor extends Entity implements Observable {
         double xToOpponent = Math.abs(position.x - opponentPos.x);
         double yToOpponent = Math.abs(position.y - opponentPos.y);
         distanceToOpponent = Math.sqrt(Math.pow(xToOpponent, 2) + Math.pow(yToOpponent, 2));
-        double angleRads = Math.atan2(position.y - opponentPos.y, opponentPos.x - position.x);
-        int angleDegrees = (int) Math.toDegrees(angleRads);
+        int angleDegrees = getScreamAngle();
 
-        if (angleDegrees < 0) {
-            angleDegrees += 360;
-        }
-
-//        System.out.println("Angle to Opponent: "+ angleDegrees);
+        //System.out.println("Angle to Opponent: "+ angleDegrees);
         double[] rayToOpponent = castRay(angleDegrees, maxRayLength, true);
 
         playerInSight = distanceToOpponent <= rayToOpponent[1] && distanceToOpponent <= maxRayLength;
@@ -281,34 +276,43 @@ public class Actor extends Entity implements Observable {
             rayToOpponent[1] = distanceToOpponent;
             previousAngle = rayToOpponent[2];
             results[results.length - 1] = rayToOpponent;
-//            System.out.println("Player in sight! " + Arrays.toString(rayToOpponent));
+            //System.out.println("Player in sight! " + Arrays.toString(rayToOpponent));
         } else {
             rayToOpponent[0] = 0;
             rayToOpponent[1] = -1;
-
-            if (rayCalls != 0) {
-                rayToOpponent[2] = previousAngle;
-            } else {
-                previousAngle = rayToOpponent[2];
-            }
-
-            results[results.length - 1] = rayToOpponent;
+            rayToOpponent[2] = previousAngle;
         }
 
-        //castRays is called every 30 frames, which is 0.5 seconds. So now, every 7 seconds, a scream happens and the
-        //angle is updated.
-        rayCalls++;
-        if (rayCalls >= 14) {
-            rayCalls = 0;
-        }
+        results[results.length - 1] = rayToOpponent;
 
         return results;
+    }
+
+    public  void receiveScream() {
+        previousAngle = getScreamAngle();
+    }
+
+    public int getScreamAngle() {
+        Vector3f opponentPos;
+        if (kidnapper) {
+            opponentPos = world.getFather().getPosition();
+        } else {
+            opponentPos = world.getKidnapper().getPosition();
+        }
+        double angleRads = Math.atan2(position.y - opponentPos.y, opponentPos.x - position.x);
+        int angleDegrees = (int) Math.toDegrees(angleRads);
+
+        if (angleDegrees < 0) {
+            angleDegrees += 360;
+        }
+
+        return angleDegrees;
     }
 
     private double[] castRay(int angle, int maxRayLength, boolean ignoreWater) {
         float rayDirX = (float) Math.cos(Math.toRadians(angle));
         float rayDirY = (float) Math.sin(Math.toRadians(angle));
-//        System.out.println("RayDirX: " + rayDirX + " RayDirY: " + rayDirY + " Angle in Radians: " + Math.toRadians(angle));
+        //System.out.println("RayDirX: " + rayDirX + " RayDirY: " + rayDirY + " Angle in Radians: " + Math.toRadians(angle));
         float sideDistX;
         float sideDistY;
         float deltaDistX = Math.abs(1 / rayDirX);
@@ -319,7 +323,7 @@ public class Actor extends Entity implements Observable {
         int mapY = (int) position.y;
         float posX = position.x;
         float posY = position.y;
-//        System.out.println("X: " + posX + " Y: " + posY + " mapX: " + mapX + " mapY: " + mapY);
+        //System.out.println("X: " + posX + " Y: " + posY + " mapX: " + mapX + " mapY: " + mapY);
         int hit = 0;
 
         //calculate step and initial sideDist
@@ -352,8 +356,8 @@ public class Actor extends Entity implements Observable {
                 //double distance = Math.sqrt((Float.isInfinite(sideDistX) || sideDistX > 20 ? 0 : Math.pow(sideDistX - deltaDistX, 2))
                 //        + (Float.isInfinite(sideDistY) || sideDistY > 20 ? 0 : Math.pow(sideDistY - deltaDistY, 2)));
                 double distance = Math.sqrt(Math.pow(Math.abs(position.x - (mapX + 0.5)), 2) + Math.pow(Math.abs(position.y - (mapY + 0.5)), 2));
-//                System.out.println("Hit: " + world.getTileType(mapX, mapY).toString()
-//                        + " Distance: " + distance + " mapX: " + mapX + " mapY: " + mapY + " sideDistX: " + sideDistX + "sideDistY: " + sideDistY);
+                //System.out.println("Hit: " + world.getTileType(mapX, mapY).toString()
+                //        + " Distance: " + distance + " mapX: " + mapX + " mapY: " + mapY + " sideDistX: " + sideDistX + "sideDistY: " + sideDistY);
                 if (distance <= maxRayLength) {
                     return new double[] {0, distance, (double) angle};
                 } else {
