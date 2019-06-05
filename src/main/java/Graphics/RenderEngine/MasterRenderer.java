@@ -1,85 +1,63 @@
 package Graphics.RenderEngine;
 
-import GameState.Entities.Actor;
 import GameState.Entities.Camera;
-import GameState.World;
-import Graphics.Models.TexturedModel;
-import Graphics.Shaders.ShaderProgram;
 import Graphics.Shaders.StaticShader;
 import Graphics.Terrains.Terrain;
 import Graphics.Shaders.TerrainShader;
+import Graphics.Textures.TerrainTexture;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MasterRenderer {
+public class MasterRenderer implements AbstractRenderer {
 
-    private static final float FOV = 70;
+    private static final float FOV = 100;
     private static final float NEAR_PLANE = 0.1f;
-    private static final float FAR_PLANE = 1000;
+    private static final float FAR_PLANE = 300;
 
     private Matrix4f projectionMatrix;
 
-    private StaticShader shader = new StaticShader();
-    private TerrainRenderer terrainRenderer;
-    private TerrainShader terrainShader = new TerrainShader();
-    private ActorRenderer actorRenderer;
+    private static StaticShader shader = new StaticShader();
+    private static TerrainRenderer terrainRenderer; // Can the renderers can be static?
+    private static TerrainShader terrainShader = new TerrainShader();
+    private static ActorRenderer actorRenderer;
 
     private Camera camera;
-    private Map<TexturedModel, List<Actor>> entities = new HashMap<TexturedModel, List<Actor>>();
-    private List<Terrain> terrains = new ArrayList<>();
 
     public MasterRenderer() {
-        // Fetch the camera from the world
-        this.camera = World.getInstance().getCamera();
-        //don't render the back faces (which you don't see anyway)
-        GL11.glEnable(GL11.GL_CULL_FACE);
-        GL11.glCullFace(GL11.GL_BACK);
         createProjectionMatrix();
         terrainRenderer = new TerrainRenderer(terrainShader, projectionMatrix);
         actorRenderer = new ActorRenderer(shader, projectionMatrix);
     }
 
-    public void render(Camera camera) {
-        this.camera = camera;
+    public void init() { // TODO: should this just all be done in the constructor?
+
+    }
+
+    // TODO: Make sure that this can just render a given scene
+    public void render(Scene scene) {
+        this.camera = camera = scene.getCamera();
         prepare();
+        List<Model> entities = scene.getEntities();
+        Map<TerrainTexture, List<Terrain>> terrain_map = scene.getTexture_to_terrainlist_map();
+
         // render entities
         shader.start();
         //shader.loadLight(player);
         shader.loadViewMatrix(camera);
         actorRenderer.render(entities);
         shader.stop();
-        entities.clear();
 
         // render terrain
         terrainShader.start();
         terrainShader.loadViewMatrix(camera);
-        terrainRenderer.render(terrains);
+        terrainRenderer.render(terrain_map);
         terrainShader.stop();
-        terrains.clear();
     }
 
-    public void processEntity(Actor actor) {
-        TexturedModel entityModel = actor.getModel();
-        List<Actor> batch = entities.get(entityModel);
-        if (batch != null) {
-            batch.add(actor);
-        } else {
-            List<Actor> newBatch = new ArrayList<>();
-            newBatch.add(actor);
-            entities.put(entityModel, newBatch);
-        }
-    }
-
-    public void processTerrain(Terrain terrain) {
-        terrains.add(terrain);
-    }
-
-    public void cleanUp() {
+    public void clean() {
         shader.cleanUp();
         terrainShader.cleanUp();
     }
@@ -92,7 +70,7 @@ public class MasterRenderer {
 
     private void createProjectionMatrix() {
         // TODO: compute aspectRatio
-        float aspectRatio = 1f;
+        float aspectRatio = 16/9f;
         float y_scale = (float) ((1f / Math.tan(Math.toRadians(FOV / 2f))) * aspectRatio);
         float x_scale = y_scale / aspectRatio;
         float frustrum_length = FAR_PLANE - NEAR_PLANE;
