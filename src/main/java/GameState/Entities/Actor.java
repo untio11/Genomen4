@@ -3,17 +3,20 @@ package GameState.Entities;
 import GameState.Position;
 import GameState.TileType;
 import GameState.World;
-import Graphics.Models.TexturedModel;
 import org.joml.Vector3f;
+import util.Observable;
+import util.Observer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import java.util.Arrays;
 
 /**
  * For keeping track of the players
  */
-public class Actor extends Entity {
-    private TexturedModel model;
-    private float scale;
+public class Actor extends Entity implements Observable {
+    private List<Observer<Actor>> observers;
     private float speed;
     private float size;
     private boolean kidnapper;
@@ -21,31 +24,40 @@ public class Actor extends Entity {
     private int rayCalls = 0;
     private double previousAngle;
 
+    // Turnspeed has to be a divisor of 90
+    private float turnSpeed = 30f;
+
     /**
      * Initialize a actor with the appropriate properties
      *
-     * @param model     The model that the actor should have: We probably want to change this to some loose reference
      * @param position  The position of the actor
      * @param rotation  The rotation of the model
-     * @param scale     The size of the model (I think)
      * @param kidnapper The role of the actor
      */
-    public Actor(World world, TexturedModel model, float size, Vector3f position, Vector3f rotation, float scale, boolean kidnapper) {
+    public Actor(World world, float size, Vector3f position, Vector3f rotation, boolean kidnapper) {
         super(position);
-        this.model = model;
         this.rotation = rotation;
-        this.scale = scale;
         this.size = size;
         this.kidnapper = kidnapper;
-        this.speed = kidnapper ? 3 : 4; //different speed for the two players
+        this.speed = kidnapper ? 6 : 7; //different speed for the two players
         this.world = world;
+        this.observers = new ArrayList<>();
+    }
+
+    public void resetDegrees() {
+        // Reset the degrees after rotating a full circle
+        if(rotation.y >= 360f) {
+            rotation.y -= 360f;
+        } else if(rotation.y < 0f) {
+            rotation.y += 360f;
+        }
     }
 
     /**
      * Move the actor up, unless obstacle
      * @param dt time elapsed
      */
-    public void moveUp(double dt) {
+    public void moveUp(double dt) { // TODO: should this logic for turning be here? I also think the logic for time<->movement should not be here
         int tileY = (int) (position.y - size / 2);                  //the tile where the upper side of the actor is
         float offY = (position.y - size / 2) - tileY;               //the y offset in that tile
         int tileXLeft = (int) (position.x - size / 2);              //the tile where the left side of the actor is in
@@ -60,7 +72,17 @@ public class Actor extends Entity {
             }
         }
         position.y -= distance;
-        //todo: add rotation
+
+        // If not facing upwards
+        if (rotation.y != 0f) {
+            if (rotation.y > 0f && rotation.y < 180f) { // When facing left
+                rotation.y -= turnSpeed; // Turn clockwise
+            } else if (rotation.y >= 180f && rotation.y < 360f) { // When facing right
+                rotation.y += turnSpeed; // Turn counter-clockwise
+            }
+        }
+        resetDegrees();
+        broadcast();
     }
 
     /**
@@ -82,7 +104,17 @@ public class Actor extends Entity {
             }
         }
         position.y += distance;
-        //todo: add rotation
+
+        // If not facing downwards
+        if (rotation.y != 180f) {
+            if (rotation.y > 180 && rotation.y < 360) { // When facing right
+                rotation.y -= turnSpeed; // Turn clockwise
+            } else if (rotation.y >= 0 && rotation.y < 180) { // When facing left
+                rotation.y += turnSpeed; // Turn counter-clockwise
+            }
+        }
+        resetDegrees();
+        broadcast();
     }
 
     /**
@@ -104,7 +136,17 @@ public class Actor extends Entity {
             }
         }
         position.x -= distance;
-        //todo: add rotation
+
+        // If not facing left
+        if (rotation.y != 90f) {
+            if (rotation.y > 90 && rotation.y <= 270) { // When facing down
+                rotation.y -= turnSpeed; // Turn clockwise
+            } else if ((rotation.y > 270 && rotation.y < 360) || (rotation.y >= 0 && rotation.y < 90)) { // When facing up
+                rotation.y += turnSpeed; // Turn counter-clockwise
+            }
+        }
+        resetDegrees();
+        broadcast();
     }
 
     /**
@@ -126,20 +168,44 @@ public class Actor extends Entity {
             }
         }
         position.x += distance;
-        //todo: add rotation
+
+        // If not facing right
+        if (rotation.y != 270) {
+            if ((rotation.y > 270 && rotation.y < 360) || (rotation.y >= 0 && rotation.y <= 90)) { // When facing up
+                rotation.y -= turnSpeed; // Turn clockwise
+            } else if (rotation.y > 90 && rotation.y < 270) { // When facing down
+                rotation.y += turnSpeed; // Turn counter-clockwise
+            }
+        }
+        resetDegrees();
+        broadcast();
+    }
+
+    /**
+     * Adds the observer and sends an immediate update.
+     * @param obs Object that implements the observer interface.
+     */
+    @Override
+    public void add(Observer obs) {
+        this.observers.add(obs);
+        broadcast();
+    }
+
+    @Override
+    public void remove(Observer obs) {
+        this.observers.remove(obs);
+    }
+
+    @Override
+    public void broadcast() {
+        for (Observer<Actor> obs : this.observers) {
+            obs.update(this);
+        }
     }
 
     public float getSize() { return this.size; }
 
     public boolean isKidnapper() { return kidnapper; }
-
-    public TexturedModel getModel() {
-        return model;
-    }
-
-    public void setModel(TexturedModel model) {
-        this.model = model;
-    }
 
     public float getRotX() {
         return this.rotation.x;
@@ -165,12 +231,8 @@ public class Actor extends Entity {
         this.rotation.z = rotZ;
     }
 
-    public float getScale() {
-        return scale;
-    }
-
-    public void setScale(float scale) {
-        this.scale = scale;
+    public Vector3f get3DPosition() {
+        return new Vector3f(position.x, position.z, position.y);
     }
 
     /**

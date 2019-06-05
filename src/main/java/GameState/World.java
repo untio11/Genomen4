@@ -37,7 +37,9 @@ public class World {
         this.father = spawnActor(false);
         this.kidnapper = spawnActor(true);
 
-        this.camera = new Camera(father.getPosition().add(0, 0, 10f)); // Put the camera above the fathers head
+        this.camera = new Camera(); // Camera will be put over the head later
+        camera.setPosition(new Vector3f(0.0f, 0.0f, 10.0f));
+        father.add(camera);
     }
 
     /**
@@ -53,11 +55,24 @@ public class World {
         return instance;
     }
 
-    public static void initWorld() {
+    /**
+     * Generate an instance of the world. Ensure that no world is current before calling this by using World.cleanWorld().
+     * @param width The width the world should have in tiles
+     * @param height The height the world should have in tiles.
+     * @throws IllegalStateException If there already is a current world.
+     */
+
+    public static void initWorld() throws IllegalStateException {
+        if (instance != null) {
+            throw new IllegalStateException("There is an instance of the world already. Clear it with World.cleanWorld() or fetch it with World.getInstance().");
+        }
         instance = new World(MapConfigurations.getNormalMap());
     }
 
-    public static void initWorld(MapConfiguration mapConfig) {
+    public static void initWorld(MapConfiguration mapConfig) throws IllegalStateException {
+        if (instance != null) {
+            throw new IllegalStateException("There is an instance of the world already. Clear it with World.cleanWorld() or fetch it with World.getInstance().");
+        }
         instance = new World(mapConfig);
     }
 
@@ -110,11 +125,9 @@ public class World {
 
         return new Actor(
                 this,
-                null,
                 0.5f,
                 new Vector3f(spawn.x + 0.5f, spawn.y + 0.5f, 0f),
                 new Vector3f(0f, 0f, 0f),
-                1,
                 kidnapper
         );
     }
@@ -150,6 +163,10 @@ public class World {
     public Actor getFather() { return father; }
 
     public Actor getKidnapper() { return kidnapper; }
+
+    public Actor[] getActors() {
+        return new Actor[] {father, kidnapper};
+    };
 
     public Camera getCamera() { return this.camera; }
 
