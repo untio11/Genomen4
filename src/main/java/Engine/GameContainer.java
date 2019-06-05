@@ -16,7 +16,7 @@ import java.io.IOException;
 public class GameContainer implements Runnable {
     
     private static final double ROUND_TIME = 60;
-    private double cryInterval = 5;
+    private double cryInterval = 7;
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
     private boolean running = false;
