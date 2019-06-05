@@ -202,6 +202,8 @@ public class GameContainer implements Runnable {
                 clips.get(cryNumber).play();
                 cryNumber = (cryNumber + 1) % clips.size();
             }
+
+            
             //in case the game freezes, the while loop tries to catch up by updating faster
             while (unprocessedTime >= UPDATE_CAP) {
 
