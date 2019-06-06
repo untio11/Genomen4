@@ -198,7 +198,7 @@ public class GameContainerSwing implements Runnable, AbstractGameContainer {
             unprocessedTime += passedTime;
             frameTime += passedTime;
             roundTime -= passedTime;
-
+            
             cryTimer -= passedTime;
             if (cryTimer < 0) {
                 World.getInstance().getKidnapper().receiveScream();
