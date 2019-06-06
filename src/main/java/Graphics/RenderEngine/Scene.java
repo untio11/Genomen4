@@ -9,6 +9,7 @@ import Graphics.Models.ActorModel;
 import Graphics.Models.BaseModel;
 import Graphics.Models.TerrainModel;
 import Graphics.Terrains.TerrainGenerator;
+import org.nd4j.shade.jackson.databind.ser.Serializers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -89,7 +90,7 @@ public class Scene {
      * @throws IllegalStateException when the world is not initialized yet
      */
     public void init() throws IllegalStateException {
-        initTileMap();
+        //initTileMap();
         initActors(world.getActors());
         generateChunks();
         camera = world.getCamera();
@@ -168,10 +169,11 @@ public class Scene {
 
     private void initActors(Actor[] actors) {
         for (Actor actor : actors) {
-            BaseModel playerBase = OBJLoader.loadObjModelInVao("player", loader); // TODO: get model and texture for thief
-            int playerTexture = loader.loadTexture("playerTexture");
+            //BaseModel playerBase = OBJLoader.loadObjModelInVao("player", loader); // TODO: get model and texture for thief
+            BaseModel playerBase = AnimModelLoader.loadAnimModelInVao("res/gnomeModel.dae", loader);
+            int playerTexture = loader.loadTexture("gnomeTexture");
             playerBase.setTexture(playerTexture);
-            playerBase.setScale(0.2f);
+            //playerBase.setScale(0.1f);
 
             entities.add(new ActorModel(actor, playerBase));
         }

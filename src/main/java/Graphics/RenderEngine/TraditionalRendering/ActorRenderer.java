@@ -38,16 +38,16 @@ public class ActorRenderer {
 
     private void prepareModel(ActorModel model) {
         GL30.glBindVertexArray(model.getVaoID());
-        GL20.glEnableVertexAttribArray(0);
-        GL20.glEnableVertexAttribArray(1);
+        GL20.glEnableVertexAttribArray(0);  //position
+        GL20.glEnableVertexAttribArray(1);  //normals   ToDo: add for bones
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, model.getTextureID());
 
     }
 
     private void unbindTextureModel() {
-        GL20.glDisableVertexAttribArray(0);
-        GL20.glDisableVertexAttribArray(1);
+        GL20.glDisableVertexAttribArray(0);     //position
+        GL20.glDisableVertexAttribArray(1);     //normals   ToDo: add for bones
         GL30.glBindVertexArray(0);
     }
 

@@ -19,6 +19,31 @@ public class Loader {
     private List<Integer> vbos = new ArrayList<>();
     private List<Integer> textures = new ArrayList<>();
 
+    public BaseModel loadToModel(float[] positions, float[] textureCoords, float[] normals, int[] indices, float[] bones, float[] weights) {
+        int vaoID = createVAO();
+        bindIndicesBuffer(indices);
+        storeDataInAttributeList(0, 3, positions);
+        storeDataInAttributeList(1, 2, textureCoords);
+        storeDataInAttributeList(2, 3, normals);
+        storeDataInAttributeList(3, 4, bones);
+        storeDataInAttributeList(4, 4, weights);
+        unbindVAO();
+
+        int[] bufferIDs = {
+            storeDataInBareBuffer(positions),
+            storeDataInBareBuffer(normals),
+            storeDataInBareBuffer(textureCoords),
+            storeDataInBareBuffer(indices),
+                storeDataInBareBuffer(bones),
+                storeDataInBareBuffer(weights)
+        };
+
+        return new BaseModel(vaoID, bufferIDs, indices.length);
+    }
+
+    /**
+     * Loads the terrain, no need for bones
+     */
     public BaseModel loadToModel(float[] positions, float[] textureCoords, float[] normals, int[] indices) {
         int vaoID = createVAO();
         bindIndicesBuffer(indices);
@@ -28,10 +53,10 @@ public class Loader {
         unbindVAO();
 
         int[] bufferIDs = {
-            storeDataInBareBuffer(positions),
-            storeDataInBareBuffer(normals),
-            storeDataInBareBuffer(textureCoords),
-            storeDataInBareBuffer(indices)
+                storeDataInBareBuffer(positions),
+                storeDataInBareBuffer(normals),
+                storeDataInBareBuffer(textureCoords),
+                storeDataInBareBuffer(indices)
         };
 
         return new BaseModel(vaoID, bufferIDs, indices.length);
