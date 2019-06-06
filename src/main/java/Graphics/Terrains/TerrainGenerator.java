@@ -5,6 +5,7 @@ import GameState.TileType;
 import Graphics.Models.BaseModel;
 import Graphics.Models.TerrainModel;
 import Graphics.RenderEngine.Loader;
+import Graphics.RenderEngine.RayTracing.RayTracer;
 import Graphics.WindowManager;
 import util.Pair;
 
@@ -61,6 +62,10 @@ public class TerrainGenerator {
         }
 
         BaseModel baseModel = loader.loadToModel(vertices, textureCoords, normals, indices);
+        baseModel.setIndex_data(indices);
+        baseModel.setNormal_data(normals);
+        baseModel.setPosition_data(vertices);
+        baseModel.setTexture_data(textureCoords);
         return baseModel;
     }
 
@@ -70,32 +75,43 @@ public class TerrainGenerator {
      */
     private static float[] getVertices() {
         float[] result;
-        float[] base = { // Generate the basic model based on the height.
-                0, height, 0,    //V0
-                0, height, 1,    //V1
-                1, height, 1,    //V2
-                1, height, 0,    //V3
-                // Left side
-                0, height, 0,    //V4
-                0, 0, 0,         //V5
-                0, 0, 1,         //V6
-                0, height, 1,    //V7
-                // Right side
-                1, height, 1,    //V8
-                1, 0, 1,         //V9
-                1, 0, 0,         //V10
-                1, height, 0,    //V11
-                // Front side
-                0, height, 1,    //V12
-                0, 0, 1,         //V13
-                1, 0, 1,         //V14
-                1, height, 1,    //V15
-                // Back side
-                0, height, 0,    //V12
-                0, 0, 0,         //V13
-                1, 0, 0,         //V14
-                1, height, 0     //V15
-        };
+        float[] base;
+
+        if (height > 0) {
+            base = new float[] { // Generate the basic model based on the height.
+                    0, height, 0,    //V0
+                    0, height, 1,    //V1
+                    1, height, 1,    //V2
+                    1, height, 0,    //V3
+                    // Left side
+                    0, height, 0,    //V4
+                    0, 0, 0,         //V5
+                    0, 0, 1,         //V6
+                    0, height, 1,    //V7
+                    // Right side
+                    1, height, 1,    //V8
+                    1, 0, 1,         //V9
+                    1, 0, 0,         //V10
+                    1, height, 0,    //V11
+                    // Front side
+                    0, height, 1,    //V12
+                    0, 0, 1,         //V13
+                    1, 0, 1,         //V14
+                    1, height, 1,    //V15
+                    // Back side
+                    0, height, 0,    //V12
+                    0, 0, 0,         //V13
+                    1, 0, 0,         //V14
+                    1, height, 0     //V15
+            };
+        } else {
+            base = new float[] { // Generate the basic model based on the height.
+                    0, 0, 0,    //V0
+                    0, 0, 1,    //V1
+                    1, 0, 1,    //V2
+                    1, 0, 0     //V3
+            };
+        }
 
         if (COORDINATE_COUNT == 3) {
             result = base;

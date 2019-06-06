@@ -38,6 +38,8 @@ public class WindowGL {
             pressedKeys.add(key);
         } else if (action == GLFW_RELEASE) {
             pressedKeys.remove(key);
+        } else if (key == GLFW_KEY_ESCAPE) {
+            glfwSetWindowShouldClose(window, true);
         }
     }
 
