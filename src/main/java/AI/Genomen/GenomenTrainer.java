@@ -3,7 +3,7 @@ package AI.Genomen;
 import AI.Genomen.Player.AIGenomenPlayer;
 import AI.Trainer.BiAIGameTrainer;
 import Engine.Controller.Controller;
-import Engine.GameContainer;
+import Engine.GameContainerSwing;
 import GameState.MapConfiguration;
 import GameState.MapConfigurations;
 import GameState.World;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPlayer, GameContainer> {
+public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPlayer, GameContainerSwing> {
 
     private static final int WINNING_FACTOR = 4;
 
@@ -53,7 +53,7 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
 
         // Play against the best father player
         World.initWorld(mapConfig);
-        final GameContainer game = new GameContainer(World.getInstance(), true);
+        final GameContainerSwing game = new GameContainerSwing(World.getInstance(), true);
         Controller kidnapperAI = sortedPlayers.entrySet().iterator().next().getKey();
         kidnapperAI.setPlayer(World.getInstance().getKidnapper());
         game.setKidnapperAI(kidnapperAI);
@@ -106,9 +106,9 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
     }
 
     @Override
-    protected GameContainer createGame(Pair<AIGenomenPlayer, AIGenomenPlayer> players) {
+    protected GameContainerSwing createGame(Pair<AIGenomenPlayer, AIGenomenPlayer> players) {
         World.initWorld(mapConfig);
-        GameContainer gc = new GameContainer(World.getInstance(), false);
+        GameContainerSwing gc = new GameContainerSwing(World.getInstance(), false);
         players.getFirst().setPlayer(World.getInstance().getFather());
         gc.setFatherAI(players.getFirst());
         players.getSecond().setPlayer(World.getInstance().getKidnapper());
@@ -117,7 +117,7 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
     }
 
     @Override
-    protected void playGame(GameContainer game) {
+    protected void playGame(GameContainerSwing game) {
         game.start();
 
         boolean fatherWins = game.isFatherWin();

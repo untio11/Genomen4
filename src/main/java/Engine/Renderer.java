@@ -3,8 +3,10 @@ package Engine;
 import GameState.Entities.Actor;
 import GameState.TileType;
 import GameState.World;
+import Graphics.RenderEngine.AbstractRenderer;
+import Graphics.RenderEngine.Scene;
 
-public class Renderer {
+public class Renderer implements AbstractRenderer {
     public static final int TS = 16;
     private Window window;
     private World world;
@@ -17,11 +19,13 @@ public class Renderer {
         this.world = world;
     }
 
-    public void render() {
+    @Override
+    public void render(Scene scene) {
         clear();
         renderTiles();
         renderPlayer(world.getFather());
         renderPlayer(world.getKidnapper());
+        window.update();
     }
 
     public void renderPlayer(Actor player) {
@@ -63,4 +67,10 @@ public class Renderer {
             }
         }
     }
+
+    @Override
+    public void init() { }
+
+    @Override
+    public void clean() { }
 }

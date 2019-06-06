@@ -1,39 +1,34 @@
 package Graphics;
 
+import Engine.AbstractGameContainer;
 import Engine.Controller.Controller;
-import Engine.Controller.KeyController;
-import Engine.Renderer;
 import Engine.SoundClip;
-import GameState.MapConfigurations;
 import GameState.World;
 import Graphics.RenderEngine.AbstractRenderer;
 import Graphics.RenderEngine.MasterRenderer;
 import Graphics.RenderEngine.Scene;
 
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 
-public class WindowManager implements Runnable{
+public class GameContainerGL implements Runnable, AbstractGameContainer {
 
     private static final double ROUND_TIME = 60;
-    private double cryInterval = 7;
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
-    private boolean running = false;
-    private Thread thread = new Thread(this);
-    private float speed = 1;
-    private boolean renderWindow;
-    private boolean humanPlayer = false;
-    private double roundTime;
-    private boolean fatherWin;
-    double cryTimer;
-    int cryNumber;
+    private final double cryInterval = 7;
 
+    private boolean renderWindow;
     private int pixelWidth, pixelHeight;
     private float scale = 0.5f;
+    private Scene scene;
+
+    private double roundTime;
+    private boolean fatherWin;
+
+    private Thread thread = new Thread(this);
 
     private WindowGL windowGL;
     private AbstractRenderer renderer; // TODO: Add extra layer above MasterRenderer (AbstractRenderer?) to cover normal rasterizition shading and raytracing
@@ -41,42 +36,32 @@ public class WindowManager implements Runnable{
 
     ArrayList<SoundClip> clips;
     SoundClip music;
+
     private World world;
     private int maxDistance;
 
-    private Scene scene;
-
-    public WindowManager(World world, boolean renderWindow) {
-        music = new SoundClip("res/music.wav");
-        clips = new ArrayList<SoundClip>();
-        SoundClip clip1 = new SoundClip("res/cry1.wav");
-        SoundClip clip2 = new SoundClip("res/cry2.wav");
-        SoundClip clip3 = new SoundClip("res/cry3.wav");
-        clips.add(clip1);
-        clips.add(clip2);
-        clips.add(clip3);
-
+    public GameContainerGL(World world, boolean renderWindow) {
         this.world = world;
         int size = world.getMapConfig().getMapSize();
         int sizeSquared = size * size;
         this.maxDistance = (int) Math.sqrt(sizeSquared + sizeSquared);
-        this.renderWindow = renderWindow;
 
+        this.renderWindow = renderWindow;
         pixelWidth = 1600;
         pixelHeight = 900;
         if (renderWindow) {
-            this.windowGL = new WindowGL(1600, 900, scale);
+            this.windowGL = new WindowGL(pixelWidth, pixelHeight, scale);
             renderer = new MasterRenderer();
             this.scene = new Scene(this.world); // First do window gl and initglfw, otherwise no openGL context will be available
-        }
 
-    }
-
-    public void start() {
-        if (kidnapperController != null || fatherController != null) {     //if all the controllers have been initialized
-            thread.run();
-        } else {
-            System.err.println("Please define controllers");
+            music = new SoundClip("res/music.wav");
+            clips = new ArrayList<>();
+            SoundClip clip1 = new SoundClip("res/cry1.wav");
+            SoundClip clip2 = new SoundClip("res/cry2.wav");
+            SoundClip clip3 = new SoundClip("res/cry3.wav");
+            clips.add(clip1);
+            clips.add(clip2);
+            clips.add(clip3);
         }
     }
 
@@ -94,19 +79,29 @@ public class WindowManager implements Runnable{
         this.fatherController = new InputHandler(World.getInstance().getFather());
     }
 
-    public void changeKey2P(KeyController c) { }
-
     /**
      * Set father to AI
      */
-    public void setFatherAI(Controller c) { }
+    public void setFatherAI(Controller c) {
+        fatherController = c;
+    }
 
     /**
      * Set kidnapper to AI
      */
-    public void setKidnapperAI(Controller c) { }
+    public void setKidnapperAI(Controller c) {
+        kidnapperController = c;
+    }
 
-    private void close() {
+    public void start() {
+        if (kidnapperController != null || fatherController != null) {     //if all the controllers have been initialized
+            thread.run();
+        } else {
+            System.err.println("Please define controllers");
+        }
+    }
+
+    public void close() {
         renderer.clean();
 
         // Free the window callbacks and destroy the window
@@ -119,8 +114,6 @@ public class WindowManager implements Runnable{
     }
 
     public void run() {
-        running = true;
-        roundTime = ROUND_TIME;
         if (renderWindow) {
             windowed();
         } else {
@@ -128,66 +121,73 @@ public class WindowManager implements Runnable{
         }
     }
 
-    public void scream(double passedTime) {
-        cryTimer -= passedTime;
-        if (cryTimer < 0) {
-            World.getInstance().getKidnapper().receiveScream();
-            World.getInstance().getFather().receiveScream();
-            cryTimer = cryInterval;
-            clips.get(cryNumber).play();
-            cryNumber = (cryNumber + 1) % clips.size();
-        }
-    }
-
     public void headless() {
         double passedTime = 0;
-        cryTimer = cryInterval;
-        cryNumber = 0;
+        double cryTimer = cryInterval;
+        boolean running = true;
+        double roundTime= ROUND_TIME;
+
 
         while (running){
             updateActor();
             roundTime -= UPDATE_CAP;
             passedTime += UPDATE_CAP;
 
-            scream(passedTime);
+            cryTimer -= passedTime;
+            if (cryTimer < 0) {
+                World.getInstance().getKidnapper().receiveScream();
+                World.getInstance().getFather().receiveScream();
+                cryTimer = cryInterval;
+            }
 
             if (world.isPlayerCollision()) {
                 fatherWin = true;
                 running = false;
+                break;
             } else if (roundTime < 0) {
                 fatherWin = false;
                 running = false;
+                break;
             }
         }
+        this.roundTime = roundTime;
     }
 
     public void windowed() {
         boolean render;
         double firstTime;
-        double lastTime = speed * System.nanoTime() / 1e9d;
+        double lastTime = System.nanoTime() / 1e9d;
         double passedTime;
         double unprocessedTime = 0;
         double frameTime = 0;
         int frames = 0;
         int fps = 0;
-        cryTimer = cryInterval;
-        cryNumber = 0;
+        double cryTimer = cryInterval;
+        int cryNumber = 0;
+        boolean running = true;
+        double roundTime= ROUND_TIME;
 
         music.loop();
-        while (running) { // TODO: Have a genaral Renderer.render() function to call
+        while (!glfwWindowShouldClose(windowGL.getWindow()) || !running) { // TODO: Have a genaral Renderer.render() function to call
             render = false;
-            firstTime = speed * System.nanoTime() / 1e9d;
+            firstTime = System.nanoTime() / 1e9d;
             passedTime = firstTime - lastTime;
             lastTime = firstTime;
             unprocessedTime += passedTime;
             frameTime += passedTime;
             roundTime -= passedTime;
 
-            scream(passedTime);
+            cryTimer -= passedTime;
+            if (cryTimer < 0) {
+                World.getInstance().getKidnapper().receiveScream();
+                World.getInstance().getFather().receiveScream();
+                cryTimer = cryInterval;
+                clips.get(cryNumber).play();
+                cryNumber = (cryNumber + 1) % clips.size();
+            }
 
             //in case the game freezes, the while loop tries to catch up by updating faster
             while (unprocessedTime >= UPDATE_CAP) {
-
                 render = true;
                 unprocessedTime -= UPDATE_CAP;
 
@@ -232,6 +232,7 @@ public class WindowManager implements Runnable{
         }
         music.stop();
         close();
+        this.roundTime = roundTime;
     }
 
     public void finalRender() {
@@ -250,32 +251,19 @@ public class WindowManager implements Runnable{
         kidnapperController.update(UPDATE_CAP);
     }
 
-    public double getRemainingTime() {
-        return roundTime;
-    }
+    public double getRemainingTime() { return roundTime; }
 
     public boolean isFatherWin() {
         return fatherWin;
-    }
-
-    public double getRoundTime() {
-        return ROUND_TIME;
-    }
-
-    public void setSpeed(float speed) {
-        this.speed = speed;
     }
 
     public int getMaxDistance() {
         return maxDistance;
     }
 
-    public static void main(String[] args) {
-        World.initWorld(MapConfigurations.getStarterMap());
-        WindowManager wm = new WindowManager(World.getInstance(), true);
-        wm.setKidnapperPlayer();
-        wm.setFatherPlayer();
-        wm.start();
-        System.out.println(wm.isFatherWin() + " " + wm.getRemainingTime());
-    }
+    public static double getRoundTime() { return ROUND_TIME; }
+
+    public Controller getFatherController() { return fatherController; }
+
+    public Controller getKidnapperController() { return kidnapperController; }
 }
