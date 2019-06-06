@@ -8,8 +8,17 @@ public class TerrainModel extends BaseModel { // Note: could be more efficient w
 
     public TerrainModel(Tile tile, BaseModel base) {
         super(base);
-        this.x = tile.getColumn() * SIZE;
-        this.y = tile.getRow() * SIZE;
+        this.x = tile.getPosition().x * SIZE;
+        this.y = tile.getPosition().y * SIZE;
+
+        // Translate model-space coordinates to world space
+        for (int i = 0; i < position_data.length; i++) {
+            if (i % 4 == 0) { // x-coordinate
+                this.position_data[i] += this.x;
+            } else if (i % 4 == 2) { // z-coordinate
+                this.position_data[i] += this.y;
+            }
+        }
     }
 
     public float getX() {
@@ -18,5 +27,14 @@ public class TerrainModel extends BaseModel { // Note: could be more efficient w
 
     public float getY() {
         return y;
+    }
+
+    /**
+     * Gets the coordinates of this terrain in _World space_ coordinates. Call super for model space coordinates.
+     * @return Stream of coordinates in world space.
+     */
+    @Override
+    public float[] getPosition_data() {
+        return this.position_data;
     }
 }

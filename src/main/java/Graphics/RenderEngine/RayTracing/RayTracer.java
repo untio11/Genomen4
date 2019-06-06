@@ -11,6 +11,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11C.*;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
@@ -26,8 +28,9 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class RayTracer implements AbstractRenderer {
     private static int width, height;
     // VAO, VBO & SSBO stuff
-    private static int vaoId, IndexVBO, chunkSSBO;
-    private static Scene.Chunk chunker;
+    private static int vaoId, IndexVBO;
+    private static int vertexSSBO, indexSSBO;
+    private static int tringlecount;
 
     // Shader stuff
     private static int rayProgram, quadProgram;
@@ -47,7 +50,7 @@ public class RayTracer implements AbstractRenderer {
 
     // Camera stuff
     private static Vector3f camera;
-    private static float fov = 0.2f; // Camera to viewport distance. smaller fov => wider viewangle
+    private static float fov = 1.2f; // Camera to viewport distance. smaller fov => wider viewangle
     private static float[] transform = {
             1f,  0f,  0f, // Right
             0f,  0f, -1f, // Up
@@ -68,11 +71,9 @@ public class RayTracer implements AbstractRenderer {
         createQuadProgram();
         setupTexture();
         createRayProgram();
-
-        // TODO: Bind the chunk buffers to the correct binding points.
-        chunker = scene.getVisibileChunks(scene.getCamera().getPosition().x, scene.getCamera().getPosition().y)[0];
-        chunkSSBO = TerrainLoader.load(chunker);
     }
+
+
 
     private void executeRay() {
         int[] work_group_size = new int[3];
@@ -87,9 +88,13 @@ public class RayTracer implements AbstractRenderer {
 
         glUseProgram(rayProgram);
 
-        GL43.glProgramUniform1i(rayProgram, 3, chunker.getTringleCount());
-        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 1, chunkSSBO);
+        GL43.glProgramUniform1i(rayProgram, 3, tringlecount);
+        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 1, vertexSSBO);
+        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 4, indexSSBO);
         glDispatchCompute(work_x, work_y, 1);
+
+
+        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 1, 0);
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
     }
 
@@ -99,9 +104,13 @@ public class RayTracer implements AbstractRenderer {
      */
     private void prepare(Scene scene) {
         camera = scene.getCamera().getPosition();
+        int[] ssbos = TerrainLoader.loadChunksToSSBOs(scene.getVisibileChunks(camera.x, camera.z));
+        vertexSSBO = ssbos[0];
+        indexSSBO = ssbos[1];
+        tringlecount = TerrainLoader.tringle_count;
     }
 
-    public void render(Scene scene) { // TODO: load the data from the scene object into the compute shader
+    public void render(Scene scene) { // TODO: loadVertexPositions the data from the scene object into the compute shader
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         prepare(scene);
         executeRay();
@@ -123,11 +132,11 @@ public class RayTracer implements AbstractRenderer {
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, IndexVBO); // Index data
 
         // Draw the vertices
-        GL11.glDrawElements(GL11.GL_TRIANGLES, quad_indices.length, GL11.GL_UNSIGNED_BYTE, 0);
+        GL11.glDrawElements(GL11.GL_TRIANGLES, quad_indices.length, GL11.GL_UNSIGNED_INT, 0);
 
         // Put everything back to default (deselect)
         glUseProgram(0);
-        //glActiveTexture(0);
+        glActiveTexture(0);
         GL30.glBindVertexArray(0);
         GL20.glDisableVertexAttribArray(0);
         GL20.glDisableVertexAttribArray(1);
@@ -251,7 +260,7 @@ public class RayTracer implements AbstractRenderer {
                 shader_source.append('\n');
             }
         } catch(IOException e) {
-            throw new IllegalArgumentException("unable to load shader from file ["+filename+"]");
+            throw new IllegalArgumentException("unable to loadVertexPositions shader from file ["+filename+"]");
         }
 
         int shaderID = GL43C.glCreateShader(type);

@@ -96,6 +96,18 @@ public class Scene {
         camera = world.getCamera();
     }
 
+    public Chunk[] getChunks() {
+        Chunk[] result = new Chunk[chunks.length * chunks[0].length];
+        int counter = 0;
+        for (int i = 0; i < chunks.length; i++) {
+            for (int j = 0; j < chunks[i].length; j++) {
+                result[counter++] = chunks[i][j];
+            }
+        }
+
+        return result;
+    }
+
     private void generateChunks() {
         x_chunks = (int) Math.ceil((float) World.getInstance().getWidth()  / (float) CHUNK_WIDTH);
         y_chunks = (int) Math.ceil((float) World.getInstance().getHeight() / (float) CHUNK_HEIGHT);
@@ -155,7 +167,7 @@ public class Scene {
         int right_x_chunk = Math.min((int) ((x + X_TILES_TO_EDGE) / CHUNK_WIDTH), x_chunks);
         int top_y_chunk = Math.min((int) ((y + Y_TILES_TO_EDGE) / CHUNK_HEIGHT), y_chunks);
         int bottom_y_chunk = Math.max((int) ((y - Y_TILES_TO_EDGE) / CHUNK_HEIGHT), 0);
-        Chunk[] result = new Chunk[(1 + right_x_chunk - left_x_chunk) * (1 + top_y_chunk - bottom_y_chunk)];
+        Chunk[] result = new Chunk[(right_x_chunk - left_x_chunk) * (top_y_chunk - bottom_y_chunk)];
 
         int counter = 0;
         for (int i = left_x_chunk; i < right_x_chunk; i++) {
@@ -249,24 +261,44 @@ public class Scene {
         private int tringle_count;
         private int coordinate_amount;
         private float[] coordinate_stream;
+        private float[] normal_stream;
+        private float[] texture_stream;
+        private int[] index_stream;
 
         Chunk(List<TerrainModel> tiles) {
             this.data = tiles;
             this.vertex_count = computeVertexCount();
             this.tringle_count = vertex_count / 3;
 
-            Stream<Float> stream = Stream.of();
-            for (TerrainModel tile : tiles) {
-                Float[] tile_coordinates = ArrayUtils.toObject(tile.getPosition_data());
-                stream = Stream.concat(stream, Arrays.stream(tile_coordinates));
+            Stream<Float> coordinate_stream = Stream.of();
+            Stream<Integer> index_stream = Stream.of();
+            int index_counter = 0;
+            for (int i = 0; i < tiles.size(); i++) {
+                TerrainModel tile = tiles.get(i);
+                Float[] tile_normals = ArrayUtils.toObject(tile.getPosition_data());
+                Float[] tile_textures = ArrayUtils.toObject(tile.getPosition_data());
+                Integer[] tile_indices = ArrayUtils.toObject(tile.getIndex_data());
+
+                for (int j = 0; j < tile_indices.length; j++) {
+                    tile_indices[j] += index_counter;
+                }
+                index_counter += tile.getPosition_data().length / 4; // Actual amount of vertices defined
+
+                coordinate_stream = Stream.concat(coordinate_stream, Arrays.stream(ArrayUtils.toObject(tile.getPosition_data())));
+                index_stream = Stream.concat(index_stream, Arrays.stream(tile_indices));
             }
 
-            this.coordinate_stream = ArrayUtils.toPrimitive(stream.toArray(Float[]::new));
-            this.coordinate_amount = coordinate_stream.length;
+            this.coordinate_stream = ArrayUtils.toPrimitive(coordinate_stream.toArray(Float[]::new));
+            this.index_stream = ArrayUtils.toPrimitive(index_stream.toArray(Integer[]::new));
+            this.coordinate_amount = this.coordinate_stream.length;
         }
 
         public float[] getCoordinateStream() {
             return coordinate_stream;
+        }
+
+        public int[] getIndex_stream() {
+            return index_stream;
         }
 
         public int getVertexCount() {

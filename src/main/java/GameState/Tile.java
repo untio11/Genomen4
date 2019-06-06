@@ -62,6 +62,10 @@ public class Tile {
         this.parent = t;
     }
 
+    public Position getPosition() {
+        return position;
+    }
+
     @Override
     public String toString() {
         switch (type) {

@@ -10,7 +10,7 @@ import org.joml.Vector3f;
 public class BaseModel {
     private int vaoID = -1;
     private int[] dataBufferIDs = {-1, -1, -1, -1};
-    private float[] position_data;
+    protected float[] position_data;
     private float[] normal_data;
     private float[] texture_data;
     private int[] index_data;
@@ -42,6 +42,10 @@ public class BaseModel {
         scale = base_model.getScale();
     }
 
+    /**
+     * Fetch the position data of the tile in _Model space_ coordinates
+     * @return Array of coordinates in model space
+     */
     public float[] getPosition_data() {
         return position_data;
     }
