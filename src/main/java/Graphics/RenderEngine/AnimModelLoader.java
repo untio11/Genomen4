@@ -74,10 +74,12 @@ public class AnimModelLoader {
          * fills indices array
          * for every face, loop its indices and store in array
          */
+        int indCount = 0;
         for(int f=0; f < mesh.mNumFaces(); f++) {
             AIFace face = mesh.mFaces().get(f);
             for(int i=0; i < face.mNumIndices(); i++) {
-                indicesArray[i] = face.mIndices().get(i);
+                indicesArray[indCount] = face.mIndices().get(i);
+                indCount++;
             }
         }
 

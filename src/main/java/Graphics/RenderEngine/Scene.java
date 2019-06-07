@@ -173,7 +173,7 @@ public class Scene {
             BaseModel playerBase = AnimModelLoader.loadAnimModelInVao("res/gnomeModel.dae", loader);
             int playerTexture = loader.loadTexture("gnomeTexture");
             playerBase.setTexture(playerTexture);
-            //playerBase.setScale(0.1f);
+            playerBase.setScale(0.1f);
 
             entities.add(new ActorModel(actor, playerBase));
         }
