@@ -26,6 +26,65 @@ layout(std430, binding = 4) buffer Indices {
 
 ivec2 pixel_coords;
 
+vec4 phong(vec3 point, vec3 normal, vec3 light_source, vec4 base_color, float shininess) {
+    vec4 result = 0.0 * base_color; // ambient light initial color
+
+    vec3 L = (light_source - point); // Direction from point to light source
+    float distance = length(L);
+
+    float angle = max(dot(normal, L) / (length(normal) * length(L)), 0.0); // Angle between normal and light source
+
+    // Diffuse contribution
+    result += angle * base_color;
+
+    vec3 E = normalize(point - camera); // viewdirection
+    vec3 halfway = normalize(L + E);
+    float spec = pow(max(dot(normal, halfway), 0.0), shininess);
+    result += spec * base_color;
+    return result * max((sqrt(5.0 - distance)/sqrt(5.0)), 0.4);
+}
+vec4 shadowBounce(vec3 origin, vec3 light_source) {
+    float distance = length(light_source - origin); // origin + distance * direction should be light source
+    vec3 direction = normalize(light_source - origin);
+
+    float u, v, t; // u and v are for interpolating, t is to find the intersection P
+    vec3 v01, v02; // two edges starting at v0
+    vec3 pvec, tvec, qvec; // Three stupid names
+    float det; // Determinant
+
+    for (int i = 0; i < tringle_amount; i++) {
+        v01  = parsed_positions[indices[(i * 3) + 1]].xyz - parsed_positions[indices[(i * 3) + 0]].xyz;
+        v02  = parsed_positions[indices[(i * 3) + 2]].xyz - parsed_positions[indices[(i * 3) + 0]].xyz;
+        pvec = cross(direction, v02);
+        det = dot(v01, pvec);
+
+        if (abs(det) < 0.00001) { // Too close to parallel. If we remove abs(), we get backface culling
+            continue;
+        }
+
+        tvec = origin - parsed_positions[indices[(i * 3) + 0]].xyz;
+        u = dot(tvec, pvec) / det;
+        if (u < 0.0 || u > 1.0) {
+            continue;
+        }
+
+        qvec = cross(tvec, v01);
+        v = dot(direction, qvec) / det;
+        if (v < 0.0 || v + u > 1.0) {
+            continue;
+        }
+
+        t = dot(v02, qvec) / det;
+        if (t < 0.0 || t > distance) { // Triangle is behind us, or intersection happens behind the lightsource
+            continue;
+        }
+
+        return vec4(0.5, 0.5, 0.5, 1.0);
+    }
+
+    return vec4(1.0, 1.0, 1.0, 1.0);
+}
+
 vec3 getRay() {
     ivec2 dimensions = imageSize(img_output);
     // Map pixel coordinates to normalized space: [-1,1]^2 (sorta, taking care of aspect ratio)
@@ -56,7 +115,7 @@ vec4 trace() {
         pvec = cross(ray, v02);
         det  = dot(v01, pvec);
 
-        if (abs(det) < 0.00001) { // Too close to parallel. If we remove abs(), we get backface culling
+        if (abs(det) < 0.000001) { // Too close to parallel. If we remove abs(), we get backface culling
             continue;
         }
 
@@ -77,19 +136,16 @@ vec4 trace() {
             continue;
         }
 
+        color = vec4(0.0, 0.0, 0.0, 1.0);
         closest = t;
-        color = vec4((parsed_colors[indices[(i * 3) + 0]] * (1 - u - v) +
-        parsed_colors[indices[(i * 3) + 1]] * u +
-        parsed_colors[indices[(i * 3) + 2]] * v).xyz, 1.0);
-
-//        for (int j = 0; j < lights.length(); j ++) {
-//            if (lights[j].toggle) {
-//                normal = normalize(cross(v01, v02));
-//                intersection = camera + t * ray;
-//                base_color = parsed_normals[(i * 3) + 0] * (1 - u - v) + parsed_normals[(i * 3) + 1] * u + parsed_normals[(i * 3) + 2] * v;
-//                color += phong(intersection, normal, lights[j].location, base_color, 20.0) * shadowBounce(intersection + 0.00001 * normal, lights[j].location);
-//            }
-//        }
+        base_color = vec4((parsed_colors[indices[(i * 3) + 0]] * (1 - u - v) +
+                      parsed_colors[indices[(i * 3) + 1]] * u +
+                      parsed_colors[indices[(i * 3) + 2]] * v).xyz, 1.0
+        );
+        normal = normalize(cross(v01, v02));
+        intersection = camera + t * ray;
+        color += phong(intersection, normal, vec3(camera.x, 1.0, camera.z), base_color, 2.0);
+        color *= shadowBounce(intersection + 0.0001 * normal, vec3(camera.x, 1.0, camera.z));
     }
 
     return color;

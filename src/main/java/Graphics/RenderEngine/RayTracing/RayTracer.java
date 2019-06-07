@@ -50,7 +50,7 @@ public class RayTracer implements AbstractRenderer {
 
     // Camera stuff
     private static Vector3f camera;
-    private static float fov = 3f; // Camera to viewport distance. smaller fov => wider viewangle
+    private static float fov = 0.5f; // Camera to viewport distance. smaller fov => wider viewangle
     private static float[] transform = {
             1f,  0f,  0f, // Right
             0f,  0f, -1f, // Up
