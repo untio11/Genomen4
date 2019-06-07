@@ -90,6 +90,7 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
         players.add(new StaticGenomenPlayer());
         players.add(new RandomGenomenPlayer());
         players.add(new SimpleGenomenPlayer());
+        players.add(new SimpleGenomenPlayer());
     }
 
     @Override
