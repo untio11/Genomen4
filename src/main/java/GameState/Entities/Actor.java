@@ -142,42 +142,45 @@ public class Actor extends Entity implements Observable {
         if (horizontal != 0 && vertical != 0) {
             if (vertical > 0) {
                 moveDown(Math.sqrt(2)/2 * vertical);
-                targetAngle = 180;
+                targetAngle = 0;
             } else {
                 moveUp(Math.sqrt(2)/2 * -vertical);
-                targetAngle = 0;
+                targetAngle = 180;
             }
             if (horizontal > 0) {
                 moveRight(Math.sqrt(2)/2 * horizontal);
-                targetAngle += vertical > 0 ? 45 : 315;
+                targetAngle += vertical > 0 ? 45 : -45;
             } else {
                 moveLeft(Math.sqrt(2)/2 * -horizontal);
-                targetAngle += vertical < 0 ? 45 : -45;
+                targetAngle += vertical > 0 ? 315 : 45;
             }
+            if (!isKidnapper())
+            System.out.println(targetAngle);
         } else if (horizontal > 0) {
             moveRight(horizontal);
-            targetAngle = 270;
+            targetAngle = 90;
         } else if (horizontal < 0) {
             moveLeft(-horizontal);
-            targetAngle = 90;
+            targetAngle = 270;
         } else if (vertical < 0) {
             moveUp(-vertical);
-            targetAngle = 0;
+            targetAngle = 180;
         }  else if (vertical > 0) {
             moveDown(vertical);
-            targetAngle = 180;
+            targetAngle = 0;
         }
 
         double rotleft = resetDegrees((float) (targetAngle - rotation.y));
         double rotright = resetDegrees((float) (rotation.y - targetAngle));
-
         if (rotation.y != targetAngle) {
-            if (rotleft < rotright) {
-                rotation.y = (rotation.y + turnSpeed < targetAngle)? rotation.y + turnSpeed: (float) targetAngle;
+            if (rotleft <= rotright) {
+                rotation.y = resetDegrees(rotation.y + turnSpeed);
             } else {
-                rotation.y = (rotation.y - turnSpeed > targetAngle)? rotation.y - turnSpeed: (float) targetAngle;
+                rotation.y = resetDegrees(rotation.y - turnSpeed);
             }
-            rotation.y = resetDegrees(rotation.y);
+            if (Math.abs(rotation.y - targetAngle) < turnSpeed) {
+                rotation.y = (float) targetAngle;
+            }
         }
         broadcast();
     }
