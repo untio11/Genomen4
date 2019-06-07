@@ -17,7 +17,7 @@ public class TerrainGenerator {
     private static Random generator = new Random();
 
     public static TerrainModel generateTerrain(Tile tile, int texture, Loader loader) {
-        height = (tile.getType() == TileType.TREE) ? 10 : 0;
+        height = (tile.getType() == TileType.TREE) ? 3 : 0;
         BaseModel base = generateTerrainBase(loader);
         base.setTexture(texture);
         base.setColorData(getColorData(tile));

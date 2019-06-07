@@ -8,7 +8,7 @@ layout(location = 1) uniform float fov;
 layout(location = 2) uniform mat3  transform;
 layout(location = 3) uniform int   tringle_amount;
 
-layout(std430, binding = 1) buffer VertexPositions {
+layout(std430, binding = 1) buffer VertexPositions { // Contains the vertices of all visible tringles
     vec4 parsed_positions[];
 };
 
@@ -24,6 +24,10 @@ layout(std430, binding = 4) buffer Indices {
     int indices[];
 };
 
+layout(std430, binding = 5) buffer Offsets { // Offsets to find the start of each chunk
+    int offsets[];
+};
+
 ivec2 pixel_coords;
 
 vec4 phong(vec3 point, vec3 normal, vec3 light_source, vec4 base_color, float shininess) {
@@ -31,7 +35,6 @@ vec4 phong(vec3 point, vec3 normal, vec3 light_source, vec4 base_color, float sh
 
     vec3 L = (light_source - point); // Direction from point to light source
     float distance = length(L);
-
     float angle = max(dot(normal, L) / (length(normal) * length(L)), 0.0); // Angle between normal and light source
 
     // Diffuse contribution
@@ -41,7 +44,7 @@ vec4 phong(vec3 point, vec3 normal, vec3 light_source, vec4 base_color, float sh
     vec3 halfway = normalize(L + E);
     float spec = pow(max(dot(normal, halfway), 0.0), shininess);
     result += spec * base_color;
-    return result * max((sqrt(5.0 - distance)/sqrt(5.0)), 0.4);
+    return result * max((sqrt(15.0 - distance)/sqrt(15.0)), 0.2);
 }
 vec4 shadowBounce(vec3 origin, vec3 light_source) {
     float distance = length(light_source - origin); // origin + distance * direction should be light source
@@ -58,7 +61,7 @@ vec4 shadowBounce(vec3 origin, vec3 light_source) {
         pvec = cross(direction, v02);
         det = dot(v01, pvec);
 
-        if (abs(det) < 0.00001) { // Too close to parallel. If we remove abs(), we get backface culling
+        if (abs(det) < 0.000001) { // Too close to parallel. If we remove abs(), we get backface culling
             continue;
         }
 
@@ -79,7 +82,7 @@ vec4 shadowBounce(vec3 origin, vec3 light_source) {
             continue;
         }
 
-        return vec4(0.5, 0.5, 0.5, 1.0);
+        return vec4(0.65, 0.65, 0.65, 1.0);
     }
 
     return vec4(1.0, 1.0, 1.0, 1.0);
