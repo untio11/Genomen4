@@ -4,7 +4,6 @@ import Engine.AbstractGameContainer;
 import Engine.GameContainerSwing;
 import GameState.MapConfigurations;
 import GameState.World;
-import Graphics.GameContainerGL;
 
 import java.io.File;
 import java.io.IOException;
