@@ -6,7 +6,7 @@ import AI.Genomen.Player.SimpleGenomenPlayer;
 import AI.Genomen.Player.StaticGenomenPlayer;
 import AI.Trainer.SingleBiAIGameTrainer;
 import Engine.Controller.Controller;
-import Engine.GameContainer;
+import Engine.GameContainerSwing;
 import GameState.MapConfiguration;
 import GameState.MapConfigurations;
 import GameState.World;
@@ -14,14 +14,13 @@ import org.joml.Vector3f;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import util.Pair;
 
-import javax.naming.ldap.Control;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer, Controller, GameContainer> {
+public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer, Controller, GameContainerSwing> {
 
     // Boolean for choosing between the father and kidnapper
     private boolean fatherAI = true;
@@ -62,7 +61,7 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
 
         // Play against the best father player
         World.initWorld(mapConfig);
-        final GameContainer game = new GameContainer(World.getInstance(), true);
+        final GameContainerSwing game = new GameContainerSwing(World.getInstance(), true);
         Controller fatherAI = sortedPlayers.entrySet().iterator().next().getKey();
         fatherAI.setPlayer(World.getInstance().getFather());
         game.setFatherAI(fatherAI);
@@ -109,9 +108,9 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
     }
 
     @Override
-    protected GameContainer createGame(Pair<AIGenomenPlayer, Controller> players) {
+    protected GameContainerSwing createGame(Pair<AIGenomenPlayer, Controller> players) {
         World.initWorld(mapConfig);
-        GameContainer gc = new GameContainer(World.getInstance(), false);
+        GameContainerSwing gc = new GameContainerSwing(World.getInstance(), false);
         players.getFirst().setPlayer(World.getInstance().getFather());
         gc.setFatherAI(players.getFirst());
         players.getSecond().setPlayer(World.getInstance().getKidnapper());
@@ -120,7 +119,7 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
     }
 
     @Override
-    protected void playGame(GameContainer game) {
+    protected void playGame(GameContainerSwing game) {
         game.start();
 
         boolean fatherWins = game.isFatherWin();
