@@ -3,6 +3,7 @@ package AI.Trainer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import util.Pair;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -22,6 +23,9 @@ public abstract class SingleBiAIGameTrainer<A extends TrainerAIPlayer, B, G> ext
 
     private GeneticAlgorithm<A> geneticAlgorithm1;
 
+    private List<Integer> bestIterationScores;
+    private List<Double> averageIterationScores;
+
     public SingleBiAIGameTrainer(int nPlayers, int iterations) {
         super(nPlayers, iterations);
         players1 = new ArrayList<>();
@@ -37,6 +41,9 @@ public abstract class SingleBiAIGameTrainer<A extends TrainerAIPlayer, B, G> ext
                 return trainer.createPlayer1(paramTable);
             }
         });
+
+        bestIterationScores = new ArrayList<>();
+        averageIterationScores = new ArrayList<>();
     }
 
     @Override
@@ -80,8 +87,10 @@ public abstract class SingleBiAIGameTrainer<A extends TrainerAIPlayer, B, G> ext
         double avg1 = sum1 * 1f / sortedPlayers1.size();
 
         System.out.print("Best Scores: \t" + bestPlayer1Entry.getValue());
+        bestIterationScores.add(bestPlayer1Entry.getValue());
 
         System.out.println("\t Average Scores: \t" + avg1);
+        averageIterationScores.add(avg1);
     }
 
     @Override
@@ -98,6 +107,15 @@ public abstract class SingleBiAIGameTrainer<A extends TrainerAIPlayer, B, G> ext
         for (A player : players1) {
             playerScores1.put(player, 0);
         }
+    }
+
+    @Override
+    protected void saveStatistics(File f) {
+        List<List<?>> rows = Arrays.asList(
+                bestIterationScores,
+                averageIterationScores
+        );
+        this.saveCsv(rows, f);
     }
 
     protected void createPlayers1(List<A> players1) {

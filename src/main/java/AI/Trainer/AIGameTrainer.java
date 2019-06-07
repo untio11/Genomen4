@@ -3,6 +3,7 @@ package AI.Trainer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import util.Pair;
 
+import java.io.File;
 import java.util.*;
 
 public abstract class AIGameTrainer<A extends TrainerAIPlayer, G> extends BaseAIGameTrainer<G> {
@@ -78,6 +79,11 @@ public abstract class AIGameTrainer<A extends TrainerAIPlayer, G> extends BaseAI
         for (A player : players) {
             playerScores.put(player, 0);
         }
+    }
+
+    @Override
+    protected void saveStatistics(File f) {
+        // TODO: implement the statistics saving
     }
 
     protected void createPlayers(List<A> players) {
