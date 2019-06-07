@@ -10,19 +10,7 @@ public class AIController extends Controller {
 
     @Override
     public void update(double dt) {
-        if (yAxis > 0) {
-            player.moveUp(dt * yAxis);
-        }
-        if (yAxis < 0) {
-            player.moveDown(dt * Math.abs(yAxis));
-        }
-
-        if (xAxis > 0) {
-            player.moveRight(dt * xAxis);
-        }
-        if (xAxis < 0) {
-            player.moveLeft(dt * Math.abs(xAxis));
-        }
+        player.move(xAxis,yAxis);
     }
 
     public void setAxis(double xAxis, double yAxis) {

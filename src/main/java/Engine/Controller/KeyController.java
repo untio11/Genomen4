@@ -15,7 +15,6 @@ public class KeyController extends Controller implements KeyListener {
     private int down = KeyEvent.VK_S;
     private int left = KeyEvent.VK_A;
     private int right = KeyEvent.VK_D;
-    private int rKey = KeyEvent.VK_R;
 
 
     public KeyController(Window window) {
@@ -31,27 +30,26 @@ public class KeyController extends Controller implements KeyListener {
 
     @Override
     public void update(double dt) {
-        if (keys[right]) {
-            player.moveRight(dt);
+        double horizontal = 0;
+        double vertical = 0;
+
+        if (keys[right] && !keys[left]) {
+            horizontal = dt;
         }
 
-        if (keys[left]) {
-            player.moveLeft(dt);
+        if (keys[left] && !keys[right]) {
+            horizontal = -dt;
         }
 
-        if (keys[up]) {
-            player.moveUp(dt);
+        if (keys[up] && !keys[down]) {
+            vertical = -dt;
         }
 
-        if (keys[down]) {
-            player.moveDown(dt);
+        if (keys[down] && !keys[up]) {
+            vertical = dt;
         }
 
-        if (keys[rKey]) {
-            if (!player.isKidnapper()) {
-                player.castRays(0, 3);
-            }
-        }
+        player.move(horizontal, vertical);
     }
 
     @Override
@@ -66,6 +64,7 @@ public class KeyController extends Controller implements KeyListener {
     @Override
     public void keyReleased(KeyEvent e) {
         keys[e.getKeyCode()] = false;
+        System.out.println(1);
     }
 }
 
