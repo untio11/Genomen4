@@ -10,9 +10,7 @@ import Graphics.Models.BaseModel;
 import Graphics.Models.TerrainModel;
 import Graphics.Terrains.TerrainGenerator;
 import org.apache.commons.lang3.ArrayUtils;
-import org.bytedeco.opencv.presets.opencv_core;
 
-import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -22,8 +20,8 @@ import java.util.stream.Stream;
 public class Scene {
     private static final int CHUNK_WIDTH = 6;
     private static final int CHUNK_HEIGHT = 3;
-    private static final int X_TILES_TO_EDGE = 12;
-    private static final int Y_TILES_TO_EDGE = 7;
+    private static final int X_TILES_TO_EDGE = 6;
+    private static final int Y_TILES_TO_EDGE = 3;
     private int x_chunks;
     private int y_chunks;
     private static Chunk[][] chunks;
@@ -163,10 +161,10 @@ public class Scene {
      * @return An array of chunks that should at least be partly visible on screen.
      */
     public Chunk[] getVisibileChunks(float x, float y) {
-        int left_x_chunk = Math.max((int) ((x - X_TILES_TO_EDGE) / CHUNK_WIDTH), 0);
-        int right_x_chunk = Math.min((int) ((x + X_TILES_TO_EDGE) / CHUNK_WIDTH), x_chunks);
-        int top_y_chunk = Math.min((int) ((y + Y_TILES_TO_EDGE) / CHUNK_HEIGHT), y_chunks);
-        int bottom_y_chunk = Math.max((int) ((y - Y_TILES_TO_EDGE) / CHUNK_HEIGHT), 0);
+        int left_x_chunk = Math.max((int) Math.floor((x - X_TILES_TO_EDGE) / CHUNK_WIDTH), 0);
+        int right_x_chunk = Math.min((int) Math.ceil((x + X_TILES_TO_EDGE) / CHUNK_WIDTH), x_chunks);
+        int top_y_chunk = Math.min((int) Math.ceil((y + Y_TILES_TO_EDGE) / CHUNK_HEIGHT), y_chunks);
+        int bottom_y_chunk = Math.max((int) Math.floor((y - Y_TILES_TO_EDGE) / CHUNK_HEIGHT), 0);
         Chunk[] result = new Chunk[(right_x_chunk - left_x_chunk) * (top_y_chunk - bottom_y_chunk)];
 
         int counter = 0;
@@ -262,7 +260,7 @@ public class Scene {
         private int coordinate_amount;
         private float[] coordinate_stream;
         private float[] normal_stream;
-        private float[] texture_stream;
+        private float[] color_stream;
         private int[] index_stream;
 
         Chunk(List<TerrainModel> tiles) {
@@ -272,12 +270,12 @@ public class Scene {
 
             Stream<Float> coordinate_stream = Stream.of();
             Stream<Integer> index_stream = Stream.of();
+            Stream<Float> color_stream = Stream.of();
             int index_counter = 0;
             for (int i = 0; i < tiles.size(); i++) {
                 TerrainModel tile = tiles.get(i);
-                Float[] tile_normals = ArrayUtils.toObject(tile.getPosition_data());
-                Float[] tile_textures = ArrayUtils.toObject(tile.getPosition_data());
-                Integer[] tile_indices = ArrayUtils.toObject(tile.getIndex_data());
+                ;
+                Integer[] tile_indices = ArrayUtils.toObject(tile.getIndexData());
 
                 for (int j = 0; j < tile_indices.length; j++) {
                     tile_indices[j] += index_counter;
@@ -285,12 +283,18 @@ public class Scene {
                 index_counter += tile.getPosition_data().length / 4; // Actual amount of vertices defined
 
                 coordinate_stream = Stream.concat(coordinate_stream, Arrays.stream(ArrayUtils.toObject(tile.getPosition_data())));
+                color_stream = Stream.concat(color_stream, Arrays.stream(ArrayUtils.toObject(tile.getColorData())));
                 index_stream = Stream.concat(index_stream, Arrays.stream(tile_indices));
             }
 
             this.coordinate_stream = ArrayUtils.toPrimitive(coordinate_stream.toArray(Float[]::new));
             this.index_stream = ArrayUtils.toPrimitive(index_stream.toArray(Integer[]::new));
             this.coordinate_amount = this.coordinate_stream.length;
+            this.color_stream = ArrayUtils.toPrimitive(color_stream.toArray(Float[]::new));
+        }
+
+        public float[] getColorStream() {
+            return color_stream;
         }
 
         public float[] getCoordinateStream() {

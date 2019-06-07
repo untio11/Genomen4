@@ -29,7 +29,7 @@ public class RayTracer implements AbstractRenderer {
     private static int width, height;
     // VAO, VBO & SSBO stuff
     private static int vaoId, IndexVBO;
-    private static int vertexSSBO, indexSSBO;
+    private static int vertexSSBO, indexSSBO, colorSSBO;
     private static int tringlecount;
 
     // Shader stuff
@@ -50,7 +50,7 @@ public class RayTracer implements AbstractRenderer {
 
     // Camera stuff
     private static Vector3f camera;
-    private static float fov = 1.2f; // Camera to viewport distance. smaller fov => wider viewangle
+    private static float fov = 3f; // Camera to viewport distance. smaller fov => wider viewangle
     private static float[] transform = {
             1f,  0f,  0f, // Right
             0f,  0f, -1f, // Up
@@ -90,6 +90,7 @@ public class RayTracer implements AbstractRenderer {
 
         GL43.glProgramUniform1i(rayProgram, 3, tringlecount);
         GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 1, vertexSSBO);
+        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 3, colorSSBO);
         GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 4, indexSSBO);
         glDispatchCompute(work_x, work_y, 1);
 
@@ -106,7 +107,8 @@ public class RayTracer implements AbstractRenderer {
         camera = scene.getCamera().getPosition();
         int[] ssbos = TerrainLoader.loadChunksToSSBOs(scene.getVisibileChunks(camera.x, camera.z));
         vertexSSBO = ssbos[0];
-        indexSSBO = ssbos[1];
+        colorSSBO = ssbos[1];
+        indexSSBO = ssbos[2];
         tringlecount = TerrainLoader.tringle_count;
     }
 

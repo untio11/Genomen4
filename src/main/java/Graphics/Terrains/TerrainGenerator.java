@@ -5,24 +5,29 @@ import GameState.TileType;
 import Graphics.Models.BaseModel;
 import Graphics.Models.TerrainModel;
 import Graphics.RenderEngine.Loader;
-import Graphics.RenderEngine.RayTracing.RayTracer;
 import Graphics.WindowManager;
 import util.Pair;
+
+import java.util.Random;
 
 public class TerrainGenerator {
     private static final int COORDINATE_COUNT = WindowManager.RAY_TRACING ? 4 : 3;
     private static float height;
+    private static int vertex_count;
+    private static Random generator = new Random();
 
     public static TerrainModel generateTerrain(Tile tile, int texture, Loader loader) {
         height = (tile.getType() == TileType.TREE) ? 10 : 0;
         BaseModel base = generateTerrainBase(loader);
         base.setTexture(texture);
+        base.setColorData(getColorData(tile));
+
         return new TerrainModel(tile, base);
     }
 
     private static BaseModel generateTerrainBase(Loader loader) {
         float[] vertices = getVertices(); // Use 4 coordinate vertices when raytracing
-        int vertex_count = vertices.length / COORDINATE_COUNT; // Not the same as amount of triangles
+        vertex_count = vertices.length / COORDINATE_COUNT; // Not the same as amount of triangles
 
         float[] normals = new float[vertices.length];
         for (int n = 0; n < vertices.length; n++) { // All vertices have normals in the y-direction (up)
@@ -62,10 +67,10 @@ public class TerrainGenerator {
         }
 
         BaseModel baseModel = loader.loadToModel(vertices, textureCoords, normals, indices);
-        baseModel.setIndex_data(indices);
-        baseModel.setNormal_data(normals);
-        baseModel.setPosition_data(vertices);
-        baseModel.setTexture_data(textureCoords);
+        baseModel.setIndexData(indices);
+        baseModel.setNormalData(normals);
+        baseModel.setPositionData(vertices);
+        baseModel.setTextureData(textureCoords);
         return baseModel;
     }
 
@@ -136,5 +141,52 @@ public class TerrainGenerator {
         }
 
         return result;
+    }
+
+    private static float[] getColorData(Tile tile) {
+        float[] result = new float[vertex_count * 4];
+        float[] color_pattern;
+        switch (tile.getType()) {
+            case GRASS:
+                color_pattern = new float[] {0.0f, 0.6f, 0.0f, 1f};
+                break;
+            case SAND:
+                color_pattern = new float[] {0.98f, 0.94f, 0.75f, 1f};
+                break;
+            case TREE:
+                color_pattern = new float[] {0.37f, 0.18f, 0.05f, 1f};
+                break;
+            case WATER:
+                color_pattern = new float[] {0.16f, 0.32f, 0.75f, 1f};
+                break;
+            case SHORE_N:
+            case SHORE_E:
+            case SHORE_S:
+            case SHORE_W:
+            case SHORE_NE:
+            case SHORE_ES:
+            case SHORE_SW:
+            case SHORE_NW:
+            case SHORE_NS:
+            case SHORE_EW:
+            case SHORE_NES:
+            case SHORE_NSW:
+            case SHORE_ESW:
+            case SHORE_NEW:
+            case SHORE_NESW:
+                color_pattern = new float[] {0.0f, 0.75f, 1.0f, 1f};
+                break;
+            default:
+                color_pattern = new float[] {1f, 0.08f, 0.58f, 1f};
+                break;
+        }
+        for (int i = 0; i < vertex_count * 4; i++) {
+            result[i] = tweakColor(color_pattern[i % 4]);
+        }
+        return result;
+    }
+
+    private static float tweakColor(float base_color) {
+        return (float)(base_color + (generator.nextGaussian() * 0.01f));
     }
 }

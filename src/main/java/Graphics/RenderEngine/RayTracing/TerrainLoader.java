@@ -22,6 +22,7 @@ class TerrainLoader {
     static int[] loadChunksToSSBOs(Scene.Chunk[] chunks) {
         Stream<Float> coordinate_stream = Stream.of();
         Stream<Integer> index_stream = Stream.of();
+        Stream<Float> color_stream = Stream.of();
         int index_counter = 0;
         tringle_count = 0;
 
@@ -37,12 +38,14 @@ class TerrainLoader {
             index_counter += chunk.getCoordinate_amount() / 4;
 
             coordinate_stream = Stream.concat(coordinate_stream, Arrays.stream(ArrayUtils.toObject(chunk.getCoordinateStream())));
+            color_stream = Stream.concat(color_stream, Arrays.stream(ArrayUtils.toObject(chunk.getColorStream())));
             index_stream = Stream.concat(index_stream, Arrays.stream(indices));
         }
 
         int vertexSSBO = loadDataToBuffer(ArrayUtils.toPrimitive(coordinate_stream.toArray(Float[]::new)));
+        int colorSSBO = loadDataToBuffer(ArrayUtils.toPrimitive(color_stream.toArray(Float[]::new)));
         int indexSSBO = loadDataToBuffer(ArrayUtils.toPrimitive(index_stream.toArray(Integer[]::new)));
-        return new int[] {vertexSSBO, indexSSBO};
+        return new int[] {vertexSSBO, colorSSBO, indexSSBO};
     }
 
     /**

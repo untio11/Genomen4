@@ -1,6 +1,6 @@
 #version 430
 
-layout(local_size_x = 16, local_size_y = 16) in;
+layout(local_size_x = 32, local_size_y = 32) in;
 layout(rgba32f, binding = 0) uniform image2D img_output;
 
 layout(location = 0) uniform vec3  camera;
@@ -16,8 +16,8 @@ layout(std430, binding = 2) buffer VertexNormals {
     vec4 parsed_normals[];
 };
 
-layout(std430, binding = 3) buffer TexCoods {
-    vec2 parsed_tex[];
+layout(std430, binding = 3) buffer ColorCoods {
+    vec4 parsed_colors[];
 };
 
 layout(std430, binding = 4) buffer Indices {
@@ -78,7 +78,9 @@ vec4 trace() {
         }
 
         closest = t;
-        color = vec4(0.6, 0.2, 0.5, 1.0);
+        color = vec4((parsed_colors[indices[(i * 3) + 0]] * (1 - u - v) +
+        parsed_colors[indices[(i * 3) + 1]] * u +
+        parsed_colors[indices[(i * 3) + 2]] * v).xyz, 1.0);
 
 //        for (int j = 0; j < lights.length(); j ++) {
 //            if (lights[j].toggle) {
