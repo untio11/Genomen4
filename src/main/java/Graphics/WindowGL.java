@@ -1,5 +1,7 @@
 package Graphics;
 
+import GameState.MapConfigurations;
+import GameState.World;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -14,15 +16,17 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class WindowGL {
 
-    private int width;
-    private int height;
+    private int pixelWidth, pixelHeight;
+
     private long window; // The window handle
     private Set<Integer> pressedKeys; // To collect all pressed keys f
 
-    public WindowGL() {
-        width = 1600;
-        height = 900;
+    public WindowGL(int pixelWidth, int pixelHeight, float scale) {
+        this.pixelWidth = pixelWidth;
+        this.pixelHeight = pixelHeight;
+
         pressedKeys = new HashSet<>();
+        initGLFW();
     }
 
     /**
@@ -68,7 +72,7 @@ public class WindowGL {
 
 
         // Create the window in windowed mode
-        window = glfwCreateWindow(width, height, "Genomen 4", NULL, NULL);
+        window = glfwCreateWindow(pixelWidth, pixelHeight, "Genomen 4", NULL, NULL);
         if (window == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
@@ -82,8 +86,8 @@ public class WindowGL {
         GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         glfwSetWindowPos( // Center the window inside the screen
                 window,
-                (vidmode.width() - width) / 2,
-                (vidmode.height() - height) / 2
+                (vidmode.width() - pixelWidth) / 2,
+                (vidmode.height() - pixelHeight) / 2
         );
 
         // Make the OpenGL context current
@@ -100,12 +104,16 @@ public class WindowGL {
 
     private void windowSizeCallback(long window, int width, int height) {
         GL11.glViewport(0, 0, width, height);
-        this.width = width;
-        this.height = height;
+        this.pixelWidth = width;
+        this.pixelHeight = height;
         //setupTexture();
     }
 
     public long getWindow() {
         return window;
     }
+
+    public void update() {}
+    public void display() {}
+    public void close() {}
 }

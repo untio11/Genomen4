@@ -21,11 +21,11 @@ public class Actor extends Entity implements Observable {
     private float size;
     private boolean kidnapper;
     private World world;
-    private int rayCalls = 0;
     private double previousAngle;
+    private double targetAngle;
 
     // Turnspeed has to be a divisor of 90
-    private float turnSpeed = 30f;
+    private float turnSpeed = 10f;
 
     /**
      * Initialize a actor with the appropriate properties
@@ -44,13 +44,14 @@ public class Actor extends Entity implements Observable {
         this.observers = new ArrayList<>();
     }
 
-    public void resetDegrees() {
+    public float resetDegrees(float angle) {
         // Reset the degrees after rotating a full circle
-        if(rotation.y >= 360f) {
-            rotation.y -= 360f;
-        } else if(rotation.y < 0f) {
-            rotation.y += 360f;
+        if(angle >= 360f) {
+            return angle - 360;
+        } else if(angle < 0f) {
+            return angle + 360;
         }
+        return angle;
     }
 
     /**
@@ -72,17 +73,6 @@ public class Actor extends Entity implements Observable {
             }
         }
         position.y -= distance;
-
-        // If not facing upwards
-        if (rotation.y != 0f) {
-            if (rotation.y > 0f && rotation.y < 180f) { // When facing left
-                rotation.y -= turnSpeed; // Turn clockwise
-            } else if (rotation.y >= 180f && rotation.y < 360f) { // When facing right
-                rotation.y += turnSpeed; // Turn counter-clockwise
-            }
-        }
-        resetDegrees();
-        broadcast();
     }
 
     /**
@@ -104,17 +94,6 @@ public class Actor extends Entity implements Observable {
             }
         }
         position.y += distance;
-
-        // If not facing downwards
-        if (rotation.y != 180f) {
-            if (rotation.y > 180 && rotation.y < 360) { // When facing right
-                rotation.y -= turnSpeed; // Turn clockwise
-            } else if (rotation.y >= 0 && rotation.y < 180) { // When facing left
-                rotation.y += turnSpeed; // Turn counter-clockwise
-            }
-        }
-        resetDegrees();
-        broadcast();
     }
 
     /**
@@ -136,17 +115,6 @@ public class Actor extends Entity implements Observable {
             }
         }
         position.x -= distance;
-
-        // If not facing left
-        if (rotation.y != 90f) {
-            if (rotation.y > 90 && rotation.y <= 270) { // When facing down
-                rotation.y -= turnSpeed; // Turn clockwise
-            } else if ((rotation.y > 270 && rotation.y < 360) || (rotation.y >= 0 && rotation.y < 90)) { // When facing up
-                rotation.y += turnSpeed; // Turn counter-clockwise
-            }
-        }
-        resetDegrees();
-        broadcast();
     }
 
     /**
@@ -168,16 +136,52 @@ public class Actor extends Entity implements Observable {
             }
         }
         position.x += distance;
+    }
 
-        // If not facing right
-        if (rotation.y != 270) {
-            if ((rotation.y > 270 && rotation.y < 360) || (rotation.y >= 0 && rotation.y <= 90)) { // When facing up
-                rotation.y -= turnSpeed; // Turn clockwise
-            } else if (rotation.y > 90 && rotation.y < 270) { // When facing down
-                rotation.y += turnSpeed; // Turn counter-clockwise
+    public void move(double horizontal, double vertical) {
+        if (horizontal != 0 && vertical != 0) {
+            if (vertical > 0) {
+                moveDown(Math.sqrt(2)/2 * vertical);
+                targetAngle = 0;
+            } else {
+                moveUp(Math.sqrt(2)/2 * -vertical);
+                targetAngle = 180;
+            }
+            if (horizontal > 0) {
+                moveRight(Math.sqrt(2)/2 * horizontal);
+                targetAngle += vertical > 0 ? 45 : -45;
+            } else {
+                moveLeft(Math.sqrt(2)/2 * -horizontal);
+                targetAngle += vertical > 0 ? 315 : 45;
+            }
+            if (!isKidnapper())
+            System.out.println(targetAngle);
+        } else if (horizontal > 0) {
+            moveRight(horizontal);
+            targetAngle = 90;
+        } else if (horizontal < 0) {
+            moveLeft(-horizontal);
+            targetAngle = 270;
+        } else if (vertical < 0) {
+            moveUp(-vertical);
+            targetAngle = 180;
+        }  else if (vertical > 0) {
+            moveDown(vertical);
+            targetAngle = 0;
+        }
+
+        double rotleft = resetDegrees((float) (targetAngle - rotation.y));
+        double rotright = resetDegrees((float) (rotation.y - targetAngle));
+        if (rotation.y != targetAngle) {
+            if (rotleft <= rotright) {
+                rotation.y = resetDegrees(rotation.y + turnSpeed);
+            } else {
+                rotation.y = resetDegrees(rotation.y - turnSpeed);
+            }
+            if (Math.abs(rotation.y - targetAngle) < turnSpeed) {
+                rotation.y = (float) targetAngle;
             }
         }
-        resetDegrees();
         broadcast();
     }
 
