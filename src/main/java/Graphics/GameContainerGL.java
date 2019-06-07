@@ -1,15 +1,19 @@
-package Engine;
+package Graphics;
 
+import Engine.AbstractGameContainer;
 import Engine.Controller.Controller;
-import Engine.Controller.KeyController;
+import Engine.SoundClip;
 import GameState.World;
 import Graphics.RenderEngine.AbstractRenderer;
+import Graphics.RenderEngine.MasterRenderer;
 import Graphics.RenderEngine.Scene;
 
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
-public class GameContainerSwing implements Runnable, AbstractGameContainer {
+import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
+import static org.lwjgl.glfw.GLFW.*;
+
+public class GameContainerGL implements Runnable, AbstractGameContainer {
 
     private static final double ROUND_TIME = 60;
     private final int FPS = 60;
@@ -26,7 +30,7 @@ public class GameContainerSwing implements Runnable, AbstractGameContainer {
 
     private Thread thread = new Thread(this);
 
-    private Window window;
+    private WindowGL windowGL;
     private AbstractRenderer renderer; // TODO: Add extra layer above MasterRenderer (AbstractRenderer?) to cover normal rasterizition shading and raytracing
     private Controller fatherController, kidnapperController;
 
@@ -36,26 +40,22 @@ public class GameContainerSwing implements Runnable, AbstractGameContainer {
     private World world;
     private int maxDistance;
 
-    private boolean humanPlayer = false;
-
-    /**
-     * @param renderWindow whether to render
-     */
-    public GameContainerSwing(World world, boolean renderWindow) {
+    public GameContainerGL(World world, boolean renderWindow) {
         this.world = world;
         int size = world.getMapConfig().getMapSize();
         int sizeSquared = size * size;
         this.maxDistance = (int) Math.sqrt(sizeSquared + sizeSquared);
 
         this.renderWindow = renderWindow;
-        pixelWidth = Renderer.TS * (world.getWidth());
-        pixelHeight = Renderer.TS * (world.getHeight());
+        pixelWidth = 1600;
+        pixelHeight = 900;
         if (renderWindow) {
-            window = new Window(pixelWidth, pixelHeight, scale);
-            renderer = new Renderer(window, world);
+            this.windowGL = new WindowGL(pixelWidth, pixelHeight, scale);
+            renderer = new MasterRenderer();
+            this.scene = new Scene(this.world); // First do window gl and initglfw, otherwise no openGL context will be available
+
             music = new SoundClip("res/music.wav");
             clips = new ArrayList<>();
-
             SoundClip clip1 = new SoundClip("res/cry1.wav");
             SoundClip clip2 = new SoundClip("res/cry2.wav");
             SoundClip clip3 = new SoundClip("res/cry3.wav");
@@ -69,28 +69,14 @@ public class GameContainerSwing implements Runnable, AbstractGameContainer {
      * Set kidnapper to player
      */
     public void setKidnapperPlayer() {
-        if (window != null) {
-            KeyController c = new KeyController(window);
-            c.setPlayer(world.getKidnapper());
-            changeKey2P(c);
-            kidnapperController = c;
-        } else {
-            System.err.println("No window for player");
-        }
+        this.kidnapperController = new InputHandler(World.getInstance().getKidnapper());
     }
 
     /**
      * Set father to player
      */
     public void setFatherPlayer() {
-        if (window != null) {
-            KeyController c = new KeyController(window);
-            c.setPlayer(world.getFather());
-            changeKey2P(c);
-            fatherController = c;
-        } else {
-            System.err.println("No window for player");
-        }
+        this.fatherController = new InputHandler(World.getInstance().getFather());
     }
 
     /**
@@ -107,20 +93,6 @@ public class GameContainerSwing implements Runnable, AbstractGameContainer {
         kidnapperController = c;
     }
 
-    /**
-     * In case that there are two players, set different key layout for the 2nd player
-     */
-    public void changeKey2P(KeyController c) {
-        if (humanPlayer) {
-            c.setKeys(KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT);
-        } else {
-            humanPlayer = true;
-        }
-    }
-
-    /**
-     * Initialise game and run.
-     */
     public void start() {
         if (kidnapperController != null || fatherController != null) {     //if all the controllers have been initialized
             thread.run();
@@ -129,14 +101,20 @@ public class GameContainerSwing implements Runnable, AbstractGameContainer {
         }
     }
 
-    public void close() {}
+    public void close() {
+        renderer.clean();
 
-    /**
-     * Game Loop
-     */
+        // Free the window callbacks and destroy the window
+        glfwFreeCallbacks(windowGL.getWindow());
+        glfwDestroyWindow(windowGL.getWindow());
+
+        // Terminate GLFW and free the error callback
+        glfwTerminate();
+        glfwSetErrorCallback(null).free();
+    }
+
     public void run() {
         if (renderWindow) {
-            window.display();
             windowed();
         } else {
             headless();
@@ -148,6 +126,7 @@ public class GameContainerSwing implements Runnable, AbstractGameContainer {
         double cryTimer = cryInterval;
         boolean running = true;
         double roundTime= ROUND_TIME;
+
 
         while (running){
             updateActor();
@@ -174,8 +153,7 @@ public class GameContainerSwing implements Runnable, AbstractGameContainer {
         this.roundTime = roundTime;
     }
 
-
-    public void windowed(){
+    public void windowed() {
         boolean render;
         double firstTime;
         double lastTime = System.nanoTime() / 1e9d;
@@ -190,7 +168,7 @@ public class GameContainerSwing implements Runnable, AbstractGameContainer {
         double roundTime= ROUND_TIME;
 
         music.loop();
-        while (running) {
+        while (!glfwWindowShouldClose(windowGL.getWindow()) || !running) { // TODO: Have a genaral Renderer.render() function to call
             render = false;
             firstTime = System.nanoTime() / 1e9d;
             passedTime = firstTime - lastTime;
@@ -198,7 +176,7 @@ public class GameContainerSwing implements Runnable, AbstractGameContainer {
             unprocessedTime += passedTime;
             frameTime += passedTime;
             roundTime -= passedTime;
-            
+
             cryTimer -= passedTime;
             if (cryTimer < 0) {
                 World.getInstance().getKidnapper().receiveScream();
@@ -210,7 +188,6 @@ public class GameContainerSwing implements Runnable, AbstractGameContainer {
 
             //in case the game freezes, the while loop tries to catch up by updating faster
             while (unprocessedTime >= UPDATE_CAP) {
-
                 render = true;
                 unprocessedTime -= UPDATE_CAP;
 
@@ -227,14 +204,14 @@ public class GameContainerSwing implements Runnable, AbstractGameContainer {
 
             if (world.isPlayerCollision()) {
                 if (this.renderWindow) {
-                    window.close();
+                    windowGL.close();
                 }
                 fatherWin = true;
                 running = false;
                 break;
             } else if (roundTime < 0) {
                 if (this.renderWindow) {
-                    window.close();
+                    windowGL.close();
                 }
                 fatherWin = false;
                 running = false;
@@ -259,17 +236,22 @@ public class GameContainerSwing implements Runnable, AbstractGameContainer {
     }
 
     public void finalRender() {
-        renderer.render(scene);  //render game
+        // render the given scene
+        renderer.render(scene);
+        glfwSwapBuffers(windowGL.getWindow()); // swap the color buffers, that is: show on screen what is happening
+        // Poll for window events. The key callback above will only be
+        // invoked during this call.
+        glfwPollEvents();
     }
 
     public void updateActor() {
+        fatherController.passInput(windowGL.getPressedKeys());
         fatherController.update(UPDATE_CAP);
+        kidnapperController.passInput(windowGL.getPressedKeys());
         kidnapperController.update(UPDATE_CAP);
     }
 
-    public double getRemainingTime() {
-        return roundTime;
-    }
+    public double getRemainingTime() { return roundTime; }
 
     public boolean isFatherWin() {
         return fatherWin;
