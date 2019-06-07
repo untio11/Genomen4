@@ -3,10 +3,9 @@ package AI.Trainer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class BaseAIGameTrainer<G> {
@@ -66,6 +65,41 @@ public abstract class BaseAIGameTrainer<G> {
         }
 
         // Save the best players so that they can be used again later
+
+        // Save the statistics of the training
+        Date date = new Date();
+        String fileName = date.getTime() + "-" + this.getName() + "-stats";
+        File csv = new File("res/network/" + fileName + ".csv");
+        this.saveStatistics(csv);
+    }
+
+    protected void saveCsv(List<List<?>> rows, File f) {
+        try {
+            FileWriter csvWriter = new FileWriter(f);
+
+            for (List<?> rowData : rows) {
+                csvWriter.append(this.listToString(rowData));
+                csvWriter.append("\n");
+            }
+
+            csvWriter.flush();
+            csvWriter.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected String listToString(List<?> list) {
+        StringBuilder builder = new StringBuilder();
+        Iterator<?> iter = list.iterator();
+        while(iter.hasNext()) {
+            builder.append(iter.next());
+            if (iter.hasNext()) {
+                builder.append(",");
+            }
+        }
+        return builder.toString();
     }
 
     protected abstract String getName();
@@ -79,6 +113,8 @@ public abstract class BaseAIGameTrainer<G> {
     protected abstract void performGeneticEvolution();
 
     protected abstract void resetGeneticAlgorithm();
+
+    protected abstract void saveStatistics(File f);
 
     protected abstract void playGame(G game);
 

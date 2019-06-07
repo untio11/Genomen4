@@ -63,16 +63,10 @@ public class World {
      */
 
     public static void initWorld() throws IllegalStateException {
-        if (instance != null) {
-            throw new IllegalStateException("There is an instance of the world already. Clear it with World.cleanWorld() or fetch it with World.getInstance().");
-        }
         instance = new World(MapConfigurations.getNormalMap());
     }
 
     public static void initWorld(MapConfiguration mapConfig) throws IllegalStateException {
-        if (instance != null) {
-            throw new IllegalStateException("There is an instance of the world already. Clear it with World.cleanWorld() or fetch it with World.getInstance().");
-        }
         instance = new World(mapConfig);
     }
 

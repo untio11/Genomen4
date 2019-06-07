@@ -10,7 +10,7 @@ public class AIController extends Controller {
 
     @Override
     public void update(double dt) {
-        player.move(xAxis * dt,yAxis * dt);
+        player.move(xAxis * dt,-yAxis * dt);
     }
 
     public void setAxis(double xAxis, double yAxis) {
