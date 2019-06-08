@@ -259,7 +259,7 @@ public class GameContainerSwing implements Runnable, AbstractGameContainer {
     }
 
     public void finalRender() {
-        renderer.render(scene);  //render game
+        renderer.render(scene, false);  //render game
     }
 
     public void updateActor() {

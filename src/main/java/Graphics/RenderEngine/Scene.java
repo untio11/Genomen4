@@ -4,11 +4,14 @@ import GameState.Entities.Actor;
 import GameState.Entities.Camera;
 import GameState.TileType;
 import GameState.World;
+import Graphics.Gui.GuiTexture;
 import Graphics.Models.RawModel;
 import Graphics.Models.TexturedModel;
 import Graphics.Terrains.Terrain;
 import Graphics.Textures.ModelTexture;
 import Graphics.Textures.TerrainTexture;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +27,7 @@ public class Scene {
     private World world;
     private List<Model> entities;
     private List<Terrain> terrain_list;
+    private GuiTexture gui;
     private Map<TerrainTexture, List<Terrain>> texture_to_terrainlist_map;
     private static final Map<TileType, TerrainTexture> terrain_type_to_texture_map;
     private static final TerrainTexture backupTexture;
@@ -81,8 +85,13 @@ public class Scene {
     public void init() throws IllegalStateException {
         initTileMap();
         initActors(world.getActors());
+        initGui();
 
         camera = world.getCamera();
+    }
+
+    private void initGui() {
+        gui = new GuiTexture(loader.loadTexture("treeOld"), new Vector3f(0f, 0f, 0f), new Vector3f(0.25f, 0.25f, 1f), 0f, 0f);
     }
 
     private void initActors(Actor[] actors) {
@@ -142,6 +151,10 @@ public class Scene {
 
     public List<Model> getEntities() {
         return entities;
+    }
+
+    public GuiTexture getGui() {
+        return gui;
     }
 
     /**

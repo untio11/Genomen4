@@ -39,6 +39,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
 
     private World world;
     private int maxDistance;
+    private boolean screamActive;
 
     public GameContainerGL(World world, boolean renderWindow) {
         this.world = world;
@@ -53,6 +54,8 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
             this.windowGL = new WindowGL(pixelWidth, pixelHeight, scale);
             renderer = new MasterRenderer();
             this.scene = new Scene(this.world); // First do window gl and initglfw, otherwise no openGL context will be available
+
+            renderer.init(scene);
 
             music = new SoundClip("res/music.wav");
             clips = new ArrayList<>();
@@ -179,6 +182,8 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
 
             cryTimer -= passedTime;
             if (cryTimer < 0) {
+                screamActive = true;
+                startScreamTimer();
                 World.getInstance().getKidnapper().receiveScream();
                 World.getInstance().getFather().receiveScream();
                 cryTimer = cryInterval;
@@ -237,7 +242,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
 
     public void finalRender() {
         // render the given scene
-        renderer.render(scene);
+        renderer.render(scene, screamActive);
         glfwSwapBuffers(windowGL.getWindow()); // swap the color buffers, that is: show on screen what is happening
         // Poll for window events. The key callback above will only be
         // invoked during this call.
@@ -249,6 +254,18 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
         fatherController.update(UPDATE_CAP);
         kidnapperController.passInput(windowGL.getPressedKeys());
         kidnapperController.update(UPDATE_CAP);
+    }
+
+    private void startScreamTimer() {
+        new java.util.Timer().schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        screamActive = false;
+                    }
+                },
+                2000
+        );
     }
 
     public double getRemainingTime() { return roundTime; }

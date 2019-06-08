@@ -1,6 +1,8 @@
 package Graphics.RenderEngine;
 
 import GameState.Entities.Camera;
+import Graphics.Gui.GuiRenderer;
+import Graphics.Gui.GuiTexture;
 import Graphics.Shaders.StaticShader;
 import Graphics.Terrains.Terrain;
 import Graphics.Shaders.TerrainShader;
@@ -8,6 +10,7 @@ import Graphics.Textures.TerrainTexture;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +26,7 @@ public class MasterRenderer implements AbstractRenderer {
     private static TerrainRenderer terrainRenderer; // Can the renderers can be static?
     private static TerrainShader terrainShader = new TerrainShader();
     private static ActorRenderer actorRenderer;
+    private static GuiRenderer guiRenderer;
 
     private Camera camera;
 
@@ -30,14 +34,15 @@ public class MasterRenderer implements AbstractRenderer {
         createProjectionMatrix();
         terrainRenderer = new TerrainRenderer(terrainShader, projectionMatrix);
         actorRenderer = new ActorRenderer(shader, projectionMatrix);
+        guiRenderer = new GuiRenderer();
     }
 
-    public void init() { // TODO: should this just all be done in the constructor?
-
+    public void init(Scene scene) { // TODO: should this just all be done in the constructor?
+        guiRenderer.init(scene);
     }
 
     // TODO: Make sure that this can just render a given scene
-    public void render(Scene scene) {
+    public void render(Scene scene, boolean screamActive) {
         this.camera = camera = scene.getCamera();
         prepare();
         List<Model> entities = scene.getEntities();
@@ -55,6 +60,10 @@ public class MasterRenderer implements AbstractRenderer {
         terrainShader.loadViewMatrix(camera);
         terrainRenderer.render(terrain_map);
         terrainShader.stop();
+
+        if (screamActive || true) {
+            guiRenderer.render();
+        }
     }
 
     public void clean() {
@@ -65,7 +74,7 @@ public class MasterRenderer implements AbstractRenderer {
     public void prepare() {
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
-        GL11.glClearColor(1, 0, 0, 1);
+        GL11.glClearColor(0, 0, 1, 1);
     }
 
     private void createProjectionMatrix() {
