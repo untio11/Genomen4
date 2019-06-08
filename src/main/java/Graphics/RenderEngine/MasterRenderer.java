@@ -1,6 +1,7 @@
 package Graphics.RenderEngine;
 
 import GameState.Entities.Camera;
+import GameState.World;
 import Graphics.Gui.GuiRenderer;
 import Graphics.Gui.GuiTexture;
 import Graphics.Shaders.StaticShader;
@@ -42,7 +43,7 @@ public class MasterRenderer implements AbstractRenderer {
     }
 
     // TODO: Make sure that this can just render a given scene
-    public void render(Scene scene, boolean screamActive) {
+    public void render(Scene scene, boolean screamActive, int oppoAngle) {
         this.camera = camera = scene.getCamera();
         prepare();
         List<Model> entities = scene.getEntities();
@@ -61,8 +62,8 @@ public class MasterRenderer implements AbstractRenderer {
         terrainRenderer.render(terrain_map);
         terrainShader.stop();
 
-        if (screamActive || true) {
-            guiRenderer.render();
+        if (screamActive) {
+            guiRenderer.render(oppoAngle);
         }
     }
 

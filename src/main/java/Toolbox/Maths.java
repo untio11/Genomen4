@@ -10,9 +10,9 @@ public class Maths {
     public static Matrix4f createTransformationMatrix(Vector3f translation, Vector3f scale, float rx, float ry) {
         Matrix4f matrix = new Matrix4f();
         matrix.identity();
+        //matrix.rotateX((float)Math.toRadians(rx), matrix);
+        matrix.rotateZ((float)Math.toRadians(ry), matrix);
         matrix.translate(translation);
-        matrix.rotateX((float)Math.toRadians(rx), matrix);
-        matrix.rotateY((float)Math.toRadians(ry), matrix);
         matrix.scale(new Vector3f(scale.x, scale.y, 1f));
         return matrix;
     }

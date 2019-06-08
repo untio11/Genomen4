@@ -40,6 +40,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
     private World world;
     private int maxDistance;
     private boolean screamActive;
+    private int oppoAngle;
 
     public GameContainerGL(World world, boolean renderWindow) {
         this.world = world;
@@ -186,6 +187,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
                 startScreamTimer();
                 World.getInstance().getKidnapper().receiveScream();
                 World.getInstance().getFather().receiveScream();
+                oppoAngle = (int) World.getInstance().getFather().getPreviousAngle(); //TODO check for which player is opponent
                 cryTimer = cryInterval;
                 clips.get(cryNumber).play();
                 cryNumber = (cryNumber + 1) % clips.size();
@@ -242,7 +244,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
 
     public void finalRender() {
         // render the given scene
-        renderer.render(scene, screamActive);
+        renderer.render(scene, screamActive, oppoAngle);
         glfwSwapBuffers(windowGL.getWindow()); // swap the color buffers, that is: show on screen what is happening
         // Poll for window events. The key callback above will only be
         // invoked during this call.

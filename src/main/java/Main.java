@@ -17,7 +17,7 @@ public class Main {
         gc.setFatherPlayer();
         gc.start();
         System.out.println(wm.isFatherWin() + " " + wm.getRemainingTime());*/
-        
+
         World.initWorld(MapConfigurations.getVerySimpleMap());
         AbstractGameContainer gc = new GameContainerGL(World.getInstance(), true);
         boolean fatherAI = false;

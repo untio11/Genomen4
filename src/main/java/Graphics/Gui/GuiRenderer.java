@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11C.*;
@@ -58,7 +59,9 @@ public class GuiRenderer {
         setupTexture(scene);
     }
 
-    public void render() {
+    public void render(int angle) {
+        guiTexture.setRx(angle);
+        guiTexture.setRy(angle);
         renderQuad();
     }
 
@@ -164,6 +167,7 @@ public class GuiRenderer {
         Matrix4f matrix = Maths.createTransformationMatrix(guiTexture.getPosition(), guiTexture.getScale(), guiTexture.getRx() ,guiTexture.getRy());
         transLoc = glGetUniformLocation(quadProgram, "transformationMatrix");
         GL41.glProgramUniformMatrix4fv(quadProgram, transLoc, false, matrix.get(transMat));
+        System.out.println(Arrays.toString(transMat));
         GL30.glBindVertexArray(vaoId);
         GL20.glEnableVertexAttribArray(0); // Vertex position data
         GL11.glEnable(GL11.GL_BLEND);

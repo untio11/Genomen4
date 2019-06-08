@@ -20,7 +20,7 @@ public class Renderer implements AbstractRenderer {
     }
 
     @Override
-    public void render(Scene scene, boolean screamActive) {
+    public void render(Scene scene, boolean screamActive, int oppoAngle) {
         clear();
         renderTiles();
         renderPlayer(world.getFather());

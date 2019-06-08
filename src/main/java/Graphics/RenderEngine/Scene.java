@@ -91,7 +91,7 @@ public class Scene {
     }
 
     private void initGui() {
-        gui = new GuiTexture(loader.loadTexture("treeOld"), new Vector3f(0f, 0f, 0f), new Vector3f(0.25f, 0.25f, 1f), 0f, 0f);
+        gui = new GuiTexture(loader.loadTexture("indicator"), new Vector3f(0.5f, 0f, 0f), new Vector3f(0.25f, 0.25f, 1f), 45f, 45f);
     }
 
     private void initActors(Actor[] actors) {
