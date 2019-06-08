@@ -17,20 +17,11 @@ public class Main {
         gc.setFatherPlayer();
         gc.start();
         System.out.println(wm.isFatherWin() + " " + wm.getRemainingTime());*/
-
-<<<<<<< Updated upstream
-        World.initWorld(MapConfigurations.getStarterMap());
-        AbstractGameContainer gc = new GameContainerGL(World.getInstance(), true);
-
-        boolean fatherAI = true;
-        boolean fatherLoad = true;
-=======
+        
         World.initWorld(MapConfigurations.getVerySimpleMap());
         AbstractGameContainer gc = new GameContainerGL(World.getInstance(), true);
-
         boolean fatherAI = false;
         boolean fatherLoad = false;
->>>>>>> Stashed changes
 
         boolean kidnapperAI = false;
         boolean kidnapperLoad = true;
