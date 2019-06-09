@@ -21,21 +21,22 @@ import java.io.IOException;
 public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
 
     // The number of frames between every update of the ai player
-    public static final int UPDATE_FREQUENCY = 30;
+// The number of frames between every update of the ai player
+    public static final int UPDATE_FREQUENCY = 10;
 
     // The number of inputs of the neural network
-    public static final int INPUT_COUNT = 8;
+    public static final int INPUT_COUNT = 0;
 
     // Add the player position to the input
     public static final boolean ADD_POSITION = true;
     public static final int POSITION_COUNT = ADD_POSITION ? 2 : 0;
 
-    // The number of outputs of the neural network
+    // The number of outputs of the neural networkd
     public static final int OUTPUT_COUNT = 2;
 
     // The number of values that the neural network should remember
     // These will be passed through in the next iteration
-    public static final int REMEMBER_COUNT = 3;
+    public static final int REMEMBER_COUNT = 2;
 
     // The maximum length of each ray coming from the player
     public static final int MAX_RAY_LENGTH = 6;
@@ -170,12 +171,7 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
                         .weightInit(new UniformDistribution(-1, 1))
                         .build())
                 .layer(new DenseLayer.Builder()
-                        .nOut(30)
-                        .activation(Activation.TANH)
-                        .weightInit(new UniformDistribution(-1, 1))
-                        .build())
-                .layer(new DenseLayer.Builder()
-                        .nOut(20)
+                        .nOut(10)
                         .activation(Activation.TANH)
                         .weightInit(new UniformDistribution(-1, 1))
                         .build())

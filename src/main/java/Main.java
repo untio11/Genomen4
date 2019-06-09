@@ -18,14 +18,14 @@ public class Main {
         gc.start();
         System.out.println(wm.isFatherWin() + " " + wm.getRemainingTime());*/
 
-        World.initWorld(MapConfigurations.getStarterMap());
+        World.initWorld(MapConfigurations.getSimpleMap());
         AbstractGameContainer gc = new GameContainerGL(World.getInstance(), true);
 
-        boolean fatherAI = true;
+        boolean fatherAI = false;
         boolean fatherLoad = true;
 
         boolean kidnapperAI = false;
-        boolean kidnapperLoad = true;
+        boolean kidnapperLoad = false;
 
         if (!fatherAI) {
             gc.setFatherPlayer();
@@ -40,7 +40,7 @@ public class Main {
             if (!fatherLoad) {
                 fatherController.init();
             } else {
-                File f = new File("res/network/1559508107999-single-genomen-1-4084.net");
+                File f = new File("res/network/01-single-genomen-1-4092.net");
                 try {
                     fatherController.loadNetwork(f);
                 } catch (IOException e) {
