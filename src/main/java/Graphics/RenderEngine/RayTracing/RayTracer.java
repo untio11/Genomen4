@@ -27,6 +27,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class RayTracer implements AbstractRenderer {
     private static int width, height;
+    private static float scaling = 0.6f;
     private static int work_x, work_y;
     private static int[] work_group_size = new int[3];
 
@@ -82,8 +83,8 @@ public class RayTracer implements AbstractRenderer {
 
 
     private static void executeRay() {
-        work_x = (int) Math.ceil(width / (float) work_group_size[0]);// getNextPowerOfTwo(width  / work_group_size[0]);
-        work_y = (int) Math.ceil(height / (float) work_group_size[1]); //getNextPowerOfTwo(height / work_group_size[1]);
+        work_x = (int) Math.ceil((width * scaling)/ (float) work_group_size[0]);// getNextPowerOfTwo(width  / work_group_size[0]);
+        work_y = (int) Math.ceil((height * scaling) / (float) work_group_size[1]); //getNextPowerOfTwo(height / work_group_size[1]);
 
         GL41.glProgramUniform3f(rayProgram, 0, camera.x, camera.y, camera.z);
         GL41.glProgramUniform1f(rayProgram, 1, fov);
@@ -228,7 +229,7 @@ public class RayTracer implements AbstractRenderer {
         GL15.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         GL15.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         GL15.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        GL15.glTexImage2D(GL_TEXTURE_2D, 0, GL30C.GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+        GL15.glTexImage2D(GL_TEXTURE_2D, 0, GL30C.GL_RGBA32F, (int)(width * scaling), (int)(height * scaling), 0, GL_RGBA, GL_FLOAT, NULL);
         GL43C.glBindImageTexture(0, rayTexture, 0, false, 0, GL15C.GL_WRITE_ONLY, GL30C.GL_RGBA32F);
     }
 
