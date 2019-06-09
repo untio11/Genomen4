@@ -28,7 +28,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
     private double roundTime;
     private boolean fatherWin;
 
-    private Thread thread = new Thread(this);
+//    private Thread thread = new Thread(this);
 
     private WindowGL windowGL;
     private AbstractRenderer renderer; // TODO: Add extra layer above MasterRenderer (AbstractRenderer?) to cover normal rasterizition shading and raytracing
@@ -99,7 +99,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
 
     public void start() {
         if (kidnapperController != null || fatherController != null) {     //if all the controllers have been initialized
-            thread.run();
+            this.run();
         } else {
             System.err.println("Please define controllers");
         }
@@ -172,7 +172,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
         double roundTime= ROUND_TIME;
 
         music.loop();
-        while (!glfwWindowShouldClose(windowGL.getWindow()) || !running) { // TODO: Have a genaral Renderer.render() function to call
+        while (!glfwWindowShouldClose(windowGL.getWindow())) { // TODO: Have a genaral Renderer.render() function to call
             render = false;
             firstTime = System.nanoTime() / 1e9d;
             passedTime = firstTime - lastTime;
