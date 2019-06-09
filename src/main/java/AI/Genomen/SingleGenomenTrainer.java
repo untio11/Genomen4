@@ -14,10 +14,7 @@ import org.joml.Vector3f;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import util.Pair;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer, Controller, GameContainerSwing> {
@@ -26,6 +23,7 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
     private boolean fatherAI = true;
 
     private static final int GAMES = 3;
+    private long[] worldSeeds = new long[GAMES];
 
     private static final int WINNING_FACTOR = 4;
 
@@ -96,6 +94,12 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
     protected List<Pair<AIGenomenPlayer, Controller>> createCompetition(List<AIGenomenPlayer> players1, List<Controller> players2) {
         List<Pair<AIGenomenPlayer, Controller>> competition = new ArrayList<>();
 
+        Random r = new Random();
+
+        for (int i = 0; i < GAMES; i++) {
+            worldSeeds[i] = r.nextLong();
+        }
+
         // Create a bipartite graph as the competition
         for (AIGenomenPlayer player1 : players1) {
             for (Controller player2 : players2) {
@@ -109,8 +113,9 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
     }
 
     @Override
-    protected GameContainerSwing createGame(Pair<AIGenomenPlayer, Controller> players) {
-        World.initWorld(mapConfig);
+    protected GameContainerSwing createGame(Pair<AIGenomenPlayer, Controller> players, int gameId) {
+        long seed = worldSeeds[gameId % GAMES];
+        World.initWorld(mapConfig, seed);
         GameContainerSwing gc = new GameContainerSwing(World.getInstance(), false);
         players.getFirst().setPlayer(World.getInstance().getFather());
         gc.setFatherAI(players.getFirst());
