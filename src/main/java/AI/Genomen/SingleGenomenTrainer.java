@@ -1,9 +1,6 @@
 package AI.Genomen;
 
-import AI.Genomen.Player.AIGenomenPlayer;
-import AI.Genomen.Player.RandomGenomenPlayer;
-import AI.Genomen.Player.SimpleGenomenPlayer;
-import AI.Genomen.Player.StaticGenomenPlayer;
+import AI.Genomen.Player.*;
 import AI.Trainer.SingleBiAIGameTrainer;
 import Engine.Controller.Controller;
 import Engine.GameContainerSwing;
@@ -87,7 +84,7 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
         players.add(new StaticGenomenPlayer());
         players.add(new RandomGenomenPlayer());
         players.add(new SimpleGenomenPlayer());
-        players.add(new SimpleGenomenPlayer());
+        players.add(new EvadingGenomenPlayer());
     }
 
     @Override
