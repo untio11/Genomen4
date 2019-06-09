@@ -12,6 +12,7 @@ import static org.lwjgl.glfw.GLFW.*;
 public class WindowManager implements Runnable{
     public static boolean RAY_TRACING = false;
 
+    private static double frameTime;
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
     private boolean running = false;
@@ -50,6 +51,10 @@ public class WindowManager implements Runnable{
         glfwSetErrorCallback(null).free();
     }
 
+    public static double getFrameTime() {
+        return frameTime;
+    }
+
     public void run() {
         boolean render;
         double firstTime;
@@ -57,7 +62,7 @@ public class WindowManager implements Runnable{
         double passedTime;
         double unprocessedTime = 0;
 
-        double frameTime = 0;
+        frameTime = 0;
         int frames = 0;
         int fps = 0;
 

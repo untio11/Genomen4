@@ -1,5 +1,7 @@
 package Graphics.Models;
 
+import Graphics.Animation.Animation;
+import Graphics.Animation.Bone;
 import Toolbox.Maths;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -18,6 +20,10 @@ public class BaseModel {
     private int vertexCount = -1;
     float scale = 1f;
 
+    private Bone rootBone;
+    private int boneCount;
+    private Animation animation;
+
     /**
      * Set the initial model data for rendering.
      * @param vaoID ID of the VAO containing all the data of this model.
@@ -28,6 +34,15 @@ public class BaseModel {
         this.vaoID = vaoID;
         this.dataBufferIDs = dataBufferIDs;
         this.vertexCount = vertexCount;
+    }
+    // for animated BaseModel
+    public BaseModel(int vaoID, int[] dataBufferIDs, int vertexCount, Bone rootBone, int boneCount, Animation animation) {
+        this.vaoID = vaoID;
+        this.dataBufferIDs = dataBufferIDs;
+        this.vertexCount = vertexCount;
+        this.rootBone = rootBone;
+        this.boneCount = boneCount;
+        this.animation = animation;
     }
 
     protected BaseModel(BaseModel base_model) {
@@ -41,6 +56,12 @@ public class BaseModel {
         vertexCount = base_model.getVertexCount();
         scale = base_model.getScale();
     }
+
+    public Bone getRootBone() {      return rootBone;    }
+
+    public int getBoneCount() {        return boneCount;    }
+
+    public Animation getAnimation() {        return animation;    }
 
     public float[] getPosition_data() {
         return position_data;

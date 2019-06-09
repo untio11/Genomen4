@@ -1,5 +1,7 @@
 package Graphics.RenderEngine;
 
+import Graphics.Animation.Animation;
+import Graphics.Animation.Bone;
 import Graphics.Models.BaseModel;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.*;
@@ -19,13 +21,13 @@ public class Loader {
     private List<Integer> vbos = new ArrayList<>();
     private List<Integer> textures = new ArrayList<>();
 
-    public BaseModel loadToModel(float[] positions, float[] textureCoords, float[] normals, int[] indices, float[] bones, float[] weights) {
+    public BaseModel loadToModel(float[] positions, float[] textureCoords, float[] normals, int[] indices, int[] bones, float[] weights, Bone rootBone, int boneCount, Animation animation) {
         int vaoID = createVAO();
         bindIndicesBuffer(indices);
         storeDataInAttributeList(0, 3, positions);
         storeDataInAttributeList(1, 2, textureCoords);
         storeDataInAttributeList(2, 3, normals);
-        storeDataInAttributeList(3, 4, bones);
+        storeDataInAttributeListInt(3, 4, bones);
         storeDataInAttributeList(4, 4, weights);
         unbindVAO();
 
@@ -38,7 +40,7 @@ public class Loader {
                 storeDataInBareBuffer(weights)
         };
 
-        return new BaseModel(vaoID, bufferIDs, indices.length);
+        return new BaseModel(vaoID, bufferIDs, indices.length, rootBone, boneCount, animation);
     }
 
     /**
@@ -118,6 +120,16 @@ public class Loader {
         FloatBuffer buffer = storeDataInFloatBuffer(data);
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
         GL20.glVertexAttribPointer(attrNum, coordSize, GL11.GL_FLOAT, false, 0, 0);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+    }
+
+    private void storeDataInAttributeListInt(int attrNum, int coordSize, int[] data) {
+        int vboID = GL15.glGenBuffers();
+        vbos.add(vboID);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);
+        IntBuffer buffer = storeDataInIntBuffer(data);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+        GL30.glVertexAttribIPointer(attrNum, coordSize, GL11.GL_INT, 0, 0);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
     }
 

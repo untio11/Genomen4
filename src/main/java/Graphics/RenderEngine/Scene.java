@@ -5,14 +5,13 @@ import GameState.Entities.Camera;
 import GameState.Tile;
 import GameState.TileType;
 import GameState.World;
+import Graphics.Animation.loaders.AnimModelLoader;
 import Graphics.Models.ActorModel;
 import Graphics.Models.BaseModel;
 import Graphics.Models.TerrainModel;
 import Graphics.Terrains.TerrainGenerator;
 import org.apache.commons.lang3.ArrayUtils;
-import org.bytedeco.opencv.presets.opencv_core;
 
-import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -90,9 +89,9 @@ public class Scene {
      * @throws IllegalStateException when the world is not initialized yet
      */
     public void init() throws IllegalStateException {
-        initTileMap();
+        //initTileMap();
         initActors(world.getActors());
-        generateChunks();
+        //generateChunks();
         camera = world.getCamera();
     }
 
@@ -170,12 +169,11 @@ public class Scene {
     private void initActors(Actor[] actors) {
         for (Actor actor : actors) {
             //BaseModel playerBase = OBJLoader.loadObjModelInVao("player", loader); // TODO: get model and texture for thief
-            BaseModel playerBase = AnimModelLoader.loadAnimModelInVao("res/gnomeModel.dae", loader);
+            BaseModel playerBase = AnimModelLoader.loadAnimModelInVao("res/gnomeTestSelect.dae", loader);
             int playerTexture = loader.loadTexture("gnomeTexture");
             playerBase.setTexture(playerTexture);
             playerBase.setScale(0.1f);
-
-            entities.add(new ActorModel(actor, playerBase));
+            entities.add(new ActorModel(actor, playerBase, playerBase.getRootBone(), playerBase.getBoneCount(), playerBase.getAnimation()));
         }
     }
 
