@@ -17,7 +17,7 @@ public class TerrainGenerator {
     private static Random generator = new Random();
 
     public static TerrainModel generateTerrain(Tile tile, int texture, Loader loader) {
-        height = (tile.getType() == TileType.TREE) ? 3 : 0;
+        height = (tile.getType() == TileType.TREE) ? 1 : 0;
         BaseModel base = generateTerrainBase(loader);
         base.setTexture(texture);
         base.setColorData(getColorData(tile));
@@ -84,6 +84,11 @@ public class TerrainGenerator {
 
         if (height > 0) {
             base = new float[] { // Generate the basic model based on the height.
+                    // Back side
+                    0, 0, 0,    //V12
+                    1, 0, 0,         //V13
+                    1, height, 0,         //V14
+                    0, height, 0,    //V15
                     0, height, 0,    //V0
                     0, height, 1,    //V1
                     1, height, 1,    //V2
@@ -102,12 +107,7 @@ public class TerrainGenerator {
                     0, height, 1,    //V12
                     0, 0, 1,         //V13
                     1, 0, 1,         //V14
-                    1, height, 1,    //V15
-                    // Back side
-                    0, height, 0,    //V12
-                    0, 0, 0,         //V13
-                    1, 0, 0,         //V14
-                    1, height, 0     //V15
+                    1, height, 1    //V15
             };
         } else {
             base = new float[] { // Generate the basic model based on the height.

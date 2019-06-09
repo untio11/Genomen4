@@ -7,6 +7,7 @@ layout(location = 0) uniform vec3  camera;
 layout(location = 1) uniform float fov;
 layout(location = 2) uniform mat3  transform;
 layout(location = 3) uniform int   tringle_amount;
+layout(location = 4) uniform ivec2 chunk_info; // # horizontal chunks, # vertical chunks,
 
 layout(std430, binding = 1) buffer VertexPositions { // Contains the vertices of all visible tringles
     vec4 parsed_positions[];
@@ -28,7 +29,47 @@ layout(std430, binding = 5) buffer Offsets { // Offsets to find the start of eac
     int offsets[];
 };
 
+layout(std430, binding = 6) buffer TopLefts {
+    vec2 toplefts[];
+};
+
 ivec2 pixel_coords;
+ivec2 dimensions;
+vec4 debugcolor;
+
+
+vec3 discriminant(vec3 ray, vec3 source, vec3 target, float sphere_radius) {
+    vec3 omc = source - target;
+    float b = dot(omc, ray);
+    float c = dot(omc, omc) - sphere_radius * sphere_radius;
+    return vec3(b, c, (b * b - c));
+}
+
+bool intersectsBoundingSphere(vec3 ray, vec3 top_left) {
+    vec3 center = top_left + vec3(3.0, 0.5, 1.5);
+    float radius = length(center - top_left);
+    vec3 disc = discriminant(ray, camera, center, radius);
+    float distance = min(-disc.x + sqrt(disc.z), -disc.x - sqrt(disc.z));
+
+    if (disc.z < 0 || distance <= 0) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+// Should return an array of indices of chunks it intersects the bounding box of.
+int[4] getChunkIndices(vec3 ray) {
+    int result[4] = {-1, -1, -1, -1};
+    int counter = 0;
+
+    for (int i = 0; i < chunk_info[0] * chunk_info[1]; i++) { // Loop over every chunk to check bounding box intersection.
+        if (counter < 4 && intersectsBoundingSphere(ray, parsed_positions[ indices[offsets[i]] ].xyz)) {
+            result[counter++] = i;
+        }
+    }
+    return result;
+}
 
 vec4 phong(vec3 point, vec3 normal, vec3 light_source, vec4 base_color, float shininess) {
     vec4 result = 0.0 * base_color; // ambient light initial color
@@ -44,8 +85,9 @@ vec4 phong(vec3 point, vec3 normal, vec3 light_source, vec4 base_color, float sh
     vec3 halfway = normalize(L + E);
     float spec = pow(max(dot(normal, halfway), 0.0), shininess);
     result += spec * base_color;
-    return result * max((sqrt(15.0 - distance)/sqrt(15.0)), 0.2);
+    return result * max((sqrt(100.0 - distance)/sqrt(100.0)), 0.2);
 }
+
 vec4 shadowBounce(vec3 origin, vec3 light_source) {
     float distance = length(light_source - origin); // origin + distance * direction should be light source
     vec3 direction = normalize(light_source - origin);
@@ -55,7 +97,7 @@ vec4 shadowBounce(vec3 origin, vec3 light_source) {
     vec3 pvec, tvec, qvec; // Three stupid names
     float det; // Determinant
 
-    for (int i = 0; i < tringle_amount; i++) {
+    for (int i = offsets[0]; i < offsets[1]; i++) {
         v01  = parsed_positions[indices[(i * 3) + 1]].xyz - parsed_positions[indices[(i * 3) + 0]].xyz;
         v02  = parsed_positions[indices[(i * 3) + 2]].xyz - parsed_positions[indices[(i * 3) + 0]].xyz;
         pvec = cross(direction, v02);
@@ -82,14 +124,13 @@ vec4 shadowBounce(vec3 origin, vec3 light_source) {
             continue;
         }
 
-        return vec4(0.65, 0.65, 0.65, 1.0);
+        return vec4(0.0, 0.0, 0.0, 1.0);
     }
 
     return vec4(1.0, 1.0, 1.0, 1.0);
 }
 
 vec3 getRay() {
-    ivec2 dimensions = imageSize(img_output);
     // Map pixel coordinates to normalized space: [-1,1]^2 (sorta, taking care of aspect ratio)
     float x = (float(pixel_coords.x * 2.0 - dimensions.x) / (dimensions.x)) * (16.0/9.0) + camera.x;
     float y = (float(pixel_coords.y * 2.0 - dimensions.y) / dimensions.y) + camera.y;
@@ -112,43 +153,55 @@ vec4 trace() {
 
     float closest = 1.0 / 0.0;
 
-    for (int i = 0; i < tringle_amount; i++) {
-        v01  = parsed_positions[indices[(i * 3) + 1]].xyz - parsed_positions[indices[(i * 3) + 0]].xyz;
-        v02  = parsed_positions[indices[(i * 3) + 2]].xyz - parsed_positions[indices[(i * 3) + 0]].xyz;
-        pvec = cross(ray, v02);
-        det  = dot(v01, pvec);
+    for (int j = 0; j < chunk_info.x * chunk_info.y; j++) {
+        for (int i = offsets[j]; i < offsets[j + 1]; i++) {
+            if (!(intersectsBoundingSphere(ray, vec3(toplefts[j].x, 0.0, toplefts[j].y)))) break;
 
-        if (abs(det) < 0.000001) { // Too close to parallel. If we remove abs(), we get backface culling
-            continue;
+
+            v01  = parsed_positions[indices[(i * 3) + 1]].xyz - parsed_positions[indices[(i * 3) + 0]].xyz;
+            v02  = parsed_positions[indices[(i * 3) + 2]].xyz - parsed_positions[indices[(i * 3) + 0]].xyz;
+
+
+
+            pvec = cross(ray, v02);
+            det  = dot(v01, pvec);
+
+            if (abs(det) < 0.000001) { // Too close to parallel. If we remove abs(), we get backface culling
+                continue;
+            }
+
+            tvec = camera - parsed_positions[indices[(i * 3) + 0]].xyz;
+            u    = dot(tvec, pvec) / det;
+            if (u < 0.0 || u > 1.0) {
+                continue;
+            }
+
+            qvec = cross(tvec, v01);
+            v = dot(ray, qvec) / det;
+            if (v < 0.0 || v + u > 1.0) {
+                continue;
+            }
+
+            t = dot(v02, qvec) / det;
+            if (t >= closest || t < 0.0) { // Not the closest, or triangle is behind us
+                continue;
+            }
+
+            if (t > 13) {
+                continue;
+            }
+
+            color = vec4(0.0, 0.0, 0.0, 1.0);
+            closest = t;
+            base_color = vec4((parsed_colors[indices[(i * 3) + 0]] * (1 - u - v) +
+                parsed_colors[indices[(i * 3) + 1]] * u +
+                parsed_colors[indices[(i * 3) + 2]] * v).xyz, 1.0
+            );
+            normal = normalize(cross(v01, v02));
+            intersection = camera + t * ray;
+            color += phong(intersection, normal, vec3(camera.x, 1.5, camera.z), base_color, 5.0);
+            //color *= shadowBounce(intersection + 0.0001 * normal, vec3(camera.x, 1.0, camera.z));
         }
-
-        tvec = camera - parsed_positions[indices[(i * 3) + 0]].xyz;
-        u    = dot(tvec, pvec) / det;
-        if (u < 0.0 || u > 1.0) {
-            continue;
-        }
-
-        qvec = cross(tvec, v01);
-        v = dot(ray, qvec) / det;
-        if (v < 0.0 || v + u > 1.0) {
-            continue;
-        }
-
-        t = dot(v02, qvec) / det;
-        if (t >= closest || t < 0.0) { // Not the closest, or triangle is behind us
-            continue;
-        }
-
-        color = vec4(0.0, 0.0, 0.0, 1.0);
-        closest = t;
-        base_color = vec4((parsed_colors[indices[(i * 3) + 0]] * (1 - u - v) +
-                      parsed_colors[indices[(i * 3) + 1]] * u +
-                      parsed_colors[indices[(i * 3) + 2]] * v).xyz, 1.0
-        );
-        normal = normalize(cross(v01, v02));
-        intersection = camera + t * ray;
-        color += phong(intersection, normal, vec3(camera.x, 1.0, camera.z), base_color, 2.0);
-        color *= shadowBounce(intersection + 0.0001 * normal, vec3(camera.x, 1.0, camera.z));
     }
 
     return color;
@@ -157,6 +210,6 @@ vec4 trace() {
 void main() {
     // Get (x,y) position of this pixel in the texture (index in global work group)
     pixel_coords = ivec2(gl_GlobalInvocationID.xy);
-
+    dimensions = imageSize(img_output);
     imageStore(img_output, pixel_coords, trace());
 }

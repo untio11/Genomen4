@@ -8,6 +8,7 @@ import GameState.World;
 import Graphics.Models.ActorModel;
 import Graphics.Models.BaseModel;
 import Graphics.Models.TerrainModel;
+import Graphics.RenderEngine.RayTracing.RayTracer;
 import Graphics.Terrains.TerrainGenerator;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -20,11 +21,12 @@ import java.util.stream.Stream;
 public class Scene {
     private static final int CHUNK_WIDTH = 6;
     private static final int CHUNK_HEIGHT = 3;
-    private static final int X_TILES_TO_EDGE = 6;
-    private static final int Y_TILES_TO_EDGE = 3;
+    private static final int X_TILES_TO_EDGE = 7;
+    private static final int Y_TILES_TO_EDGE = 4;
     private int x_chunks;
     private int y_chunks;
     private static Chunk[][] chunks;
+    private static int[] old_left_top = {-1, -1}, old_right_bot = {-1, -1};
 
     private static Loader loader;
     private Camera camera;
@@ -139,12 +141,13 @@ public class Scene {
 
         for (int c = x * CHUNK_WIDTH - leftpad; c < (x * CHUNK_WIDTH - leftpad) + CHUNK_WIDTH; c++) {
             for (int r = y * CHUNK_HEIGHT - toppad; r < (y * CHUNK_HEIGHT - toppad) + CHUNK_HEIGHT; r++) {
-                if (r < 0 || c < 0 || r > world_height || c > world_width) {
-
-                    tiles.add(TerrainGenerator.generateTerrain(World.getInstance().getTile(c, r), water_texture, loader));
+                if (r < 0 || c < 0 || r > world_height - 1 || c > world_width - 1) {
+                    TerrainModel terr = TerrainGenerator.generateTerrain(new Tile(TileType.WATER, new int[]{r,c}, 0), water_texture, loader);
+                    tiles.add(terr);
 
                 } else {
-                    tiles.add(terrain_map.get(String.format("(%d,%d)", c, r)));
+                    TerrainModel terr = terrain_map.get(String.format("(%d,%d)", c, r));
+                    tiles.add(terr);
                 }
             }
         }
@@ -158,18 +161,28 @@ public class Scene {
      * the edges even 3x6 is possible or even smaller (maybe).
      * @param x The x component of the middle of the current viewport in world space coordinates.
      * @param y The y component of the middle of the current viewport in world space coordinates.
-     * @return An array of chunks that should at least be partly visible on screen.
+     * @return An array of chunks that should at least be partly visible on screen. Null if no new visible chunks.
      */
     public Chunk[] getVisibileChunks(float x, float y) {
-        int left_x_chunk = Math.max((int) Math.floor((x - X_TILES_TO_EDGE) / CHUNK_WIDTH), 0);
-        int right_x_chunk = Math.min((int) Math.ceil((x + X_TILES_TO_EDGE) / CHUNK_WIDTH), x_chunks);
-        int top_y_chunk = Math.min((int) Math.ceil((y + Y_TILES_TO_EDGE) / CHUNK_HEIGHT), y_chunks);
-        int bottom_y_chunk = Math.max((int) Math.floor((y - Y_TILES_TO_EDGE) / CHUNK_HEIGHT), 0);
-        Chunk[] result = new Chunk[(right_x_chunk - left_x_chunk) * (top_y_chunk - bottom_y_chunk)];
+        int top_chunk = Math.min((int) Math.ceil((y + Y_TILES_TO_EDGE) / CHUNK_HEIGHT), y_chunks);
+        int left_chunk = Math.max((int) Math.floor((x - X_TILES_TO_EDGE) / CHUNK_WIDTH), 0);
+        if (left_chunk == old_left_top[0] && top_chunk == old_left_top[1]) return null;
+        old_left_top[0] = left_chunk;
+        old_left_top[1] = top_chunk;
 
+        int bottom_chunk = Math.max((int) Math.floor((y - Y_TILES_TO_EDGE) / CHUNK_HEIGHT), 0);
+        int right_chunk = Math.min((int) Math.ceil((x + X_TILES_TO_EDGE) / CHUNK_WIDTH), x_chunks);
+        if (right_chunk == old_right_bot[0] && bottom_chunk == old_right_bot[1]) return null;
+        old_right_bot[0] = right_chunk;
+        old_right_bot[1] = bottom_chunk;
+
+        Chunk[] result = new Chunk[(right_chunk - left_chunk) * (top_chunk - bottom_chunk)];
+        RayTracer.chunk_count[0] = (right_chunk - left_chunk);
+        RayTracer.chunk_count[1] = (top_chunk - bottom_chunk);
         int counter = 0;
-        for (int i = left_x_chunk; i < right_x_chunk; i++) {
-            for (int j = bottom_y_chunk; j < top_y_chunk; j++) {
+
+        for (int i = left_chunk; i < right_chunk; i++) {
+            for (int j = bottom_chunk; j < top_chunk; j++) {
                 result[counter++] = chunks[i][j];
             }
         }
@@ -262,6 +275,7 @@ public class Scene {
         private float[] normal_stream;
         private float[] color_stream;
         private int[] index_stream;
+        private float[] top_left = new float[] {Float.MAX_VALUE, Float.MAX_VALUE};
 
         Chunk(List<TerrainModel> tiles) {
             this.data = tiles;
@@ -272,11 +286,14 @@ public class Scene {
             Stream<Integer> index_stream = Stream.of();
             Stream<Float> color_stream = Stream.of();
             int index_counter = 0;
+
             for (int i = 0; i < tiles.size(); i++) {
                 TerrainModel tile = tiles.get(i);
-                ;
-                Integer[] tile_indices = ArrayUtils.toObject(tile.getIndexData());
 
+                top_left[0] = Math.min(top_left[0], tile.getX());
+                top_left[1] = Math.min(top_left[1], tile.getY());
+
+                Integer[] tile_indices = ArrayUtils.toObject(tile.getIndexData());
                 for (int j = 0; j < tile_indices.length; j++) {
                     tile_indices[j] += index_counter;
                 }
@@ -325,6 +342,10 @@ public class Scene {
             }
 
             return sum;
+        }
+
+        public float[] getTopLeft() {
+            return top_left;
         }
     }
 }

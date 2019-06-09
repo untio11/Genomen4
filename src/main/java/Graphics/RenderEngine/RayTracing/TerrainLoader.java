@@ -7,6 +7,7 @@ import org.lwjgl.opengl.GL43;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -17,12 +18,15 @@ class TerrainLoader {
     /**
      * Gets the index and position data of all the tiles inside all the visible chunks and puts in
      * @param chunks The chunks to be loaded.
-     * @return Returns the pointers to the SSBOs in the following format: [vertexSSBO, indexSSBO]
+     * @return Returns the pointers to the SSBOs in the following format: [vertexSSBO, colorSSBO, indexSSBO, offsetSSBO]
      */
     static int[] loadChunksToSSBOs(Scene.Chunk[] chunks) {
         Stream<Float> coordinate_stream = Stream.of();
         Stream<Integer> index_stream = Stream.of();
         Stream<Float> color_stream = Stream.of();
+        List<Integer> offsets = new ArrayList<>();
+        Stream<Float> top_lefts = Stream.of();
+        offsets.add(0);
         int index_counter = 0;
         tringle_count = 0;
 
@@ -35,8 +39,10 @@ class TerrainLoader {
                 indices[j] += index_counter;
             }
 
+            offsets.add(offsets.get(i) + chunk.getTringleCount());
             index_counter += chunk.getCoordinate_amount() / 4;
 
+            top_lefts = Stream.concat(top_lefts, Arrays.stream(ArrayUtils.toObject(chunk.getTopLeft())));
             coordinate_stream = Stream.concat(coordinate_stream, Arrays.stream(ArrayUtils.toObject(chunk.getCoordinateStream())));
             color_stream = Stream.concat(color_stream, Arrays.stream(ArrayUtils.toObject(chunk.getColorStream())));
             index_stream = Stream.concat(index_stream, Arrays.stream(indices));
@@ -45,7 +51,12 @@ class TerrainLoader {
         int vertexSSBO = loadDataToBuffer(ArrayUtils.toPrimitive(coordinate_stream.toArray(Float[]::new)));
         int colorSSBO = loadDataToBuffer(ArrayUtils.toPrimitive(color_stream.toArray(Float[]::new)));
         int indexSSBO = loadDataToBuffer(ArrayUtils.toPrimitive(index_stream.toArray(Integer[]::new)));
-        return new int[] {vertexSSBO, colorSSBO, indexSSBO};
+        float[] testarray = ArrayUtils.toPrimitive(top_lefts.toArray(Float[]::new));
+        int topLeftSSBO = loadDataToBuffer(testarray);
+        offsets.add(index_counter); // To find the last chunk
+        int[] offsets_ = ArrayUtils.toPrimitive(offsets.toArray(new Integer[0]));
+        int offsetSSBO = loadDataToBuffer(offsets_);
+        return new int[] {vertexSSBO, colorSSBO, indexSSBO, offsetSSBO, topLeftSSBO};
     }
 
     /**

@@ -12,7 +12,7 @@ public class Tile {
     /**
      * Constructor for a tile required a type and a height.
      */
-    Tile(TileType t, int[] coordinates, int heuristic) {
+    public Tile(TileType t, int[] coordinates, int heuristic) {
         this.type = t;
         this.position = new Position(coordinates[1], coordinates[0]); // row -> y, column -> x
         this.heuristic = heuristic;
