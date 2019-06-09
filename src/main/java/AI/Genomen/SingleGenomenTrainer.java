@@ -19,7 +19,7 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
     // Boolean for choosing between the father and kidnapper
     private boolean fatherAI = true;
 
-    private static final int GAMES = 3;
+    private static final int GAMES = 6;
     private long[] worldSeeds = new long[GAMES];
 
     private static final int WINNING_FACTOR = 4;
@@ -38,8 +38,8 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
     }
 
     public static void main(String[] args) {
-        int players = 100;
-        SingleGenomenTrainer trainer = new SingleGenomenTrainer(players, 100);
+        int players = 80;
+        SingleGenomenTrainer trainer = new SingleGenomenTrainer(players, 150);
 
         long startTime = System.nanoTime();
 
