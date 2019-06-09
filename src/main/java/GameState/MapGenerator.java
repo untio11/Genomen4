@@ -11,14 +11,29 @@ public class MapGenerator {
     private int startWidthOffset;
 
     private MapConfiguration config;
+    private long seed;
+    private Random r;
 
     public MapGenerator() {
         this.config = MapConfigurations.getNormalMap();
+        r = new Random();
     }
 
+    public MapGenerator(long seed) {
+        this.config = MapConfigurations.getNormalMap();
+        this.seed = seed;
+        r = new Random(seed);
+    }
 
     public MapGenerator(MapConfiguration config) {
         this.config = config;
+        r = new Random();
+    }
+
+    public MapGenerator(MapConfiguration config, long seed) {
+        this.config = config;
+        this.seed = seed;
+        r = new Random(seed);
     }
 
     public Tile[][] generate() {
@@ -87,7 +102,7 @@ public class MapGenerator {
         }
 
         double chance[] = getChanceDistribution2(r, c);
-        double random = Math.random();
+        double random = this.r.nextDouble();
         if (random <= chance[0]) {
             return  new Tile(TileType.GRASS, 0, new int[] {r, c}, calcHeuristic(r, c));
         } else if (random <= chance[0] + chance[1]) {
