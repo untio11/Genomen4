@@ -26,6 +26,8 @@ public abstract class SingleBiAIGameTrainer<A extends TrainerAIPlayer, B, G> ext
     private List<Integer> bestIterationScores;
     private List<Double> averageIterationScores;
 
+    private int iter = 0;
+
     public SingleBiAIGameTrainer(int nPlayers, int iterations) {
         super(nPlayers, iterations);
         players1 = new ArrayList<>();
@@ -86,7 +88,9 @@ public abstract class SingleBiAIGameTrainer<A extends TrainerAIPlayer, B, G> ext
 
         double avg1 = sum1 * 1f / sortedPlayers1.size();
 
-        System.out.print("Best Scores: \t" + bestPlayer1Entry.getValue());
+        iter++;
+
+        System.out.print(iter + " => Best Scores: \t" + bestPlayer1Entry.getValue());
         bestIterationScores.add(bestPlayer1Entry.getValue());
 
         System.out.println("\t Average Scores: \t" + avg1);
