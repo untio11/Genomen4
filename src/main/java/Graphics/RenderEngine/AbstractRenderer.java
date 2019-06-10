@@ -7,12 +7,12 @@ public interface AbstractRenderer {
     /**
      * Prepare the renderer for use. This could just be done in the constructor of the implementations I guess?
      */
-    void init();
+    void init(Scene scene);
 
     /**
      * Render the given scene on screen.
      */
-    void render(Scene scene);
+    void render(Scene scene, boolean screamActive, int oppoAngle);
 
     /**
      * Clean all the memory or something.

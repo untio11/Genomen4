@@ -18,11 +18,13 @@ public class Main {
         gc.start();
         System.out.println(wm.isFatherWin() + " " + wm.getRemainingTime());*/
 
+
         World.initWorld(MapConfigurations.getSimpleMap());
         AbstractGameContainer gc = new GameContainerGL(World.getInstance(), true);
 
         boolean fatherAI = false;
         boolean fatherLoad = true;
+
 
         boolean kidnapperAI = false;
         boolean kidnapperLoad = false;
