@@ -39,7 +39,14 @@ public class World {
 
         this.camera = new Camera(); // Camera will be put over the head later
         camera.setPosition(new Vector3f(0.0f, 0.0f, 10.0f));
+
+    }
+    public void setCameraFather() {
         father.add(camera);
+    }
+
+    public void setCameraKidnapper() {
+        kidnapper.add(camera);
     }
 
     /**

@@ -1,5 +1,7 @@
 package Graphics;
 
+import AI.Genomen.Player.AIGenomenPlayer;
+import AI.Genomen.Player.SimpleGenomenPlayer;
 import Engine.AbstractGameContainer;
 import Engine.Controller.Controller;
 import Engine.SoundClip;
@@ -166,6 +168,26 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
         int cryNumber = 0;
         boolean running = true;
         double roundTime= ROUND_TIME;
+
+        while (true) {
+            finalRender();
+            if (windowGL.getPressedKeys().contains(GLFW_KEY_F)) {
+                setFatherPlayer();
+                SimpleGenomenPlayer kidnapperController = new SimpleGenomenPlayer();
+                kidnapperController.setPlayer(World.getInstance().getKidnapper());
+                setKidnapperAI(kidnapperController);
+                world.setCameraFather();
+                break;
+            } else if (windowGL.getPressedKeys().contains(GLFW_KEY_K)) {
+                AIGenomenPlayer fatherController = new AIGenomenPlayer();
+                fatherController.init();
+                fatherController.setPlayer(World.getInstance().getFather());
+                setFatherAI(fatherController);
+                setKidnapperPlayer();
+                world.setCameraKidnapper();
+                break;
+            }
+        }
 
         music.loop();
         while (!glfwWindowShouldClose(windowGL.getWindow()) || !running) { // TODO: Have a genaral Renderer.render() function to call
