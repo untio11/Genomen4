@@ -34,7 +34,11 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
 
     @Override
     protected String getName() {
-        return "single-genomen";
+        if (fatherAI) {
+            return "single-genomen-father";
+        } else {
+            return "single-genomen-kidnapper";
+        }
     }
 
     public static void main(String[] args) {
@@ -57,10 +61,17 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
         // Play against the best father player
         World.initWorld(mapConfig);
         final GameContainerSwing game = new GameContainerSwing(World.getInstance(), true);
-        Controller fatherAI = sortedPlayers.entrySet().iterator().next().getKey();
-        fatherAI.setPlayer(World.getInstance().getFather());
-        game.setFatherAI(fatherAI);
-        game.setKidnapperPlayer();
+        if (fatherAI) {
+            Controller fatherAI = sortedPlayers.entrySet().iterator().next().getKey();
+            fatherAI.setPlayer(World.getInstance().getFather());
+            game.setFatherAI(fatherAI);
+            game.setKidnapperPlayer();
+        } else {
+            Controller kidnapperAI = sortedPlayers.entrySet().iterator().next().getKey();
+            kidnapperAI.setPlayer(World.getInstance().getKidnapper());
+            game.setKidnapperAI(kidnapperAI);
+            game.setFatherPlayer();
+        }
         game.start();
     }
 
@@ -114,10 +125,17 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
         long seed = worldSeeds[gameId % GAMES];
         World.initWorld(mapConfig, seed);
         GameContainerSwing gc = new GameContainerSwing(World.getInstance(), false);
-        players.getFirst().setPlayer(World.getInstance().getFather());
-        gc.setFatherAI(players.getFirst());
-        players.getSecond().setPlayer(World.getInstance().getKidnapper());
-        gc.setKidnapperAI(players.getSecond());
+        if (fatherAI) {
+            players.getFirst().setPlayer(World.getInstance().getFather());
+            gc.setFatherAI(players.getFirst());
+            players.getSecond().setPlayer(World.getInstance().getKidnapper());
+            gc.setKidnapperAI(players.getSecond());
+        } else {
+            players.getFirst().setPlayer(World.getInstance().getKidnapper());
+            gc.setKidnapperAI(players.getFirst());
+            players.getSecond().setPlayer(World.getInstance().getFather());
+            gc.setFatherAI(players.getSecond());
+        }
         return gc;
     }
 
