@@ -266,7 +266,47 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
                         screamActive = false;
                     }
                 },
+                500
+        );
+
+        new java.util.Timer().schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        screamActive = true;
+                    }
+                },
+                1000
+        );
+
+        new java.util.Timer().schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        screamActive = false;
+                    }
+                },
+                1500
+        );
+
+        new java.util.Timer().schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        screamActive = true;
+                    }
+                },
                 2000
+        );
+
+        new java.util.Timer().schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        screamActive = false;
+                    }
+                },
+                2500
         );
     }
 

@@ -167,7 +167,7 @@ public class GuiRenderer {
         Matrix4f matrix = Maths.createTransformationMatrix(guiTexture.getPosition(), guiTexture.getScale(), guiTexture.getRx() ,guiTexture.getRy());
         transLoc = glGetUniformLocation(quadProgram, "transformationMatrix");
         GL41.glProgramUniformMatrix4fv(quadProgram, transLoc, false, matrix.get(transMat));
-        System.out.println(Arrays.toString(transMat));
+        //System.out.println(Arrays.toString(transMat));
         GL30.glBindVertexArray(vaoId);
         GL20.glEnableVertexAttribArray(0); // Vertex position data
         GL11.glEnable(GL11.GL_BLEND);
