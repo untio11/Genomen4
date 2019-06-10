@@ -8,7 +8,7 @@ import org.joml.Matrix4f;
 
 public class StaticShader extends ShaderProgram {
 
-    private static final int MAX_BONES = 15;    //max number of bones in the skeleton
+    private static final int MAX_BONES = 12;    //max number of bones in the skeleton
 
     private static final String VERTEX_FILE = "src/main/java/Graphics/Animation/renderer/animatedEntityVertex.glsl";
     private static final String FRAGMENT_FILE = "src/main/java/Graphics/Animation/renderer/animatedEntityFragment.glsl";
@@ -39,10 +39,10 @@ public class StaticShader extends ShaderProgram {
 
     @Override
     protected void getAllUniformLocations() {
-        location_transformationMatrix = super.getUniformLocation("transformationMatrix");
-        location_projectionMatrix = super.getUniformLocation("projectionMatrix");
-        location_viewMatrix = super.getUniformLocation("viewMatrix");
-        //    location_jointTransforms[i] = super.getUniformLocation("jointTransforms["+i+"]");
+//        location_transformationMatrix = super.getUniformLocation("transformationMatrix");
+//        location_projectionMatrix = super.getUniformLocation("projectionMatrix");
+//        location_viewMatrix = super.getUniformLocation("viewMatrix");
+//        //    location_jointTransforms[i] = super.getUniformLocation("jointTransforms["+i+"]");
     }
 
     public void loadTransformationMatrix(Matrix4f transform) {

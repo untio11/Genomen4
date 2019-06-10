@@ -135,23 +135,16 @@ public class AnimModelLoader {
         Bone rootBone = new Bone(root.mName().dataString(),boneIndex, null, rootTransform, rootTransform );
         bones[boneIndex] = rootBone;
         AINode[] childNodes = new AINode[root.mNumChildren()];
-        System.out.print(root.mName().dataString()+" children: ");
         for(int child=0; child < root.mNumChildren(); child++) {
             childNodes[child] = AINode.create(root.mChildren().get(child));
-            System.out.print(childNodes[child].mName().dataString()+", ");
-        }
-        System.out.println(" ");
-        for(int child=0; child < root.mNumChildren(); child++) {
             setBoneHeirarchy( childNodes[child], rootBone);
         }
-        System.out.println("boneIndex: "+boneIndex+" numBones: "+mesh.mNumBones()+ " numRootChildren: "+root.mNumChildren());
 
 
 /**
  * Creating the KeyFrames from the animation
  */
         KeyFrame[] keyFrames = new KeyFrame[5];     // there should be 5 timeStamps
-        System.out.println("animations: "+scene.mNumAnimations());
         AIAnimation aiAnimation = AIAnimation.create(scene.mAnimations().get(0));
 
         // creat list with nodeAnims
@@ -159,8 +152,7 @@ public class AnimModelLoader {
         for(int channel=0; channel<aiAnimation.mNumChannels(); channel++) {
             AINodeAnim nodeAnim= AINodeAnim.create(aiAnimation.mChannels().get(channel));
             nodeAnims[channel] = nodeAnim;
-            // not the same index as AINode and bones have but that is oke
-            //System.out.print(nodeAnim.mNodeName().dataString()+", ");
+            // nodeAnim index not the same index as AINode and bones have but that is oke
         }
 
         /**
@@ -173,6 +165,7 @@ public class AnimModelLoader {
                 Vector3f position = new Vector3f();
                 Quaternion rotation = new Quaternion(0,0,0,0);
                 for(AIVectorKey vecKey : nodeAnim.mPositionKeys()) {
+                    //System.out.print(vecKey.mTime()+", ");
                     if(vecKey.mTime() == time) {
                         position = Maths.fromAssimpVector(vecKey.mValue());
                     }
@@ -182,9 +175,12 @@ public class AnimModelLoader {
                         rotation = Maths.fromAssimpQuat(quatKey.mValue());
                     }
                 }
+                String boneName = nodeAnim.mNodeName().dataString();
+                //System.out.println("jointTransform pos "+boneName+ ": "+position.x+" "+position.y+" "+position.z);
                 JointTransform jointTransform = new JointTransform(position, rotation);
                 poseMap.put(nodeAnim.mNodeName().dataString(), jointTransform);
             }
+            System.out.println("keyFrame time: "+time+" poseMap Size: "+poseMap.size());
             KeyFrame keyFrame = new KeyFrame((float)time, poseMap);
             keyFrames[timeIndex] = keyFrame;
             timeIndex++;
@@ -193,7 +189,8 @@ public class AnimModelLoader {
         /**
          * Initialize the Animation with the keyframes
          */
-        //System.out.println("animDur:"+aiAnimation.mDuration()+", ticks/sec:"+aiAnimation.mTicksPerSecond());
+       // System.out.println("animDur:"+aiAnimation.mDuration());
+       // System.out.println("ticks/sec: "+ aiAnimation.mTicksPerSecond());
         Animation animation = new Animation((float)aiAnimation.mDuration(), keyFrames);
 
         System.out.println("numChannels: "+aiAnimation.mNumChannels()+" numMeshChannels: "+aiAnimation.mNumMeshChannels());
@@ -220,14 +217,8 @@ public class AnimModelLoader {
         pBone.addChild(bone);
 
         AINode[] childNodes = new AINode[node.mNumChildren()];
-        System.out.print(name+" children: ");
         for(int child=0; child < node.mNumChildren(); child++) {
             childNodes[child] = AINode.create(node.mChildren().get(child));
-            System.out.print(childNodes[child].mName().dataString()+", ");
-        }
-        System.out.println(" ");
-
-        for(int child=0; child < node.mNumChildren(); child++) {
             setBoneHeirarchy( childNodes[child], bone);
         }
     }

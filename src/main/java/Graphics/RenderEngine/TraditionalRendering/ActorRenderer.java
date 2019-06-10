@@ -31,7 +31,7 @@ public class ActorRenderer {
         for(ActorModel model : entities) {
             prepareModel(model);
             setTransformationMatrix(model);
-            //setJointTransforms(model);
+            setJointTransforms(model);
             shader.loadJointTransforms(model.getJointTransforms());
 
             GL11.glDrawElements(GL11.GL_TRIANGLES, model.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
@@ -64,7 +64,7 @@ public class ActorRenderer {
         Actor actor = model.getActor();
         Matrix4f transformationMatrix = Maths.createTransformationMatrix(
                 actor.get3DPosition(), // Translation
-                actor.getRotX(), actor.getRotY(), actor.getRotZ(), // Rotation
+                actor.getRotX(), actor.getRotZ(), actor.getRotY()-90, // Rotation
                 model.getScale() // Scaling
         );
 
@@ -73,6 +73,7 @@ public class ActorRenderer {
 
     private void setJointTransforms(ActorModel model) {
         Actor actor = model.getActor();
+        model.update();
         shader.loadJointTransforms(model.getJointTransforms());
     }
 

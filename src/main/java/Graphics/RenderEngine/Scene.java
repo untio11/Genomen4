@@ -89,9 +89,9 @@ public class Scene {
      * @throws IllegalStateException when the world is not initialized yet
      */
     public void init() throws IllegalStateException {
-        //initTileMap();
+        initTileMap();
         initActors(world.getActors());
-        //generateChunks();
+        generateChunks();
         camera = world.getCamera();
     }
 

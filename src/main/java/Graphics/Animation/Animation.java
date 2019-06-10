@@ -16,6 +16,7 @@ public class Animation {
      *            appearance in the animation.
      */
     public Animation(float lengthInSeconds, KeyFrame[] frames) {
+        System.out.println("animation keyframes: "+ frames.length);
         this.keyFrames = frames;
         this.length = lengthInSeconds;
     }

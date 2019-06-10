@@ -77,7 +77,7 @@ public class Animator {
      * reset, causing the animation to loop.
      */
     private void increaseAnimationTime() {
-        animationTime += WindowManager.getFrameTime();
+        animationTime += 0.05; //WindowManager.getFrameTime()/10;
         if (animationTime > currentAnimation.getLength()) {
             this.animationTime %= currentAnimation.getLength();
         }
@@ -143,11 +143,16 @@ public class Animator {
      */
     private void applyPoseToJoints(Map<String, Matrix4f> currentPose, Bone bone, Matrix4f parentTransform) {
         Matrix4f currentLocalTransform = currentPose.get(bone.name);
-        Matrix4f currentTransform = parentTransform.mul( currentLocalTransform, null);
+        Matrix4f currentTransform = parentTransform.mul( currentLocalTransform);
+        //currentTransform = currentLocalTransform.add(currentTransform);
+
+        //currentTransform = currentTransform.mul(bone.getInverseBindTransform());
+        //bone.setAnimationTransform(currentLocalTransform);
         for (Bone childBone :  bone.getChildren()) {
-            applyPoseToJoints(currentPose, childBone, currentTransform);
+            applyPoseToJoints(currentPose, childBone, currentLocalTransform);
         }
-        currentTransform.mul(bone.getInverseBindTransform(), currentTransform);
+        System.out.println(bone.name);
+        currentTransform = currentLocalTransform.mul(currentTransform);
         bone.setAnimationTransform(currentTransform);
     }
 
@@ -165,7 +170,7 @@ public class Animator {
     private KeyFrame[] getPreviousAndNextFrames() {
         KeyFrame[] allFrames = currentAnimation.getKeyFrames();
         KeyFrame previousFrame = allFrames[0];
-        KeyFrame nextFrame = allFrames[0];
+        KeyFrame nextFrame = allFrames[1];
         for (int i = 1; i < allFrames.length; i++) {
             nextFrame = allFrames[i];
             if (nextFrame.getTimeStamp() > animationTime) {
@@ -216,8 +221,10 @@ public class Animator {
             JointTransform nextTransform = nextFrame.getJointKeyFrames().get(jointName);
             JointTransform currentTransform = JointTransform.interpolate(previousTransform, nextTransform, progression);
             currentPose.put(jointName, currentTransform.getLocalTransform());
+            //currentPose.put(jointName, nextTransform.getLocalTransform());
         }
         return currentPose;
+        //return currentAnimation.getKeyFrames()[1].getJointKeyFrames().g;
     }
 
 

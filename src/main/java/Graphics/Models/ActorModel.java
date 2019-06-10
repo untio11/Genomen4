@@ -14,6 +14,8 @@ public class ActorModel extends BaseModel {
     private final Bone rootBone;
     private final int boneCount;
 
+    private Matrix4f[] jointMatrices;
+
     private final Animator animator;
 
 //    public ActorModel(int vaoID, int[] dataBufferIDs, int vertexCount) {
@@ -84,8 +86,9 @@ public class ActorModel extends BaseModel {
      *         animation pose.
      */
     public Matrix4f[] getJointTransforms() {
-        Matrix4f[] jointMatrices = new Matrix4f[boneCount];
-        addJointsToArray(rootBone, jointMatrices);
+        //Matrix4f[]
+        jointMatrices = new Matrix4f[boneCount];
+        addJointsToArray(rootBone);
         return jointMatrices;
     }
 
@@ -97,13 +100,19 @@ public class ActorModel extends BaseModel {
      * @param headJoint
      *            - the current joint being added to the array. This method also
      *            adds the transforms of all the descendents of this joint too.
-     * @param jointMatrices
+     * //@param jointMatrices
      *            - the array of joint transforms that is being filled.
      */
-    private void addJointsToArray(Bone headJoint, Matrix4f[] jointMatrices) {
+//    private void addJointsToArray(Bone headJoint, Matrix4f[] jointMatrices) {
+//        jointMatrices[headJoint.index] = headJoint.getAnimationTransform();
+//        for (Bone childBone : headJoint.getChildren()) {
+//            addJointsToArray(childBone, jointMatrices);
+//        }
+//    }
+    private void addJointsToArray(Bone headJoint) {
         jointMatrices[headJoint.index] = headJoint.getAnimationTransform();
         for (Bone childBone : headJoint.getChildren()) {
-            addJointsToArray(childBone, jointMatrices);
+            addJointsToArray(childBone);
         }
     }
 }
