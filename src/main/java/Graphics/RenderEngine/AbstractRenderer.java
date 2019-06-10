@@ -18,4 +18,8 @@ public interface AbstractRenderer {
      * Clean all the memory or something.
      */
     void clean();
+
+    void renderMenu();
+
+    void renderEnd(boolean win);
 }

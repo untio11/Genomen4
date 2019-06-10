@@ -6,9 +6,15 @@ import Engine.AbstractGameContainer;
 import Engine.Controller.Controller;
 import Engine.SoundClip;
 import GameState.World;
+import Graphics.Gui.GuiRenderer;
+import Graphics.Gui.GuiTexture;
+import Graphics.Gui.MenuRenderer;
 import Graphics.RenderEngine.AbstractRenderer;
+import Graphics.RenderEngine.Loader;
 import Graphics.RenderEngine.MasterRenderer;
 import Graphics.RenderEngine.Scene;
+import org.joml.Vector3f;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 
@@ -29,6 +35,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
 
     private double roundTime;
     private boolean fatherWin;
+    private boolean playerFather;
 
 //    private Thread thread = new Thread(this);
 
@@ -169,13 +176,18 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
         double roundTime= ROUND_TIME;
 
         while (true) {
-            finalRender();
+            renderer.renderMenu();
+            glfwSwapBuffers(windowGL.getWindow()); // swap the color buffers, that is: show on screen what is happening
+            // Poll for window events. The key callback above will only be
+            // invoked during this call.
+            glfwPollEvents();
             if (windowGL.getPressedKeys().contains(GLFW_KEY_F)) {
                 setFatherPlayer();
                 SimpleGenomenPlayer kidnapperController = new SimpleGenomenPlayer();
                 kidnapperController.setPlayer(World.getInstance().getKidnapper());
                 setKidnapperAI(kidnapperController);
                 world.setCameraFather();
+                playerFather = true;
                 break;
             } else if (windowGL.getPressedKeys().contains(GLFW_KEY_K)) {
                 AIGenomenPlayer fatherController = new AIGenomenPlayer();
@@ -184,6 +196,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
                 setFatherAI(fatherController);
                 setKidnapperPlayer();
                 world.setCameraKidnapper();
+                playerFather = false;
                 break;
             }
         }
@@ -252,6 +265,22 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
                 }
             }
         }
+
+        while (true) {
+            boolean win = false;
+            if ((fatherWin && playerFather) || (!fatherWin && !playerFather))  {
+                win = true;
+            }
+            renderer.renderEnd(win);
+            glfwSwapBuffers(windowGL.getWindow()); // swap the color buffers, that is: show on screen what is happening
+            // Poll for window events. The key callback above will only be
+            // invoked during this call.
+            glfwPollEvents();
+            if (windowGL.getPressedKeys().contains(GLFW_KEY_E)) {
+                break;
+            }
+        }
+
         music.stop();
         close();
         this.roundTime = roundTime;

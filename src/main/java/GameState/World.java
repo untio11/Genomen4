@@ -38,7 +38,7 @@ public class World {
         this.kidnapper = spawnActor(true);
 
         this.camera = new Camera(); // Camera will be put over the head later
-        camera.setPosition(new Vector3f(0.0f, 0.0f, 10.0f));
+        camera.setPosition(new Vector3f(width/2, 30.0f, height/2));
 
     }
     public void setCameraFather() {

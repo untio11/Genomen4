@@ -4,6 +4,7 @@ import GameState.Entities.Camera;
 import GameState.World;
 import Graphics.Gui.GuiRenderer;
 import Graphics.Gui.GuiTexture;
+import Graphics.Gui.MenuRenderer;
 import Graphics.Shaders.StaticShader;
 import Graphics.Terrains.Terrain;
 import Graphics.Shaders.TerrainShader;
@@ -28,6 +29,7 @@ public class MasterRenderer implements AbstractRenderer {
     private static TerrainShader terrainShader = new TerrainShader();
     private static ActorRenderer actorRenderer;
     private static GuiRenderer guiRenderer;
+    private static MenuRenderer menuRenderer, lostRenderer, winRenderer;
 
     private Camera camera;
 
@@ -36,16 +38,23 @@ public class MasterRenderer implements AbstractRenderer {
         terrainRenderer = new TerrainRenderer(terrainShader, projectionMatrix);
         actorRenderer = new ActorRenderer(shader, projectionMatrix);
         guiRenderer = new GuiRenderer();
+        menuRenderer = new MenuRenderer();
+        winRenderer = new MenuRenderer();
+        lostRenderer = new MenuRenderer();
     }
 
     public void init(Scene scene) { // TODO: should this just all be done in the constructor?
+
         guiRenderer.init(scene);
+        menuRenderer.init(scene,0);
+        winRenderer.init(scene,1);
+        lostRenderer.init(scene,2);
     }
 
     // TODO: Make sure that this can just render a given scene
     public void render(Scene scene, boolean screamActive, int oppoAngle) {
-        this.camera = camera = scene.getCamera();
         prepare();
+        this.camera = camera = scene.getCamera();
         List<Model> entities = scene.getEntities();
         Map<TerrainTexture, List<Terrain>> terrain_map = scene.getTexture_to_terrainlist_map();
 
@@ -64,6 +73,20 @@ public class MasterRenderer implements AbstractRenderer {
 
         if (screamActive) {
             guiRenderer.render(oppoAngle);
+        }
+    }
+
+    public void renderMenu() {
+        prepare();
+        menuRenderer.render();
+    }
+
+    public void renderEnd(boolean win) {
+        prepare();
+        if (win) {
+            winRenderer.render();
+        } else {
+            lostRenderer.render();
         }
     }
 
