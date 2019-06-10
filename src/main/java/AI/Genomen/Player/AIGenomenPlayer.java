@@ -32,6 +32,9 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     // The number of outputs of the neural network
     protected final int outputCount = 2;
 
+    // Add the player boost to the output
+    protected final boolean addBoost;
+
     // The number of values that the neural network should remember
     // These will be passed through in the next iteration
     protected final int rememberCount = 3;
@@ -47,7 +50,15 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     private double[] rememberInputs;
 
     public AIGenomenPlayer() {
+        super();
         rememberInputs = new double[getRememberCount()];
+        addBoost = false;
+    }
+
+    public AIGenomenPlayer(boolean boost) {
+        super();
+        rememberInputs = new double[getRememberCount()];
+        addBoost = boost;
     }
 
     public void init() {
@@ -88,6 +99,11 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
         // Process the output so that it can be used for moving the player
         double xAxis = output.getDouble(0, 0);
         double yAxis = output.getDouble(0, 1);
+
+        // Get the boost value if necessary
+        if (isAddBoost()) {
+            this.setBoost(output.getDouble(0, getOutputCount()) > 0.5);
+        }
 
         // Set the movement axes of the player depending on the output
         this.setAxis(xAxis, yAxis);
@@ -152,7 +168,7 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
         INDArray output = net.output(indArray);
         // set rememberInputs to the last part of the output
         for (int i = 0; i < getRememberCount(); i++) {
-            rememberInputs[i] = output.getDouble(0, i + getOutputCount());
+            rememberInputs[i] = output.getDouble(0, i + getOutputCount() + getBoostCount());
         }
 
         return output;
@@ -178,7 +194,7 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
                         .weightInit(new UniformDistribution(-1, 1))
                         .build())
                 .layer(new OutputLayer.Builder(LossFunctions.LossFunction.L2)
-                        .nOut(getOutputCount() + getRememberCount())
+                        .nOut(getOutputCount() + getBoostCount() + getRememberCount())
                         .activation(Activation.TANH)
                         .weightInit(new UniformDistribution(-1, 1))
                         .build())
@@ -222,6 +238,14 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
 
     public int getOutputCount() {
         return outputCount;
+    }
+
+    public boolean isAddBoost() {
+        return addBoost;
+    }
+
+    public int getBoostCount() {
+        return addBoost ? 1 : 0;
     }
 
     public int getRememberCount() {

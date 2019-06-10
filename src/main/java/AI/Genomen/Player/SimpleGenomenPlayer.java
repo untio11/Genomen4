@@ -41,10 +41,14 @@ public class SimpleGenomenPlayer extends AIController {
                 xAxis = r.nextDouble() * 2 - 1;
                 yAxis = r.nextDouble() * 2 - 1;
                 frame = UPDATE_FREQUENCY;
+                this.setBoost(false);
             } else {
                 xAxis = Math.cos(Math.toRadians(angle + getAngleOffset()));
                 yAxis = Math.sin(Math.toRadians(angle + getAngleOffset()));
                 frame = UPDATE_FREQUENCY * getVisibleTimeoutFactor();
+                if (input[0][0] > 0) {
+                    this.setBoost(true);
+                }
             }
             this.setAxis(xAxis, yAxis);
         }
