@@ -22,7 +22,7 @@ public class Main {
         World.initWorld(MapConfigurations.getSimpleMap());
         AbstractGameContainer gc = new GameContainerGL(World.getInstance(), true);
 
-        boolean fatherAI = false;
+        /*boolean fatherAI = false;
         boolean fatherLoad = true;
 
 
@@ -68,7 +68,7 @@ public class Main {
 
             kidnapperController.setPlayer(World.getInstance().getKidnapper());
             gc.setKidnapperAI(kidnapperController);
-        }
+        }*/
 
         gc.start();
         System.out.println(gc.isFatherWin() + " " + gc.getRemainingTime());

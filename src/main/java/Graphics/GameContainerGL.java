@@ -100,11 +100,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
     }
 
     public void start() {
-        if (kidnapperController != null || fatherController != null) {     //if all the controllers have been initialized
-            this.run();
-        } else {
-            System.err.println("Please define controllers");
-        }
+        run();
     }
 
     public void close() {
@@ -170,7 +166,6 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
         int fps = 0;
         double cryTimer = cryInterval;
         int cryNumber = 0;
-        boolean running = true;
         double roundTime= ROUND_TIME;
 
         while (true) {
@@ -236,14 +231,12 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
                     windowGL.close();
                 }
                 fatherWin = true;
-                running = false;
                 break;
             } else if (roundTime < 0) {
                 if (this.renderWindow) {
                     windowGL.close();
                 }
                 fatherWin = false;
-                running = false;
                 break;
             }
 
