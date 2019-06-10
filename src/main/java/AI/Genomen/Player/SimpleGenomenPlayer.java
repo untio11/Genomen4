@@ -17,6 +17,17 @@ public class SimpleGenomenPlayer extends AIController {
     // The current number of frames elapsed since the last update
     protected int frame = 0;
 
+    // Boolean indicating whether the player is the father
+    protected boolean father;
+
+    public SimpleGenomenPlayer() {
+        this.father = false;
+    }
+
+    public SimpleGenomenPlayer(boolean father) {
+        this.father = father;
+    }
+
     @Override
     public void update(double dt) {
 
@@ -31,9 +42,9 @@ public class SimpleGenomenPlayer extends AIController {
                 yAxis = r.nextDouble() * 2 - 1;
                 frame = UPDATE_FREQUENCY;
             } else {
-                xAxis = Math.cos(Math.toRadians(angle + angleOffset));
-                yAxis = Math.sin(Math.toRadians(angle + angleOffset));
-                frame = UPDATE_FREQUENCY * 2;
+                xAxis = Math.cos(Math.toRadians(angle + getAngleOffset()));
+                yAxis = Math.sin(Math.toRadians(angle + getAngleOffset()));
+                frame = UPDATE_FREQUENCY * getVisibleTimeoutFactor();
             }
             this.setAxis(xAxis, yAxis);
         }
@@ -43,5 +54,19 @@ public class SimpleGenomenPlayer extends AIController {
 
         // Decrease the frame counter
         frame--;
+    }
+
+    private double getAngleOffset() {
+        if (this.father) {
+            return 0;
+        }
+        return 180;
+    }
+
+    private int getVisibleTimeoutFactor() {
+        if (this.father) {
+            return 8;
+        }
+        return 2;
     }
 }
