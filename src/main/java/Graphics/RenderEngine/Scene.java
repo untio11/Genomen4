@@ -90,6 +90,7 @@ public class Scene {
         camera = world.getCamera();
     }
 
+    //todo: better menu and end screen
     private void initGui() {
         gui = new GuiTexture(loader.loadTexture("indicator"), new Vector3f(0.5f, 0f, 0f), new Vector3f(0.25f, 0.25f, 1f), 45f, 45f);
         menu = new GuiTexture(loader.loadTexture("menu"), new Vector3f(0f, 0f, 0f), new Vector3f(0.75f, 1f, 1f), 0, 0);

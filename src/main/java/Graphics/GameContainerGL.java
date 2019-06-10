@@ -40,7 +40,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
 //    private Thread thread = new Thread(this);
 
     private WindowGL windowGL;
-    private AbstractRenderer renderer; // TODO: Add extra layer above MasterRenderer (AbstractRenderer?) to cover normal rasterizition shading and raytracing
+    private AbstractRenderer renderer; // 
     private Controller fatherController, kidnapperController;
 
     ArrayList<SoundClip> clips;
@@ -124,57 +124,16 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
 
     public void run() {
         if (renderWindow) {
+            menu();
             windowed();
+            end();
         } else {
             headless();
         }
     }
 
-    public void headless() {
-        double passedTime = 0;
-        double cryTimer = cryInterval;
-        boolean running = true;
-        double roundTime= ROUND_TIME;
-
-
-        while (running){
-            updateActor();
-            roundTime -= UPDATE_CAP;
-            passedTime += UPDATE_CAP;
-
-            cryTimer -= passedTime;
-            if (cryTimer < 0) {
-                World.getInstance().getKidnapper().receiveScream();
-                World.getInstance().getFather().receiveScream();
-                cryTimer = cryInterval;
-            }
-
-            if (world.isPlayerCollision()) {
-                fatherWin = true;
-                running = false;
-                break;
-            } else if (roundTime < 0) {
-                fatherWin = false;
-                running = false;
-                break;
-            }
-        }
-        this.roundTime = roundTime;
-    }
-
-    public void windowed() {
-        boolean render;
-        double firstTime;
-        double lastTime = System.nanoTime() / 1e9d;
-        double passedTime;
-        double unprocessedTime = 0;
-        double frameTime = 0;
-        int frames = 0;
-        int fps = 0;
-        double cryTimer = cryInterval;
-        int cryNumber = 0;
-        double roundTime= ROUND_TIME;
-
+    public void menu() {
+        //todo: add menu music
         while (true) {
             renderer.renderMenu();
             glfwSwapBuffers(windowGL.getWindow()); // swap the color buffers, that is: show on screen what is happening
@@ -200,9 +159,72 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
                 break;
             }
         }
+    }
+
+    public void end() {
+        //todo: add end music
+        while (true) {
+            boolean win = false;
+            if ((fatherWin && playerFather) || (!fatherWin && !playerFather))  {
+                win = true;
+            }
+            renderer.renderEnd(win);
+            glfwSwapBuffers(windowGL.getWindow()); // swap the color buffers, that is: show on screen what is happening
+            // Poll for window events. The key callback above will only be
+            // invoked during this call.
+            glfwPollEvents();
+            if (windowGL.getPressedKeys().contains(GLFW_KEY_SPACE)) {
+                break;
+            }
+        }
+        close();
+    }
+
+    public void headless() {
+        double passedTime = 0;
+        double cryTimer = cryInterval;
+        boolean running = true;
+        double roundTime= ROUND_TIME;
+
+
+        while (running){
+            updateActor();
+            roundTime -= UPDATE_CAP;
+            passedTime += UPDATE_CAP;
+
+            cryTimer -= passedTime;
+            if (cryTimer < 0) {
+                World.getInstance().getKidnapper().receiveScream();
+                World.getInstance().getFather().receiveScream();
+                cryTimer = cryInterval;
+            }
+
+            if (world.isPlayerCollision()) {
+                fatherWin = true;
+                break;
+            } else if (roundTime < 0) {
+                fatherWin = false;
+                break;
+            }
+        }
+        this.roundTime = roundTime;
+    }
+
+    public void windowed() {
+        boolean render;
+        double firstTime;
+        double lastTime = System.nanoTime() / 1e9d;
+        double passedTime;
+        double unprocessedTime = 0;
+        double frameTime = 0;
+        int frames = 0;
+        int fps = 0;
+        double cryTimer = cryInterval;
+        int cryNumber = 0;
+        double roundTime= ROUND_TIME;
 
         music.loop();
-        while (!glfwWindowShouldClose(windowGL.getWindow())) { // TODO: Have a genaral Renderer.render() function to call
+        while (!glfwWindowShouldClose(windowGL.getWindow())) { //
             render = false;
             firstTime = System.nanoTime() / 1e9d;
             passedTime = firstTime - lastTime;
@@ -217,7 +239,12 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
                 startScreamTimer();
                 World.getInstance().getKidnapper().receiveScream();
                 World.getInstance().getFather().receiveScream();
-                oppoAngle = (int) World.getInstance().getFather().getPreviousAngle(); //TODO check for which player is opponent
+                if (playerFather) {
+                    oppoAngle = (int) World.getInstance().getFather().getPreviousAngle();
+                } else {
+                    //todo: should we remove indicator for kidnapper?
+                    oppoAngle = (int) World.getInstance().getKidnapper().getPreviousAngle();
+                }
                 cryTimer = cryInterval;
                 clips.get(cryNumber).play();
                 cryNumber = (cryNumber + 1) % clips.size();
@@ -265,25 +292,8 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
                 }
             }
         }
-
-        while (true) {
-            boolean win = false;
-            if ((fatherWin && playerFather) || (!fatherWin && !playerFather))  {
-                win = true;
-            }
-            renderer.renderEnd(win);
-            glfwSwapBuffers(windowGL.getWindow()); // swap the color buffers, that is: show on screen what is happening
-            // Poll for window events. The key callback above will only be
-            // invoked during this call.
-            glfwPollEvents();
-            if (windowGL.getPressedKeys().contains(GLFW_KEY_E)) {
-                break;
-            }
-        }
-
-        music.stop();
-        close();
         this.roundTime = roundTime;
+        music.stop();
     }
 
     public void finalRender() {

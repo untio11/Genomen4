@@ -19,7 +19,7 @@ public class Main {
         System.out.println(wm.isFatherWin() + " " + wm.getRemainingTime());*/
 
 
-        World.initWorld(MapConfigurations.getSimpleMap());
+        World.initWorld(MapConfigurations.getNormalMap());
         AbstractGameContainer gc = new GameContainerGL(World.getInstance(), true);
 
         /*boolean fatherAI = false;

@@ -58,7 +58,7 @@ public class Actor extends Entity implements Observable {
      * Move the actor up, unless obstacle
      * @param dt time elapsed
      */
-    public void moveUp(double dt) { // TODO: should this logic for turning be here? I also think the logic for time<->movement should not be here
+    public void moveUp(double dt) { //
         int tileY = (int) (position.y - size / 2);                  //the tile where the upper side of the actor is
         float offY = (position.y - size / 2) - tileY;               //the y offset in that tile
         int tileXLeft = (int) (position.x - size / 2);              //the tile where the left side of the actor is in
