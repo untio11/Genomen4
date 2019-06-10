@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer, Controller, GameContainerSwing> {
 
     // Boolean for choosing between the father and kidnapper
-    private boolean fatherAI = true;
+    private static boolean fatherAI = true;
 
     private static final int GAMES = 6;
     private long[] worldSeeds = new long[GAMES];
