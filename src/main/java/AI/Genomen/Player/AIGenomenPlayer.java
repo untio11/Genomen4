@@ -47,10 +47,11 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     private double[] rememberInputs;
 
     public AIGenomenPlayer() {
-        rememberInputs = new double[getRememberCount()];
+
     }
 
     public void init() {
+        rememberInputs = new double[getRememberCount()];
         if (this.net == null) {
             this.createNetwork();
         }
