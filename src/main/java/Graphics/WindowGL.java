@@ -1,7 +1,6 @@
 package Graphics;
 
-import GameState.MapConfigurations;
-import GameState.World;
+import Graphics.RenderEngine.RayTracing.RayTracer;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -15,9 +14,7 @@ import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class WindowGL {
-
     private int pixelWidth, pixelHeight;
-
     private long window; // The window handle
     private Set<Integer> pressedKeys; // To collect all pressed keys f
 
@@ -42,6 +39,10 @@ public class WindowGL {
             pressedKeys.add(key);
         } else if (action == GLFW_RELEASE) {
             pressedKeys.remove(key);
+        }
+
+        if (key == GLFW_KEY_ESCAPE) {
+            glfwSetWindowShouldClose(window, true);
         }
     }
 
@@ -79,6 +80,7 @@ public class WindowGL {
 
         // Remember key state until it has been handled (AKA doesn't miss a key press)
         glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
+        glfwSetWindowAspectRatio(window, 16, 9);
         glfwSetKeyCallback(window, this::KeyCallback);
         glfwSetWindowSizeCallback(window, this::windowSizeCallback);
 
@@ -106,7 +108,10 @@ public class WindowGL {
         GL11.glViewport(0, 0, width, height);
         this.pixelWidth = width;
         this.pixelHeight = height;
-        //setupTexture();
+
+        if (GameContainerGL.RAY_TRACING) { // Make sure to notify the raytracer so it can upscale its working resolution
+            RayTracer.setDimensions(width, height);
+        }
     }
 
     public long getWindow() {

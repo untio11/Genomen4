@@ -39,7 +39,7 @@ public class World {
 
         this.camera = new Camera(); // Camera will be put over the head later
         camera.setPosition(new Vector3f(0.0f, 0.0f, 10.0f));
-        father.add(camera);
+        father.add(camera); // We should move this to somewhere else and pick the player controlled actor.
     }
 
     /**
@@ -57,11 +57,8 @@ public class World {
 
     /**
      * Generate an instance of the world. Ensure that no world is current before calling this by using World.cleanWorld().
-     * @param width The width the world should have in tiles
-     * @param height The height the world should have in tiles.
      * @throws IllegalStateException If there already is a current world.
      */
-
     public static void initWorld() throws IllegalStateException {
         instance = new World(MapConfigurations.getNormalMap());
     }
@@ -158,6 +155,10 @@ public class World {
 
     public Actor getKidnapper() { return kidnapper; }
 
+    /**
+     * Get the actors, in order
+     * @return {Father, Kidnapper}
+     */
     public Actor[] getActors() {
         return new Actor[] {father, kidnapper};
     };

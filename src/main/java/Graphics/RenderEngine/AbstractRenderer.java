@@ -5,9 +5,9 @@ package Graphics.RenderEngine;
  */
 public interface AbstractRenderer {
     /**
-     * Prepare the renderer for use. This could just be done in the constructor of the implementations I guess?
+     * Prepare the renderer for use. Nice to bind the buffers.
      */
-    void init();
+    void init(Scene scene);
 
     /**
      * Render the given scene on screen.
