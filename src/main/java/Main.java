@@ -24,7 +24,7 @@ public class Main {
         boolean fatherAI = true;
         boolean fatherLoad = true;
 
-        boolean kidnapperAI = false;
+        boolean kidnapperAI = true;
         boolean kidnapperLoad = true;
 
         if (!fatherAI) {
@@ -40,7 +40,7 @@ public class Main {
             if (!fatherLoad) {
                 fatherController.init();
             } else {
-                File f = new File("res/network/1559508107999-single-genomen-1-4084.net");
+                File f = new File("res/network/father/1560138928134-single-genomen-1-8986.net");
                 try {
                     fatherController.loadNetwork(f);
                 } catch (IOException e) {
@@ -52,17 +52,17 @@ public class Main {
         }
 
         if (kidnapperAI) {
-            SimpleGenomenPlayer kidnapperController = new SimpleGenomenPlayer();
-//            if (!kidnapperLoad) {
-//                kidnapperController.init();
-//            } else {
-//                File f = new File("res/network/1559393144496-genomen-2-11711.net");
-//                try {
-//                    kidnapperController.loadNetwork(f);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
+            AIGenomenPlayer kidnapperController = new AIGenomenPlayer();
+            if (!kidnapperLoad) {
+                kidnapperController.init();
+            } else {
+                File f = new File("res/network/kidnapper/1560171989699-single-genomen-kidnapper-1-4972.net");
+                try {
+                    kidnapperController.loadNetwork(f);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
 
             kidnapperController.setPlayer(World.getInstance().getKidnapper());
             gc.setKidnapperAI(kidnapperController);
