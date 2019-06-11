@@ -14,19 +14,19 @@ public class GeneticAlgorithm<A extends TrainerAIPlayer> {
     private float crossoverProbability = 0.01f;
 
     // The mutate probability is the chance that a weight or bias is going to be mutated
-    private float mutateProbability = 0.02f;
+    private float mutateProbability = 0.1f;
     // The mutate percentage is the magnitude by which the random mutation is multiplied
     // This mutation is added to the original weight
     // Should be a bit higher when the mutateCubicDistribution variable is true
-    private float mutatePercentage = 0.1f;
+    private float mutatePercentage = 1f;
 
     // With mutate cubic distribution, the random mutation values have a tendency to stay low with higher extremes
     // This could improve random mutations and avoid local minimums
-    private boolean mutateCubicDistribution = true;
+    private boolean mutateCubicDistribution = false;
 
     // This percentage indicates the number of players that will be copied directly into the new iteration without
     // being changed by the genetic algorithm. Rounded up to the next integer
-    private float copyParentPercentage = 0.15f;
+    private float copyParentPercentage = 0.10f;
 
     // When set to true, this boolean results in the best performing player always being copied into the new iteration
     // The copyParentPercentage should have a value above 0 to make this work.

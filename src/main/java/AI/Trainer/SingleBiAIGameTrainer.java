@@ -26,6 +26,8 @@ public abstract class SingleBiAIGameTrainer<A extends TrainerAIPlayer, B, G> ext
     private List<Integer> bestIterationScores;
     private List<Double> averageIterationScores;
 
+    private int iter = 0;
+
     public SingleBiAIGameTrainer(int nPlayers, int iterations) {
         super(nPlayers, iterations);
         players1 = new ArrayList<>();
@@ -60,9 +62,11 @@ public abstract class SingleBiAIGameTrainer<A extends TrainerAIPlayer, B, G> ext
 
     @Override
     protected void playCompetition() {
+        int count = 0;
         for (Pair<A, B> players : competition) {
-            G game = this.createGame(players);
+            G game = this.createGame(players, count);
             this.playGame(game);
+            count++;
         }
     }
 
@@ -86,7 +90,9 @@ public abstract class SingleBiAIGameTrainer<A extends TrainerAIPlayer, B, G> ext
 
         double avg1 = sum1 * 1f / sortedPlayers1.size();
 
-        System.out.print("Best Scores: \t" + bestPlayer1Entry.getValue());
+        iter++;
+
+        System.out.print(iter + " => Best Scores: \t" + bestPlayer1Entry.getValue());
         bestIterationScores.add(bestPlayer1Entry.getValue());
 
         System.out.println("\t Average Scores: \t" + avg1);
@@ -143,5 +149,5 @@ public abstract class SingleBiAIGameTrainer<A extends TrainerAIPlayer, B, G> ext
 
     protected abstract List<Pair<A, B>> createCompetition(List<A> players1, List<B> players2);
 
-    protected abstract G createGame(Pair<A, B> players);
+    protected abstract G createGame(Pair<A, B> players, int count);
 }

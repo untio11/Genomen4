@@ -19,7 +19,7 @@ public abstract class BaseAIGameTrainer<G> {
     }
 
     protected void savePlayer(TrainerAIPlayer player, String fileName) {
-        File f = new File("res/network/" + fileName + ".net");
+        File f = new File("res/network/training/" + fileName + ".net");
 
         try {
             player.saveNetwork(f);
@@ -69,7 +69,7 @@ public abstract class BaseAIGameTrainer<G> {
         // Save the statistics of the training
         Date date = new Date();
         String fileName = date.getTime() + "-" + this.getName() + "-stats";
-        File csv = new File("res/network/" + fileName + ".csv");
+        File csv = new File("res/network/training/" + fileName + ".csv");
         this.saveStatistics(csv);
     }
 

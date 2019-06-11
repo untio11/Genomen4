@@ -24,15 +24,19 @@ public class World {
 
     private double randomStart;
 
-    private World(MapConfiguration mapConfig) {
+    private long seed;
+    private Random r;
+
+    private World(MapConfiguration mapConfig, long seed) {
         this.mapConfig = mapConfig;
         this.width = mapConfig.getMapSize();
         this.height = mapConfig.getMapSize();
+        this.seed = seed;
 
-        Random r = new Random();
+        r = new Random(seed);
         this.randomStart = r.nextDouble();
 
-        this.data = new MapGenerator(mapConfig).generate();
+        this.data = new MapGenerator(mapConfig, r.nextLong()).generate();
 
         this.father = spawnActor(false);
         this.kidnapper = spawnActor(true);
@@ -60,11 +64,17 @@ public class World {
      * @throws IllegalStateException If there already is a current world.
      */
     public static void initWorld() throws IllegalStateException {
-        instance = new World(MapConfigurations.getNormalMap());
+        Random r = new Random();
+        instance = new World(MapConfigurations.getNormalMap(), r.nextLong());
     }
 
     public static void initWorld(MapConfiguration mapConfig) throws IllegalStateException {
-        instance = new World(mapConfig);
+        Random r = new Random();
+        instance = new World(mapConfig, r.nextLong());
+    }
+
+    public static void initWorld(MapConfiguration mapConfig, long seed) throws IllegalStateException {
+        instance = new World(mapConfig, seed);
     }
 
     /**
@@ -85,8 +95,7 @@ public class World {
      * Returns a random position in the world
      */
     private Position getRandomTile() {
-        Random random = new Random();
-        return new Position(random.nextInt(width), random.nextInt(height));
+        return new Position(r.nextInt(width), r.nextInt(height));
     }
 
     /**

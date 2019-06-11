@@ -22,6 +22,7 @@ public class Actor extends Entity implements Observable {
     private boolean kidnapper;
     private World world;
     private double previousAngle;
+    private boolean doScream = false;
     private double targetAngle;
 
     // Turnspeed has to be a divisor of 90
@@ -284,8 +285,14 @@ public class Actor extends Entity implements Observable {
         } else {
             rayToOpponent[0] = 0;
             rayToOpponent[1] = -1;
-            rayToOpponent[2] = previousAngle;
+            if (doScream) {
+                rayToOpponent[2] = previousAngle;
+            } else {
+                rayToOpponent[2] = -1;
+            }
         }
+
+        doScream = false;
 
         results[results.length - 1] = rayToOpponent;
 
@@ -294,6 +301,7 @@ public class Actor extends Entity implements Observable {
 
     public  void receiveScream() {
         previousAngle = getScreamAngle();
+        doScream = true;
     }
 
     public int getScreamAngle() {
