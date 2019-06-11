@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import Graphics.Models.ActorModel;
-import Graphics.WindowManager;
 import org.joml.Matrix4f;
 
 /**

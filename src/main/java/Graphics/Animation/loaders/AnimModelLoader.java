@@ -192,15 +192,6 @@ public class AnimModelLoader {
        // System.out.println("ticks/sec: "+ aiAnimation.mTicksPerSecond());
         Animation animation = new Animation((float)aiAnimation.mDuration(), keyFrames);
 
-        //System.out.println("numChannels: "+aiAnimation.mNumChannels()+" numMeshChannels: "+aiAnimation.mNumMeshChannels());
-
-
-//        AnimationCalc animationCalc = new AnimationCalc();
-//        animationCalc.bones = bones;
-//        animationCalc.animation = animation;
-//        animationCalc.boneTransforms = new Matrix4f[bones.length];
-//        animationCalc.root = root;
-//        animationCalc.globalInverseTransform = inverseRootTransformation;
 
         //TODO: Assimp.freeScene() somewhere to free scene from memory
         Assimp.aiFreeScene(scene);
