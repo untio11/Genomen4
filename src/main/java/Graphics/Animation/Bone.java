@@ -14,7 +14,7 @@ public class Bone {
     private Bone parent;
     private List<Bone> children = new ArrayList<>();
 
-    /** Animation from bind/rest pose to position in animated pose in model space
+    /* Animation from bind/rest pose to position in animated pose in model space
      * This get loaded up to the shader in uniform array, stored at index postition in that array
      */
     private Matrix4f animationTransform = new Matrix4f();
@@ -52,10 +52,6 @@ public class Bone {
     public Matrix4f getInverseBindTransform() {
         return inverseBindTransform;
     }
-
-//    public Matrix4f getInverseWorldTransform() {
-//        return inverseBindTransform.invert();
-//    }
 
     // to set the current position of bone in animation
     public void setAnimationTransform(Matrix4f animationTransform) {

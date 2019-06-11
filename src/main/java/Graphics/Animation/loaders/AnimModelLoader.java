@@ -180,7 +180,6 @@ public class AnimModelLoader {
                 JointTransform jointTransform = new JointTransform(position, rotation);
                 poseMap.put(nodeAnim.mNodeName().dataString(), jointTransform);
             }
-            System.out.println("keyFrame time: "+time+" poseMap Size: "+poseMap.size());
             KeyFrame keyFrame = new KeyFrame((float)time, poseMap);
             keyFrames[timeIndex] = keyFrame;
             timeIndex++;
@@ -193,7 +192,7 @@ public class AnimModelLoader {
        // System.out.println("ticks/sec: "+ aiAnimation.mTicksPerSecond());
         Animation animation = new Animation((float)aiAnimation.mDuration(), keyFrames);
 
-        System.out.println("numChannels: "+aiAnimation.mNumChannels()+" numMeshChannels: "+aiAnimation.mNumMeshChannels());
+        //System.out.println("numChannels: "+aiAnimation.mNumChannels()+" numMeshChannels: "+aiAnimation.mNumMeshChannels());
 
 
 //        AnimationCalc animationCalc = new AnimationCalc();

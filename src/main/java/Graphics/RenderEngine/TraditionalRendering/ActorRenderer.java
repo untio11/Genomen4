@@ -64,7 +64,7 @@ public class ActorRenderer {
         Actor actor = model.getActor();
         Matrix4f transformationMatrix = Maths.createTransformationMatrix(
                 actor.get3DPosition(), // Translation
-                actor.getRotX(), actor.getRotZ(), actor.getRotY()-90, // Rotation
+                actor.getRotX()-90, actor.getRotZ(), actor.getRotY()-180, // Rotation
                 model.getScale() // Scaling
         );
 
