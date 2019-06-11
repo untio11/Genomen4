@@ -11,9 +11,11 @@ import org.joml.Vector3f;
  */
 public class BaseModel {
     private int vaoID = -1;
+    // positions, normals, texture, indices:
     private int[] dataBufferIDs = {-1, -1, -1, -1};
-    private float[] position_data;
+    float[] position_data;
     private float[] normal_data;
+    private float[] color_data;
     private float[] texture_data;
     private int[] index_data;
     private int textureID = -1;
@@ -49,14 +51,27 @@ public class BaseModel {
         vaoID = base_model.getVaoID();
         dataBufferIDs = base_model.getDataBufferIDs();
         position_data = base_model.getPosition_data();
-        normal_data = base_model.getNormal_data();
-        texture_data = base_model.getTexture_data();
-        index_data = base_model.getIndex_data();
+        normal_data = base_model.getNormalData();
+        color_data = base_model.getColorData();
+        index_data = base_model.getIndexData();
         textureID = base_model.getTextureID();
         vertexCount = base_model.getVertexCount();
+        texture_data = base_model.getTextureData();
         scale = base_model.getScale();
     }
 
+    public float[] getTextureData() {
+        return texture_data;
+    }
+
+    public void setTextureData(float[] texture_data) {
+        this.texture_data = texture_data;
+    }
+
+    /**
+     * Fetch the position data of the tile in _Model space_ coordinates
+     * @return Array of coordinates in model space
+     */
     public Bone getRootBone() {      return rootBone;    }
 
     public int getBoneCount() {        return boneCount;    }
@@ -67,31 +82,31 @@ public class BaseModel {
         return position_data;
     }
 
-    public void setPosition_data(float[] position_data) {
+    public void setPositionData(float[] position_data) {
         this.position_data = position_data;
     }
 
-    public float[] getNormal_data() {
+    public float[] getNormalData() {
         return normal_data;
     }
 
-    public void setNormal_data(float[] normal_data) {
+    public void setNormalData(float[] normal_data) {
         this.normal_data = normal_data;
     }
 
-    public float[] getTexture_data() {
-        return texture_data;
+    public float[] getColorData() {
+        return color_data;
     }
 
-    public void setTexture_data(float[] texture_data) {
-        this.texture_data = texture_data;
+    public void setColorData(float[] color_data) {
+        this.color_data = color_data;
     }
 
-    public int[] getIndex_data() {
+    public int[] getIndexData() {
         return index_data;
     }
 
-    public void setIndex_data(int[] index_data) {
+    public void setIndexData(int[] index_data) {
         this.index_data = index_data;
     }
 
@@ -131,6 +146,14 @@ public class BaseModel {
 
     public int[] getDataBufferIDs() {
         return dataBufferIDs;
+    }
+
+    public int getVertexSSBO() {
+        return dataBufferIDs[0];
+    }
+
+    public int getIndexSSBO() {
+        return dataBufferIDs[3];
     }
 
     public float getScale() {

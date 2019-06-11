@@ -35,7 +35,7 @@ public class Camera extends Entity implements Observer<Actor> {
         Vector3f actor_pos = observable.get3DPosition();
         this.position.x = actor_pos.x;
         // Height should be constant
-        this.position.y = 10f;
+        this.position.y = 6f;
         this.position.z = actor_pos.z; // Though it's actually the y-axis of the player
     }
 }

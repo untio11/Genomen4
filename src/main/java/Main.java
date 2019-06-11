@@ -1,3 +1,5 @@
+import GameState.MapConfiguration;
+import GameState.MapConfigurations;
 import GameState.World;
 import Graphics.WindowManager;
 

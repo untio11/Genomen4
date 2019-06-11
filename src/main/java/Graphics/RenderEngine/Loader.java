@@ -61,7 +61,9 @@ public class Loader {
                 storeDataInBareBuffer(indices)
         };
 
-        return new BaseModel(vaoID, bufferIDs, indices.length);
+        BaseModel result =  new BaseModel(vaoID, bufferIDs, indices.length);
+        //result.setPositionData(positions);
+        return result;
     }
 
     public int loadTexture(String fileName) {

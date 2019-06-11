@@ -1,5 +1,7 @@
 package Graphics.RenderEngine.RayTracing;
 
+import GameState.Entities.LightSource;
+import Graphics.Models.ActorModel;
 import Graphics.RenderEngine.AbstractRenderer;
 import Graphics.RenderEngine.Scene;
 import org.joml.Vector3f;
@@ -11,6 +13,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11C.*;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
@@ -25,13 +28,20 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class RayTracer implements AbstractRenderer {
     private static int width, height;
+    private static float scaling = 0.65f;
+    private static int terrain_work_x, terrain_work_y, model_work_x, model_work_y;
+    private static int[] terrain_work_group_size = new int[3], model_work_group_size = new int[3];
+
     // VAO, VBO & SSBO stuff
-    private static int vaoId, IndexVBO, chunkSSBO;
-    private static Scene.Chunk chunker;
+    private static int vaoId, IndexVBO;
+    private static int vertexSSBO, indexSSBO, colorSSBO, offsetSSBO, topLeftSSBO;
 
     // Shader stuff
-    private static int rayProgram, quadProgram;
+    private static int terrainProgram, modelProgram, quadProgram;
     private static int rayTexture;
+    public static int[] chunk_count = new int[2]; // # horizontal visible chunks, # vertical visible chunks
+    private static float[] player_light = new float[3], enemy_light = new float[3];
+    private static ActorModel father;
 
     // Quad stuff
     private static float[] quad_vertices = {
@@ -47,7 +57,8 @@ public class RayTracer implements AbstractRenderer {
 
     // Camera stuff
     private static Vector3f camera;
-    private static float fov = 0.2f; // Camera to viewport distance. smaller fov => wider viewangle
+    private static float old_x, old_z;
+    private static float fov = 1.76f; // Camera to viewport distance. smaller fov => wider viewangle; fov=1.7 and camera height=6
     private static float[] transform = {
             1f,  0f,  0f, // Right
             0f,  0f, -1f, // Up
@@ -61,6 +72,7 @@ public class RayTracer implements AbstractRenderer {
     public static void setDimensions(int _width, int _height) {
         width = _width;
         height = _height;
+        setupTexture();
     }
 
     public void init(Scene scene) {
@@ -68,40 +80,87 @@ public class RayTracer implements AbstractRenderer {
         createQuadProgram();
         setupTexture();
         createRayProgram();
-
-        // TODO: Bind the chunk buffers to the correct binding points.
-        chunker = scene.getVisibileChunks(scene.getCamera().getPosition().x, scene.getCamera().getPosition().y)[0];
-        chunkSSBO = TerrainLoader.load(chunker);
     }
 
-    private void executeRay() {
-        int[] work_group_size = new int[3];
-        GL20.glGetProgramiv(rayProgram, GL_COMPUTE_WORK_GROUP_SIZE, work_group_size);
+    private static void executeRay() {
+        terrain_work_x = (int) Math.ceil((width * scaling)/ (float) terrain_work_group_size[0]);// getNextPowerOfTwo(width  / terrain_work_group_size[0]);
+        terrain_work_y = (int) Math.ceil((height * scaling) / (float) terrain_work_group_size[1]); //getNextPowerOfTwo(height / terrain_work_group_size[1]);
 
-        int work_x = getNextPowerOfTwo(width  / work_group_size[0]);
-        int work_y = getNextPowerOfTwo(height / work_group_size[1]);
+        glUseProgram(terrainProgram);
 
-        GL41.glProgramUniform3f(rayProgram, 0, camera.x, camera.y, camera.z);
-        GL41.glProgramUniform1f(rayProgram, 1, fov);
-        GL41.glProgramUniformMatrix3fv(rayProgram, 2, false, transform);
+        loadCameraData(terrainProgram);
 
-        glUseProgram(rayProgram);
+        GL43.glProgramUniform2iv(terrainProgram, 3, chunk_count);
+        GL43.glProgramUniform3fv(terrainProgram, 4, player_light);
+        GL43.glProgramUniform3fv(terrainProgram, 5, enemy_light);
+        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 1, vertexSSBO);
+        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 3, colorSSBO);
+        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 4, indexSSBO);
+        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 5, offsetSSBO);
+        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 6, topLeftSSBO);
 
-        GL43.glProgramUniform1i(rayProgram, 3, chunker.getTringleCount());
-        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 1, chunkSSBO);
-        glDispatchCompute(work_x, work_y, 1);
+        glDispatchCompute(terrain_work_x, terrain_work_y, 1);
+
+        //glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+//        model_work_x = (int) Math.ceil((width * scaling)/ (float)   model_work_group_size[0]);
+//        model_work_y = (int) Math.ceil((height * scaling) / (float) model_work_group_size[1]);
+
+//        glUseProgram(modelProgram);
+//        loadCameraData(modelProgram);
+
+//        GL43.glProgramUniform1i(modelProgram, 5, father.getTriangleCount());
+//        GL43.glBindBufferBase(modelProgram, 1, father.getVertexSSBO());
+//        GL43.glBindBufferBase(modelProgram, 2, father.getIndexSSBO());
+
+//        glDispatchCompute(model_work_x, model_work_y, 1);
+
+
+
+        //GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 1, 0);
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+    }
+
+    private static void loadCameraData(int program) {
+        GL41.glProgramUniform3f(program, 0, camera.x, camera.y, camera.z);
+        GL41.glProgramUniform1f(program, 1, fov);
+        GL41.glProgramUniformMatrix3fv(program, 2, false, transform);
     }
 
     /**
      * Prepare all the variables for rendering the given scene
      * @param scene The scene to be rendered.
      */
-    private void prepare(Scene scene) {
+    private static void prepare(Scene scene) {
         camera = scene.getCamera().getPosition();
+        Scene.Chunk[] chunks = null;
+        if (camera.x != old_x || camera.z != old_z) {
+            chunks = scene.getVisibileChunks(camera.x, camera.z);
+            old_x = camera.x;
+            old_z = camera.z;
+        }
+
+        LightSource[] lights = scene.getLights();
+
+        for (int i = 0; i < player_light.length; i++) {
+            player_light[i] = lights[0].getPosition().get(i);
+            enemy_light[i] = lights[1].getPosition().get(i);
+        }
+
+        if (chunks == null) return; // Scene not updated, so just draw it as is
+
+        int[] ssbos = TerrainLoader.loadChunksToSSBOs(chunks);
+        System.out.println("(H,V): (" + chunk_count[0] + "," + chunk_count[1] + ")");
+
+        vertexSSBO = ssbos[0];
+        colorSSBO = ssbos[1];
+        indexSSBO = ssbos[2];
+        offsetSSBO = ssbos[3];
+        topLeftSSBO = ssbos[4];
+        father = scene.getEntities().get(0);
     }
 
-    public void render(Scene scene) { // TODO: load the data from the scene object into the compute shader
+    public void render(Scene scene) { // TODO: loadVertexPositions the data from the scene object into the compute shader
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         prepare(scene);
         executeRay();
@@ -111,7 +170,7 @@ public class RayTracer implements AbstractRenderer {
     /**
      * Draw the full screen quad with the texture that was generated by the compute shader drawn on it.
      */
-    private void renderQuad() {
+    private static void renderQuad() {
         glUseProgram(quadProgram);
 
         glActiveTexture(GL_TEXTURE0);
@@ -123,11 +182,11 @@ public class RayTracer implements AbstractRenderer {
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, IndexVBO); // Index data
 
         // Draw the vertices
-        GL11.glDrawElements(GL11.GL_TRIANGLES, quad_indices.length, GL11.GL_UNSIGNED_BYTE, 0);
+        GL11.glDrawElements(GL11.GL_TRIANGLES, quad_indices.length, GL11.GL_UNSIGNED_INT, 0);
 
         // Put everything back to default (deselect)
         glUseProgram(0);
-        //glActiveTexture(0);
+        glActiveTexture(0);
         GL30.glBindVertexArray(0);
         GL20.glDisableVertexAttribArray(0);
         GL20.glDisableVertexAttribArray(1);
@@ -141,7 +200,7 @@ public class RayTracer implements AbstractRenderer {
     /**
      * Add the quad vertices to the VBO to be rendered on screen
      */
-    private void setupQuad() {
+    private static void setupQuad() {
         vaoId = GL30.glGenVertexArrays();
         GL30.glBindVertexArray(vaoId);
 
@@ -163,7 +222,7 @@ public class RayTracer implements AbstractRenderer {
         GL30.glBindVertexArray(0);
     }
 
-    private void createQuadProgram() {
+    private static void createQuadProgram() {
         int vertexshader = loadShader("src/main/java/Graphics/Shaders/quadVertexShader.glsl", GL_VERTEX_SHADER);
         int fragmentshader = loadShader("src/main/java/Graphics/Shaders/fragmentShader.glsl", GL_FRAGMENT_SHADER);
 
@@ -178,22 +237,34 @@ public class RayTracer implements AbstractRenderer {
         System.out.println("[QuadProgram]: " + GL20.glGetProgramInfoLog(quadProgram));
     }
 
-    private void createRayProgram() {
+    private static void createRayProgram() {
         int ray_shader = loadShader("src/main/java/Graphics/Shaders/raytracer.glsl", GL_COMPUTE_SHADER);
-        System.out.println("[RayTracerShader]: " + GL43.glGetShaderInfoLog(ray_shader));
+        System.out.println("[TerrainShader]: " + GL43.glGetShaderInfoLog(ray_shader));
 
-        rayProgram = glCreateProgram();
-        glAttachShader(rayProgram, ray_shader);
-        glLinkProgram(rayProgram);
-        glValidateProgram(rayProgram);
+        terrainProgram = glCreateProgram();
+        glAttachShader(terrainProgram, ray_shader);
+        glLinkProgram(terrainProgram);
+        glValidateProgram(terrainProgram);
 
-        System.out.println("[RayTracerProgram]: " + GL43.glGetProgramInfoLog(rayProgram));
+        System.out.println("[TerrainProgram]: " + GL43.glGetProgramInfoLog(terrainProgram));
+        GL20.glGetProgramiv(terrainProgram, GL_COMPUTE_WORK_GROUP_SIZE, terrain_work_group_size);
+
+        int model_shader = loadShader("src/main/java/Graphics/Shaders/model_renderer.glsl", GL_COMPUTE_SHADER);
+        System.out.println("[ModelShader]: " + GL43.glGetShaderInfoLog(model_shader));
+
+        modelProgram = glCreateProgram();
+        glAttachShader(modelProgram, model_shader);
+        glLinkProgram(modelProgram);
+        glValidateProgram(modelProgram);
+
+        System.out.println("[ModelProgram]: " + GL43.glGetProgramInfoLog(modelProgram));
+        GL20.glGetProgramiv(modelProgram, GL_COMPUTE_WORK_GROUP_SIZE, model_work_group_size);
     }
 
     /**
      * Create the texture that the compute shader will draw to.
      */
-    private void setupTexture() {
+    private static void setupTexture() {
         rayTexture = glGenTextures();
         GL15.glActiveTexture(GL13.GL_TEXTURE0);
         GL15.glBindTexture(GL_TEXTURE_2D, rayTexture);
@@ -201,8 +272,8 @@ public class RayTracer implements AbstractRenderer {
         GL15.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         GL15.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         GL15.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        GL15.glTexImage2D(GL_TEXTURE_2D, 0, GL30C.GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
-        GL43C.glBindImageTexture(0, rayTexture, 0, false, 0, GL15C.GL_WRITE_ONLY, GL30C.GL_RGBA32F);
+        GL15.glTexImage2D(GL_TEXTURE_2D, 0, GL30C.GL_RGBA32F, (int)(width * scaling), (int)(height * scaling), 0, GL_RGBA, GL_FLOAT, NULL);
+        GL43C.glBindImageTexture(0, rayTexture, 0, false, 0, GL15C.GL_READ_WRITE, GL30C.GL_RGBA32F);
     }
 
     /**
@@ -240,7 +311,7 @@ public class RayTracer implements AbstractRenderer {
         return result + 1;
     }
 
-    private int loadShader(String filename, int type) {
+    private static int loadShader(String filename, int type) {
         StringBuilder shader_source = new StringBuilder();
         String line = null;
 
@@ -251,7 +322,7 @@ public class RayTracer implements AbstractRenderer {
                 shader_source.append('\n');
             }
         } catch(IOException e) {
-            throw new IllegalArgumentException("unable to load shader from file ["+filename+"]");
+            throw new IllegalArgumentException("unable to loadVertexPositions shader from file ["+filename+"]");
         }
 
         int shaderID = GL43C.glCreateShader(type);

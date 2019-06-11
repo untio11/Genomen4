@@ -2,6 +2,7 @@ package Graphics.RenderEngine;
 
 import GameState.Entities.Actor;
 import GameState.Entities.Camera;
+import GameState.Entities.LightSource;
 import GameState.Tile;
 import GameState.TileType;
 import GameState.World;
@@ -9,7 +10,10 @@ import Graphics.Animation.loaders.AnimModelLoader;
 import Graphics.Models.ActorModel;
 import Graphics.Models.BaseModel;
 import Graphics.Models.TerrainModel;
+import Graphics.RenderEngine.RayTracing.RayTracer;
 import Graphics.Terrains.TerrainGenerator;
+import com.sun.istack.internal.Nullable;
+import javafx.scene.effect.Light;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.*;
@@ -19,19 +23,21 @@ import java.util.stream.Stream;
  * Convert the state of the world to models for the renderer.
  */
 public class Scene {
-    private static final int CHUNK_WIDTH = 6;
-    private static final int CHUNK_HEIGHT = 3;
-    private static final int X_TILES_TO_EDGE = 12;
-    private static final int Y_TILES_TO_EDGE = 7;
+    private static final int CHUNK_WIDTH = 1;
+    private static final int CHUNK_HEIGHT = 1;
+    private static final int X_TILES_TO_EDGE = 6;
+    private static final int Y_TILES_TO_EDGE = 3;
     private int x_chunks;
     private int y_chunks;
     private static Chunk[][] chunks;
+    private static int[] old_left_top = {-1, -1}, old_right_bot = {-1, -1};
 
     private static Loader loader;
     private Camera camera;
     private World world;
     private List<ActorModel> entities;
     private List<TerrainModel> terrain_list;
+    private LightSource[] lights = new LightSource[2];
     private Map<String, TerrainModel> terrain_map;
     private Map<Integer, List<TerrainModel>> texture_to_terrainlist_map;
     private static final Map<TileType, Integer> terrain_type_to_texture_map;
@@ -93,6 +99,27 @@ public class Scene {
         initActors(world.getActors());
         generateChunks();
         camera = world.getCamera();
+        initLights();
+    }
+
+    private void initLights() {
+        int counter = 0;
+        for (ActorModel actorModel : entities) {
+            lights[counter] = new LightSource();
+            actorModel.getActor().add(lights[counter++]);
+        }
+    }
+
+    public Chunk[] getChunks() {
+        Chunk[] result = new Chunk[chunks.length * chunks[0].length];
+        int counter = 0;
+        for (int i = 0; i < chunks.length; i++) {
+            for (int j = 0; j < chunks[i].length; j++) {
+                result[counter++] = chunks[i][j];
+            }
+        }
+
+        return result;
     }
 
     private void generateChunks() {
@@ -128,10 +155,8 @@ public class Scene {
 
         for (int c = x * CHUNK_WIDTH - leftpad; c < (x * CHUNK_WIDTH - leftpad) + CHUNK_WIDTH; c++) {
             for (int r = y * CHUNK_HEIGHT - toppad; r < (y * CHUNK_HEIGHT - toppad) + CHUNK_HEIGHT; r++) {
-                if (r < 0 || c < 0 || r > world_height || c > world_width) {
-
-                    tiles.add(TerrainGenerator.generateTerrain(World.getInstance().getTile(c, r), water_texture, loader));
-
+                if (r < 0 || c < 0 || r > world_height - 1 || c > world_width - 1) {
+                    tiles.add(TerrainGenerator.generateTerrain(new Tile(TileType.WATER, new int[]{r,c}, 0), water_texture, loader));
                 } else {
                     tiles.add(terrain_map.get(String.format("(%d,%d)", c, r)));
                 }
@@ -147,23 +172,88 @@ public class Scene {
      * the edges even 3x6 is possible or even smaller (maybe).
      * @param x The x component of the middle of the current viewport in world space coordinates.
      * @param y The y component of the middle of the current viewport in world space coordinates.
-     * @return An array of chunks that should at least be partly visible on screen.
+     * @return An array of chunks that should at least be partly visible on screen. Null if no new visible chunks.
      */
     public Chunk[] getVisibileChunks(float x, float y) {
-        int left_x_chunk = Math.max((int) ((x - X_TILES_TO_EDGE) / CHUNK_WIDTH), 0);
-        int right_x_chunk = Math.min((int) ((x + X_TILES_TO_EDGE) / CHUNK_WIDTH), x_chunks);
-        int top_y_chunk = Math.min((int) ((y + Y_TILES_TO_EDGE) / CHUNK_HEIGHT), y_chunks);
-        int bottom_y_chunk = Math.max((int) ((y - Y_TILES_TO_EDGE) / CHUNK_HEIGHT), 0);
-        Chunk[] result = new Chunk[(1 + right_x_chunk - left_x_chunk) * (1 + top_y_chunk - bottom_y_chunk)];
+        int top_chunk  = Math.max((int) Math.floor((y - Y_TILES_TO_EDGE) / CHUNK_HEIGHT), 0);
+        int left_chunk = Math.max((int) Math.floor((x - X_TILES_TO_EDGE) / CHUNK_WIDTH), 0);
 
+        if (left_chunk == old_left_top[0] && top_chunk == old_left_top[1]) return null;
+        old_left_top[0] = left_chunk;
+        old_left_top[1] = top_chunk;
+
+        int bottom_chunk = Math.min((int) Math.ceil((y + Y_TILES_TO_EDGE) / CHUNK_HEIGHT), y_chunks);
+        int right_chunk  = Math.min((int) Math.ceil((x + X_TILES_TO_EDGE) / CHUNK_WIDTH), x_chunks);
+
+        if (right_chunk == old_right_bot[0] && bottom_chunk == old_right_bot[1]) return null;
+        old_right_bot[0] = right_chunk;
+        old_right_bot[1] = bottom_chunk;
+
+        Chunk[] result = new Chunk[(right_chunk - left_chunk) * (bottom_chunk - top_chunk)];
+        RayTracer.chunk_count[0] = (right_chunk - left_chunk);
+        RayTracer.chunk_count[1] = (bottom_chunk - top_chunk);
         int counter = 0;
-        for (int i = left_x_chunk; i < right_x_chunk; i++) {
-            for (int j = bottom_y_chunk; j < top_y_chunk; j++) {
+
+        for (int i = left_chunk; i < right_chunk; i++) {
+            for (int j = top_chunk; j < bottom_chunk; j++) {
                 result[counter++] = chunks[i][j];
             }
         }
 
         return result;
+    }
+
+    public List<ActorModel> getVisibleActors(Chunk[] visible_chunks) {
+        float[] top_left = visible_chunks[0].top_left;
+        // Copy like this, otherwise we get weird bugs
+        float[] bottom_right = {visible_chunks[visible_chunks.length - 1].top_left[0],
+                visible_chunks[visible_chunks.length - 1].top_left[1]};
+        bottom_right[0] += CHUNK_WIDTH;
+        bottom_right[1] += CHUNK_HEIGHT;
+
+        List<ActorModel> result = new ArrayList<>();
+
+        for (ActorModel actorModel : entities) {
+            Actor actor = actorModel.getActor();
+            float[] actor_pos = new float[] {actor.get3DPosition().x, actor.get3DPosition().y};
+
+            if (insideBounds(actor_pos, top_left, bottom_right)) {
+                result.add(actorModel);
+            }
+        }
+
+        return result;
+    }
+
+    public List<LightSource> getVisibleLights(Chunk[] visible_chunks) {
+        float[] top_left = visible_chunks[0].top_left;
+        // Copy like this, otherwise we get weird bugs
+        float[] bottom_right = {visible_chunks[visible_chunks.length - 1].top_left[0],
+                visible_chunks[visible_chunks.length - 1].top_left[1]};
+        bottom_right[0] += CHUNK_WIDTH;
+        bottom_right[1] += CHUNK_HEIGHT;
+
+        List<LightSource> result = new ArrayList<>();
+
+        for (LightSource light : lights) {
+
+            float[] light_pos = new float[] {light.getPosition().x, light.getPosition().z};
+
+            if (insideBounds(light_pos, top_left, bottom_right)) {
+                result.add(light);
+            }
+        }
+
+        return result;
+    }
+
+    public LightSource[] getLights() {
+        return lights;
+    }
+
+    private boolean insideBounds(float[] target, float[] top_left, float[] bottom_right) {
+        return ((top_left[0] <= target[0] && target[0] < bottom_right[0]) &&
+                (top_left[1] <= target[1] && target[1] < bottom_right[1]));
     }
 
     private void initActors(Actor[] actors) {
@@ -248,24 +338,56 @@ public class Scene {
         private int tringle_count;
         private int coordinate_amount;
         private float[] coordinate_stream;
+        private float[] normal_stream;
+        private float[] color_stream;
+        private int[] index_stream;
+        private float[] top_left = new float[] {Float.MAX_VALUE, Float.MAX_VALUE};
+        private ActorModel[] actors = new ActorModel[2];
+        private LightSource[] lights = new LightSource[2];
 
         Chunk(List<TerrainModel> tiles) {
             this.data = tiles;
             this.vertex_count = computeVertexCount();
             this.tringle_count = vertex_count / 3;
 
-            Stream<Float> stream = Stream.of();
-            for (TerrainModel tile : tiles) {
-                Float[] tile_coordinates = ArrayUtils.toObject(tile.getPosition_data());
-                stream = Stream.concat(stream, Arrays.stream(tile_coordinates));
+            Stream<Float> coordinate_stream = Stream.of();
+            Stream<Integer> index_stream = Stream.of();
+            Stream<Float> color_stream = Stream.of();
+            int index_counter = 0;
+
+            for (int i = 0; i < tiles.size(); i++) {
+                TerrainModel tile = tiles.get(i);
+
+                top_left[0] = Math.min(top_left[0], tile.getX());
+                top_left[1] = Math.min(top_left[1], tile.getY());
+
+                Integer[] tile_indices = ArrayUtils.toObject(tile.getIndexData());
+                for (int j = 0; j < tile_indices.length; j++) {
+                    tile_indices[j] += index_counter;
+                }
+                index_counter += tile.getPosition_data().length / 4; // Actual amount of vertices defined
+
+                coordinate_stream = Stream.concat(coordinate_stream, Arrays.stream(ArrayUtils.toObject(tile.getPosition_data())));
+                color_stream = Stream.concat(color_stream, Arrays.stream(ArrayUtils.toObject(tile.getColorData())));
+                index_stream = Stream.concat(index_stream, Arrays.stream(tile_indices));
             }
 
-            this.coordinate_stream = ArrayUtils.toPrimitive(stream.toArray(Float[]::new));
-            this.coordinate_amount = coordinate_stream.length;
+            this.coordinate_stream = ArrayUtils.toPrimitive(coordinate_stream.toArray(Float[]::new));
+            this.index_stream = ArrayUtils.toPrimitive(index_stream.toArray(Integer[]::new));
+            this.coordinate_amount = this.coordinate_stream.length;
+            this.color_stream = ArrayUtils.toPrimitive(color_stream.toArray(Float[]::new));
+        }
+
+        public float[] getColorStream() {
+            return color_stream;
         }
 
         public float[] getCoordinateStream() {
             return coordinate_stream;
+        }
+
+        public int[] getIndex_stream() {
+            return index_stream;
         }
 
         public int getVertexCount() {
@@ -288,6 +410,10 @@ public class Scene {
             }
 
             return sum;
+        }
+
+        public float[] getTopLeft() {
+            return top_left;
         }
     }
 }
