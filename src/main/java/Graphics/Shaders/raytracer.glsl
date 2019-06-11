@@ -6,8 +6,10 @@ layout(rgba32f, binding = 0) uniform image2D img_output;
 layout(location = 0) uniform vec3  camera;
 layout(location = 1) uniform float fov;
 layout(location = 2) uniform mat3  transform;
-layout(location = 3) uniform int   tringle_amount;
-layout(location = 4) uniform ivec2 chunk_info; // # horizontal chunks, # vertical chunks,
+layout(location = 3) uniform ivec2 chunk_info; // # horizontal chunks, # vertical chunks,
+layout(location = 4) uniform vec3  player_light;
+layout(location = 5) uniform vec3  enemy_light;
+
 
 layout(std430, binding = 1) buffer VertexPositions { // Contains the vertices of all visible tringles
     vec4 parsed_positions[];
@@ -58,8 +60,6 @@ bool intersectsBoundingSphere(vec3 origin, vec3 ray, vec3 top_left) {
         return true;
     }
 }
-
-
 
 vec4 phong(vec3 point, vec3 normal, vec3 light_source, vec4 base_color, float shininess) {
     vec4 result = 0.0 * base_color; // ambient light initial color
@@ -184,10 +184,11 @@ vec4 trace() {
 
             if (t < 7.7) {
                 normal = normalize(cross(v01, v02));
-                color += phong(intersection, normal, vec3(camera.x, 1.5, camera.z), base_color, 5.0);
-                color *= shadowBounce(intersection + 0.0001 * normal, vec3(camera.x, 1.0, camera.z));
+                color += phong(intersection, normal, player_light, base_color, 5.0);
+                color *= shadowBounce(intersection + 0.0001 * normal, player_light);
                 color *= sqrt(view_distance - t) / sqrt(view_distance);
-                color = pow(color, vec4(0.85));
+                color = pow(color, vec4(0.9));
+                //color *= vec4(1.0, 0.8, 0.8, 1.0);
             }
 
         }

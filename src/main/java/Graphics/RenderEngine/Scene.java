@@ -2,6 +2,7 @@ package Graphics.RenderEngine;
 
 import GameState.Entities.Actor;
 import GameState.Entities.Camera;
+import GameState.Entities.LightSource;
 import GameState.Tile;
 import GameState.TileType;
 import GameState.World;
@@ -10,6 +11,8 @@ import Graphics.Models.BaseModel;
 import Graphics.Models.TerrainModel;
 import Graphics.RenderEngine.RayTracing.RayTracer;
 import Graphics.Terrains.TerrainGenerator;
+import com.sun.istack.internal.Nullable;
+import javafx.scene.effect.Light;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.*;
@@ -33,6 +36,7 @@ public class Scene {
     private World world;
     private List<ActorModel> entities;
     private List<TerrainModel> terrain_list;
+    private LightSource[] lights = new LightSource[2];
     private Map<String, TerrainModel> terrain_map;
     private Map<Integer, List<TerrainModel>> texture_to_terrainlist_map;
     private static final Map<TileType, Integer> terrain_type_to_texture_map;
@@ -94,6 +98,15 @@ public class Scene {
         initActors(world.getActors());
         generateChunks();
         camera = world.getCamera();
+        initLights();
+    }
+
+    private void initLights() {
+        int counter = 0;
+        for (ActorModel actorModel : entities) {
+            lights[counter] = new LightSource();
+            actorModel.getActor().add(lights[counter++]);
+        }
     }
 
     public Chunk[] getChunks() {
@@ -142,12 +155,9 @@ public class Scene {
         for (int c = x * CHUNK_WIDTH - leftpad; c < (x * CHUNK_WIDTH - leftpad) + CHUNK_WIDTH; c++) {
             for (int r = y * CHUNK_HEIGHT - toppad; r < (y * CHUNK_HEIGHT - toppad) + CHUNK_HEIGHT; r++) {
                 if (r < 0 || c < 0 || r > world_height - 1 || c > world_width - 1) {
-                    TerrainModel terr = TerrainGenerator.generateTerrain(new Tile(TileType.WATER, new int[]{r,c}, 0), water_texture, loader);
-                    tiles.add(terr);
-
+                    tiles.add(TerrainGenerator.generateTerrain(new Tile(TileType.WATER, new int[]{r,c}, 0), water_texture, loader));
                 } else {
-                    TerrainModel terr = terrain_map.get(String.format("(%d,%d)", c, r));
-                    tiles.add(terr);
+                    tiles.add(terrain_map.get(String.format("(%d,%d)", c, r)));
                 }
             }
         }
@@ -164,30 +174,81 @@ public class Scene {
      * @return An array of chunks that should at least be partly visible on screen. Null if no new visible chunks.
      */
     public Chunk[] getVisibileChunks(float x, float y) {
-        int top_chunk = Math.min((int) Math.ceil((y + Y_TILES_TO_EDGE) / CHUNK_HEIGHT), y_chunks);
+        int top_chunk  = Math.max((int) Math.floor((y - Y_TILES_TO_EDGE) / CHUNK_HEIGHT), 0);
         int left_chunk = Math.max((int) Math.floor((x - X_TILES_TO_EDGE) / CHUNK_WIDTH), 0);
+
         if (left_chunk == old_left_top[0] && top_chunk == old_left_top[1]) return null;
         old_left_top[0] = left_chunk;
         old_left_top[1] = top_chunk;
 
-        int bottom_chunk = Math.max((int) Math.floor((y - Y_TILES_TO_EDGE) / CHUNK_HEIGHT), 0);
-        int right_chunk = Math.min((int) Math.ceil((x + X_TILES_TO_EDGE) / CHUNK_WIDTH), x_chunks);
+        int bottom_chunk = Math.min((int) Math.ceil((y + Y_TILES_TO_EDGE) / CHUNK_HEIGHT), y_chunks);
+        int right_chunk  = Math.min((int) Math.ceil((x + X_TILES_TO_EDGE) / CHUNK_WIDTH), x_chunks);
+
         if (right_chunk == old_right_bot[0] && bottom_chunk == old_right_bot[1]) return null;
         old_right_bot[0] = right_chunk;
         old_right_bot[1] = bottom_chunk;
 
-        Chunk[] result = new Chunk[(right_chunk - left_chunk) * (top_chunk - bottom_chunk)];
+        Chunk[] result = new Chunk[(right_chunk - left_chunk) * (bottom_chunk - top_chunk)];
         RayTracer.chunk_count[0] = (right_chunk - left_chunk);
-        RayTracer.chunk_count[1] = (top_chunk - bottom_chunk);
+        RayTracer.chunk_count[1] = (bottom_chunk - top_chunk);
         int counter = 0;
 
         for (int i = left_chunk; i < right_chunk; i++) {
-            for (int j = bottom_chunk; j < top_chunk; j++) {
+            for (int j = top_chunk; j < bottom_chunk; j++) {
                 result[counter++] = chunks[i][j];
             }
         }
 
         return result;
+    }
+
+    public List<ActorModel> getVisibleActors(Chunk[] visible_chunks) {
+        float[] top_left = visible_chunks[0].top_left;
+        // Copy like this, otherwise we get weird bugs
+        float[] bottom_right = {visible_chunks[visible_chunks.length - 1].top_left[0],
+                visible_chunks[visible_chunks.length - 1].top_left[1]};
+        bottom_right[0] += CHUNK_WIDTH;
+        bottom_right[1] += CHUNK_HEIGHT;
+
+        List<ActorModel> result = new ArrayList<>();
+
+        for (ActorModel actorModel : entities) {
+            Actor actor = actorModel.getActor();
+            float[] actor_pos = new float[] {actor.get3DPosition().x, actor.get3DPosition().y};
+
+            if (insideBounds(actor_pos, top_left, bottom_right)) {
+                result.add(actorModel);
+            }
+        }
+
+        return result;
+    }
+
+    public List<LightSource> getVisibleLights(Chunk[] visible_chunks) {
+        float[] top_left = visible_chunks[0].top_left;
+        // Copy like this, otherwise we get weird bugs
+        float[] bottom_right = {visible_chunks[visible_chunks.length - 1].top_left[0],
+                visible_chunks[visible_chunks.length - 1].top_left[1]};
+        bottom_right[0] += CHUNK_WIDTH;
+        bottom_right[1] += CHUNK_HEIGHT;
+
+        List<LightSource> result = new ArrayList<>();
+
+        for (LightSource light : lights) {
+
+            float[] light_pos = new float[] {light.getPosition().x, light.getPosition().z};
+
+            if (insideBounds(light_pos, top_left, bottom_right)) {
+                result.add(light);
+            }
+        }
+
+        return result;
+    }
+
+    private boolean insideBounds(float[] target, float[] top_left, float[] bottom_right) {
+        return ((top_left[0] <= target[0] && target[0] < bottom_right[0]) &&
+                (top_left[1] <= target[1] && target[1] < bottom_right[1]));
     }
 
     private void initActors(Actor[] actors) {
@@ -276,6 +337,8 @@ public class Scene {
         private float[] color_stream;
         private int[] index_stream;
         private float[] top_left = new float[] {Float.MAX_VALUE, Float.MAX_VALUE};
+        private ActorModel[] actors = new ActorModel[2];
+        private LightSource[] lights = new LightSource[2];
 
         Chunk(List<TerrainModel> tiles) {
             this.data = tiles;

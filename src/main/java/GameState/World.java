@@ -32,7 +32,7 @@ public class World {
 
         this.camera = new Camera(); // Camera will be put over the head later
         camera.setPosition(new Vector3f(0.0f, 0.0f, 10.0f));
-        father.add(camera);
+        father.add(camera); // We should move this to somewhere else and pick the player controlled actor.
     }
 
     /**
@@ -141,6 +141,10 @@ public class World {
 
     public Actor getKidnapper() { return kidnapper; }
 
+    /**
+     * Get the actors, in order
+     * @return {Father, Kidnapper}
+     */
     public Actor[] getActors() {
         return new Actor[] {father, kidnapper};
     };

@@ -13,11 +13,14 @@ import java.util.Random;
 public class TerrainGenerator {
     private static final int COORDINATE_COUNT = WindowManager.RAY_TRACING ? 4 : 3;
     private static float height;
+    private static float taper = 0.2f;
     private static int vertex_count;
     private static Random generator = new Random();
+    private static boolean should_taper = true; // Enable this if you want randomly tapered trees for cool shadow effects
 
     public static TerrainModel generateTerrain(Tile tile, int texture, Loader loader) {
         height = (tile.getType() == TileType.TREE) ? 1 : 0;
+        taper = (should_taper && tile.getType() == TileType.TREE) ? generator.nextFloat() * 0.4f : 0.0f;
         BaseModel base = generateTerrainBase(loader);
         base.setTexture(texture);
         base.setColorData(getColorData(tile));
@@ -85,29 +88,30 @@ public class TerrainGenerator {
         if (height > 0) {
             base = new float[] { // Generate the basic model based on the height.
                     // Back side
-                    0, 0, 0,    //V12
+                    0, 0, 0,         //V12
                     1, 0, 0,         //V13
-                    1, height, 0,         //V14
-                    0, height, 0,    //V15
-                    0, height, 0,    //V0
-                    0, height, 1,    //V1
-                    1, height, 1,    //V2
-                    1, height, 0,    //V3
+                    (1.0f - taper), height, taper,    //V14
+                    taper, height, taper,    //V15
+                    // Top side
+                    taper, height, taper,    //V0
+                    taper, height, (1.0f - taper),    //V1
+                    (1.0f - taper), height, (1.0f - taper),    //V2
+                    (1.0f - taper), height, taper,    //V3
                     // Left side
-                    0, height, 0,    //V4
+                    taper, height, taper,    //V4
                     0, 0, 0,         //V5
                     0, 0, 1,         //V6
-                    0, height, 1,    //V7
+                    taper, height, (1.0f - taper),    //V7
                     // Right side
-                    1, height, 1,    //V8
+                    (1.0f - taper), height, (1.0f - taper),    //V8
                     1, 0, 1,         //V9
                     1, 0, 0,         //V10
-                    1, height, 0,    //V11
+                    (1.0f - taper), height, taper,    //V11
                     // Front side
-                    0, height, 1,    //V12
+                    taper, height, (1.0f - taper),    //V12
                     0, 0, 1,         //V13
                     1, 0, 1,         //V14
-                    1, height, 1    //V15
+                    (1.0f - taper), height, (1.0f - taper)    //V15
             };
         } else {
             base = new float[] { // Generate the basic model based on the height.
