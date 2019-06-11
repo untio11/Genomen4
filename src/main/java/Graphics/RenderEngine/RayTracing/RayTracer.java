@@ -27,7 +27,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class RayTracer implements AbstractRenderer {
     private static int width, height;
-    private static float scaling = 0.6f;
+    private static float scaling = 0.65f;
     private static int terrain_work_x, terrain_work_y, model_work_x, model_work_y;
     private static int[] terrain_work_group_size = new int[3], model_work_group_size = new int[3];
     private static Scene.Chunk[] old_chunks;
@@ -135,6 +135,7 @@ public class RayTracer implements AbstractRenderer {
             old_z = camera.z;
         }
         if (chunks != null) old_chunks = chunks;
+
         LightSource[] lights = scene.getLights();
 
         for (int i = 0; i < player_light.length; i++) {

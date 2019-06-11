@@ -22,8 +22,8 @@ import java.util.stream.Stream;
  * Convert the state of the world to models for the renderer.
  */
 public class Scene {
-    private static final int CHUNK_WIDTH = 6;
-    private static final int CHUNK_HEIGHT = 3;
+    private static final int CHUNK_WIDTH = 1;
+    private static final int CHUNK_HEIGHT = 1;
     private static final int X_TILES_TO_EDGE = 6;
     private static final int Y_TILES_TO_EDGE = 3;
     private int x_chunks;

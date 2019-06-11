@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-class TerrainLoader {
+public class TerrainLoader {
     static public int tringle_count;
 
     /**
@@ -64,7 +64,7 @@ class TerrainLoader {
      * @param data The data to be done
      * @return Pointer to the buffer where the data is stored.
      */
-    static int loadDataToBuffer(float[] data) {
+    public static int loadDataToBuffer(float[] data) {
         FloatBuffer data_buffer = RayTracer.createBuffer(data);
         int buffer_id = GL43.glGenBuffers();
 
