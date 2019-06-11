@@ -24,7 +24,7 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     protected final int updateFrequency = 30;
 
     // The number of inputs of the neural network
-    protected final int inputCount = 0;
+    protected final int inputCount = 8;
 
     // Add the player position to the input
     protected final boolean addPosition = true;
@@ -51,17 +51,16 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
 
     public AIGenomenPlayer() {
         super();
-        rememberInputs = new double[getRememberCount()];
         addBoost = false;
     }
 
     public AIGenomenPlayer(boolean boost) {
         super();
-        rememberInputs = new double[getRememberCount()];
         addBoost = boost;
     }
 
     public void init() {
+        rememberInputs = new double[getRememberCount()];
         if (this.net == null) {
             this.createNetwork();
         }

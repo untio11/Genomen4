@@ -212,6 +212,10 @@ public class Actor extends Entity implements Observable {
         this.enableBoost = value;
     }
 
+    public double getTargetAngle() {
+        return targetAngle;
+    }
+
     /**
      * Adds the observer and sends an immediate update.
      * @param obs Object that implements the observer interface.

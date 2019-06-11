@@ -1,10 +1,12 @@
-package Graphics.RenderEngine;
+package Graphics.RenderEngine.TraditionalRendering;
 
 import GameState.Entities.Camera;
+import Graphics.Models.ActorModel;
+import Graphics.Models.TerrainModel;
+import Graphics.RenderEngine.AbstractRenderer;
+import Graphics.RenderEngine.Scene;
 import Graphics.Shaders.StaticShader;
-import Graphics.Terrains.Terrain;
 import Graphics.Shaders.TerrainShader;
-import Graphics.Textures.TerrainTexture;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
@@ -17,14 +19,14 @@ public class MasterRenderer implements AbstractRenderer {
     private static final float NEAR_PLANE = 0.1f;
     private static final float FAR_PLANE = 300;
 
-    private Matrix4f projectionMatrix;
+    private static Matrix4f projectionMatrix;
 
     private static StaticShader shader = new StaticShader();
     private static TerrainRenderer terrainRenderer; // Can the renderers can be static?
     private static TerrainShader terrainShader = new TerrainShader();
     private static ActorRenderer actorRenderer;
 
-    private Camera camera;
+    private static Camera camera;
 
     public MasterRenderer() {
         createProjectionMatrix();
@@ -32,16 +34,16 @@ public class MasterRenderer implements AbstractRenderer {
         actorRenderer = new ActorRenderer(shader, projectionMatrix);
     }
 
-    public void init() { // TODO: should this just all be done in the constructor?
+    public void init(Scene scene) { // TODO: should this just all be done in the constructor?
 
     }
 
     // TODO: Make sure that this can just render a given scene
     public void render(Scene scene) {
-        this.camera = camera = scene.getCamera();
+        camera = scene.getCamera();
         prepare();
-        List<Model> entities = scene.getEntities();
-        Map<TerrainTexture, List<Terrain>> terrain_map = scene.getTexture_to_terrainlist_map();
+        List<ActorModel> entities = scene.getEntities();
+        Map<Integer, List<TerrainModel>> terrain_map = scene.getTexture_to_terrainlist_map();
 
         // render entities
         shader.start();
@@ -65,7 +67,7 @@ public class MasterRenderer implements AbstractRenderer {
     public void prepare() {
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
-        GL11.glClearColor(1, 0, 0, 1);
+        GL11.glClearColor(0, 0.45f, 1.0f, 1);
     }
 
     private void createProjectionMatrix() {

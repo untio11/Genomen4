@@ -1,10 +1,9 @@
-package Graphics.RenderEngine;
+package Graphics.RenderEngine.TraditionalRendering;
 
 import GameState.Entities.Actor;
-import Graphics.Models.RawModel;
-import Graphics.Models.TexturedModel;
+import Graphics.Models.ActorModel;
+import Graphics.Models.BaseModel;
 import Graphics.Shaders.StaticShader;
-import Graphics.Textures.ModelTexture;
 import Toolbox.Maths;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
@@ -13,7 +12,6 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
 import java.util.List;
-import java.util.Map;
 
 public class ActorRenderer {
 
@@ -29,26 +27,21 @@ public class ActorRenderer {
 
 
 
-    public void render(List<Model> entities) {
-        for(Model model : entities) {
-            TexturedModel textured_model = model.getModel();
-            prepareTextureModel(textured_model);
-            prepareInstance(model);
-            GL11.glDrawElements(GL11.GL_TRIANGLES, textured_model.getRawModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+    public void render(List<ActorModel> entities) {
+        for(ActorModel model : entities) {
+            prepareModel(model);
+            setTransformationMatrix(model);
+            GL11.glDrawElements(GL11.GL_TRIANGLES, model.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
             unbindTextureModel();
         }
     }
 
-    private void prepareTextureModel(TexturedModel texturedModel) {
-        RawModel model = texturedModel.getRawModel();
+    private void prepareModel(ActorModel model) {
         GL30.glBindVertexArray(model.getVaoID());
         GL20.glEnableVertexAttribArray(0);
         GL20.glEnableVertexAttribArray(1);
-
-        //ModelTexture texture = model.getTexture();
-        //shader.loadShineVar
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, texturedModel.getTexture().getTextureID());
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, model.getTextureID());
 
     }
 
@@ -58,10 +51,14 @@ public class ActorRenderer {
         GL30.glBindVertexArray(0);
     }
 
-    private void prepareInstance(Model model) {
+    private void setTransformationMatrix(ActorModel model) {
         Actor actor = model.getActor();
-        Matrix4f transformationMatrix = Maths.createTransformationMatrix(actor.get3DPosition(),
-                actor.getRotX(), actor.getRotY(), actor.getRotZ(), model.getScale());
+        Matrix4f transformationMatrix = Maths.createTransformationMatrix(
+                actor.get3DPosition(), // Translation
+                actor.getRotX(), actor.getRotY(), actor.getRotZ(), // Rotation
+                model.getScale() // Scaling
+        );
+
         shader.loadTransformationMatrix(transformationMatrix);
     }
 
