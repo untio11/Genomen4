@@ -21,9 +21,11 @@ public class Actor extends Entity implements Observable {
     private float size;
     private boolean kidnapper;
     private World world;
+    private double previousAngle;
+    private double targetAngle;
 
     // Turnspeed has to be a divisor of 90
-    private float turnSpeed = 30f;
+    private float turnSpeed = 10f;
 
     /**
      * Initialize a actor with the appropriate properties
@@ -37,18 +39,19 @@ public class Actor extends Entity implements Observable {
         this.rotation = rotation;
         this.size = size;
         this.kidnapper = kidnapper;
-        this.speed = kidnapper ? 6 : 7; //different speed for the two players
+        this.speed = kidnapper ? 3 : 4; //different speed for the two players
         this.world = world;
         this.observers = new ArrayList<>();
     }
 
-    public void resetDegrees() {
+    public float resetDegrees(float angle) {
         // Reset the degrees after rotating a full circle
-        if(rotation.y >= 360f) {
-            rotation.y -= 360f;
-        } else if(rotation.y < 0f) {
-            rotation.y += 360f;
+        if(angle >= 360f) {
+            return angle - 360;
+        } else if(angle < 0f) {
+            return angle + 360;
         }
+        return angle;
     }
 
     /**
@@ -70,17 +73,6 @@ public class Actor extends Entity implements Observable {
             }
         }
         position.y -= distance;
-
-        // If not facing upwards
-        if (rotation.y != 0f) {
-            if (rotation.y > 0f && rotation.y < 180f) { // When facing left
-                rotation.y -= turnSpeed; // Turn clockwise
-            } else if (rotation.y >= 180f && rotation.y < 360f) { // When facing right
-                rotation.y += turnSpeed; // Turn counter-clockwise
-            }
-        }
-        resetDegrees();
-        broadcast();
     }
 
     /**
@@ -102,17 +94,6 @@ public class Actor extends Entity implements Observable {
             }
         }
         position.y += distance;
-
-        // If not facing downwards
-        if (rotation.y != 180f) {
-            if (rotation.y > 180 && rotation.y < 360) { // When facing right
-                rotation.y -= turnSpeed; // Turn clockwise
-            } else if (rotation.y >= 0 && rotation.y < 180) { // When facing left
-                rotation.y += turnSpeed; // Turn counter-clockwise
-            }
-        }
-        resetDegrees();
-        broadcast();
     }
 
     /**
@@ -134,17 +115,6 @@ public class Actor extends Entity implements Observable {
             }
         }
         position.x -= distance;
-
-        // If not facing left
-        if (rotation.y != 90f) {
-            if (rotation.y > 90 && rotation.y <= 270) { // When facing down
-                rotation.y -= turnSpeed; // Turn clockwise
-            } else if ((rotation.y > 270 && rotation.y < 360) || (rotation.y >= 0 && rotation.y < 90)) { // When facing up
-                rotation.y += turnSpeed; // Turn counter-clockwise
-            }
-        }
-        resetDegrees();
-        broadcast();
     }
 
     /**
@@ -166,17 +136,55 @@ public class Actor extends Entity implements Observable {
             }
         }
         position.x += distance;
+    }
 
-        // If not facing right
-        if (rotation.y != 270) {
-            if ((rotation.y > 270 && rotation.y < 360) || (rotation.y >= 0 && rotation.y <= 90)) { // When facing up
-                rotation.y -= turnSpeed; // Turn clockwise
-            } else if (rotation.y > 90 && rotation.y < 270) { // When facing down
-                rotation.y += turnSpeed; // Turn counter-clockwise
+    public void move(double horizontal, double vertical) {
+        if (horizontal != 0 && vertical != 0) {
+            if (vertical > 0) {
+                moveDown(Math.sqrt(2)/2 * vertical);
+                targetAngle = 0;
+            } else {
+                moveUp(Math.sqrt(2)/2 * -vertical);
+                targetAngle = 180;
+            }
+            if (horizontal > 0) {
+                moveRight(Math.sqrt(2)/2 * horizontal);
+                targetAngle += vertical > 0 ? 45 : -45;
+            } else {
+                moveLeft(Math.sqrt(2)/2 * -horizontal);
+                targetAngle += vertical > 0 ? 315 : 45;
+            }
+        } else if (horizontal > 0) {
+            moveRight(horizontal);
+            targetAngle = 90;
+        } else if (horizontal < 0) {
+            moveLeft(-horizontal);
+            targetAngle = 270;
+        } else if (vertical < 0) {
+            moveUp(-vertical);
+            targetAngle = 180;
+        }  else if (vertical > 0) {
+            moveDown(vertical);
+            targetAngle = 0;
+        }
+
+        double rotleft = resetDegrees((float) (targetAngle - rotation.y));
+        double rotright = resetDegrees((float) (rotation.y - targetAngle));
+        if (rotation.y != targetAngle) {
+            if (rotleft <= rotright) {
+                rotation.y = resetDegrees(rotation.y + turnSpeed);
+            } else {
+                rotation.y = resetDegrees(rotation.y - turnSpeed);
+            }
+            if (Math.abs(rotation.y - targetAngle) < turnSpeed) {
+                rotation.y = (float) targetAngle;
             }
         }
-        resetDegrees();
         broadcast();
+    }
+
+    public double getTargetAngle() {
+        return targetAngle;
     }
 
     /**
@@ -255,14 +263,8 @@ public class Actor extends Entity implements Observable {
         double xToOpponent = Math.abs(position.x - opponentPos.x);
         double yToOpponent = Math.abs(position.y - opponentPos.y);
         distanceToOpponent = Math.sqrt(Math.pow(xToOpponent, 2) + Math.pow(yToOpponent, 2));
-        double angleRads = Math.atan2(position.y - opponentPos.y, opponentPos.x - position.x);
-        int angleDegrees = (int) Math.toDegrees(angleRads);
+        int angleDegrees = getScreamAngle();
 
-        if (angleDegrees < 0) {
-            angleDegrees += 360;
-        }
-
-//        System.out.println("Angle to Opponent: "+ angleDegrees);
         double[] rayToOpponent = castRay(angleDegrees, maxRayLength, true);
 
         playerInSight = distanceToOpponent <= rayToOpponent[1] && distanceToOpponent <= maxRayLength;
@@ -277,22 +279,43 @@ public class Actor extends Entity implements Observable {
         if (playerInSight) {
             rayToOpponent[0] = 2;
             rayToOpponent[1] = distanceToOpponent;
+            previousAngle = rayToOpponent[2];
             results[results.length - 1] = rayToOpponent;
-//            System.out.println("Player in sight! " + Arrays.toString(rayToOpponent));
         } else {
             rayToOpponent[0] = 0;
             rayToOpponent[1] = -1;
-            rayToOpponent[2] = -1;
-            results[results.length - 1] = rayToOpponent;
+            rayToOpponent[2] = previousAngle;
         }
 
+        results[results.length - 1] = rayToOpponent;
+
         return results;
+    }
+
+    public  void receiveScream() {
+        previousAngle = getScreamAngle();
+    }
+
+    public int getScreamAngle() {
+        Vector3f opponentPos;
+        if (kidnapper) {
+            opponentPos = world.getFather().getPosition();
+        } else {
+            opponentPos = world.getKidnapper().getPosition();
+        }
+        double angleRads = Math.atan2(position.y - opponentPos.y, opponentPos.x - position.x);
+        int angleDegrees = (int) Math.toDegrees(angleRads);
+
+        if (angleDegrees < 0) {
+            angleDegrees += 360;
+        }
+
+        return angleDegrees;
     }
 
     private double[] castRay(int angle, int maxRayLength, boolean ignoreWater) {
         float rayDirX = (float) Math.cos(Math.toRadians(angle));
         float rayDirY = (float) Math.sin(Math.toRadians(angle));
-//        System.out.println("RayDirX: " + rayDirX + " RayDirY: " + rayDirY + " Angle in Radians: " + Math.toRadians(angle));
         float sideDistX;
         float sideDistY;
         float deltaDistX = Math.abs(1 / rayDirX);
@@ -303,7 +326,6 @@ public class Actor extends Entity implements Observable {
         int mapY = (int) position.y;
         float posX = position.x;
         float posY = position.y;
-//        System.out.println("X: " + posX + " Y: " + posY + " mapX: " + mapX + " mapY: " + mapY);
         int hit = 0;
 
         //calculate step and initial sideDist
@@ -336,8 +358,6 @@ public class Actor extends Entity implements Observable {
                 //double distance = Math.sqrt((Float.isInfinite(sideDistX) || sideDistX > 20 ? 0 : Math.pow(sideDistX - deltaDistX, 2))
                 //        + (Float.isInfinite(sideDistY) || sideDistY > 20 ? 0 : Math.pow(sideDistY - deltaDistY, 2)));
                 double distance = Math.sqrt(Math.pow(Math.abs(position.x - (mapX + 0.5)), 2) + Math.pow(Math.abs(position.y - (mapY + 0.5)), 2));
-//                System.out.println("Hit: " + world.getTileType(mapX, mapY).toString()
-//                        + " Distance: " + distance + " mapX: " + mapX + " mapY: " + mapY + " sideDistX: " + sideDistX + "sideDistY: " + sideDistY);
                 if (distance <= maxRayLength) {
                     return new double[] {0, distance, (double) angle};
                 } else {

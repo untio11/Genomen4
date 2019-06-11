@@ -1,6 +1,7 @@
 package Engine.Controller;
 
-import GameState.Entities.Actor;
+import GameState.World;
+import org.joml.Vector3f;
 
 public class AIController extends Controller {
 
@@ -9,19 +10,7 @@ public class AIController extends Controller {
 
     @Override
     public void update(double dt) {
-        if (yAxis > 0) {
-            player.moveUp(dt * yAxis);
-        }
-        if (yAxis < 0) {
-            player.moveDown(dt * Math.abs(yAxis));
-        }
-
-        if (xAxis > 0) {
-            player.moveRight(dt * xAxis);
-        }
-        if (xAxis < 0) {
-            player.moveLeft(dt * Math.abs(xAxis));
-        }
+        player.move(xAxis * dt,-yAxis * dt);
     }
 
     public void setAxis(double xAxis, double yAxis) {
@@ -31,5 +20,15 @@ public class AIController extends Controller {
 
     public double[][] getInput(int nRays, int maxLength) {
         return this.player.castRays(nRays, maxLength);
+    }
+
+    public double[] getPosition() {
+        Vector3f pos = this.player.getPosition();
+        World w = World.getInstance();
+        double x = pos.x / w.getWidth();
+        double y = pos.y / w.getHeight();
+        x = x * 2 - 1;
+        y = y * 2 - 1;
+        return new double[] {x, y};
     }
 }

@@ -8,17 +8,19 @@ import java.awt.image.DataBufferInt;
 
 public class Window {
 
-    private JFrame frame;
-    private BufferedImage image;
-    private int[] pixels;
     private int pixelWidth, pixelHeight;
+
     private Canvas canvas;
     private BufferStrategy bs;
     private Graphics g;
+    private JFrame frame;
+    private BufferedImage image;
+    private int[] pixels;
 
     public Window(int pixelWidth, int pixelHeight, float scale) {
         this.pixelWidth = pixelWidth;
         this.pixelHeight = pixelHeight;
+
         image = new BufferedImage(pixelWidth, pixelHeight, BufferedImage.TYPE_INT_RGB);
         pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
         canvas = new Canvas();
@@ -26,7 +28,6 @@ public class Window {
         canvas.setPreferredSize(s);
         canvas.setMaximumSize(s);
         canvas.setMinimumSize(s);
-
 
         frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

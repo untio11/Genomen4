@@ -4,6 +4,7 @@ import GameState.Entities.Actor;
 import Graphics.Animation.Animation;
 import Graphics.Animation.Animator;
 import Graphics.Animation.Bone;
+import Graphics.RenderEngine.RayTracing.TerrainLoader;
 import Toolbox.Maths;
 import org.joml.Matrix4f;
 

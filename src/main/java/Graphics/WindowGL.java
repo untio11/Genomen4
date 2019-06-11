@@ -14,15 +14,16 @@ import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class WindowGL {
-    private int width;
-    private int height;
+    private int pixelWidth, pixelHeight;
     private long window; // The window handle
     private Set<Integer> pressedKeys; // To collect all pressed keys f
 
-    public WindowGL() {
-        width = 1600;
-        height = 900;
+    public WindowGL(int pixelWidth, int pixelHeight, float scale) {
+        this.pixelWidth = pixelWidth;
+        this.pixelHeight = pixelHeight;
+
         pressedKeys = new HashSet<>();
+        initGLFW();
     }
 
     /**
@@ -38,7 +39,9 @@ public class WindowGL {
             pressedKeys.add(key);
         } else if (action == GLFW_RELEASE) {
             pressedKeys.remove(key);
-        } else if (key == GLFW_KEY_ESCAPE) {
+        }
+
+        if (key == GLFW_KEY_ESCAPE) {
             glfwSetWindowShouldClose(window, true);
         }
     }
@@ -58,11 +61,19 @@ public class WindowGL {
         glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_TRUE); // The window will minimize when out of focus and in full screen
 
         // We need at least openGL version 4.3 for the compute shaders.
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        if(System.getProperty("os.name").startsWith("Mac")){
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, 1);
+        } else {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        }
+
 
         // Create the window in windowed mode
-        window = glfwCreateWindow(width, height, "Genomen 4", NULL, NULL);
+        window = glfwCreateWindow(pixelWidth, pixelHeight, "Genomen 4", NULL, NULL);
         if (window == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
@@ -77,14 +88,14 @@ public class WindowGL {
         GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         glfwSetWindowPos( // Center the window inside the screen
                 window,
-                (vidmode.width() - width) / 2,
-                (vidmode.height() - height) / 2
+                (vidmode.width() - pixelWidth) / 2,
+                (vidmode.height() - pixelHeight) / 2
         );
 
         // Make the OpenGL context current
         glfwMakeContextCurrent(window);
         // Enable v-sync
-        glfwSwapInterval(0);
+        glfwSwapInterval(1);
         GL.createCapabilities();
         return window;
     }
@@ -95,9 +106,10 @@ public class WindowGL {
 
     private void windowSizeCallback(long window, int width, int height) {
         GL11.glViewport(0, 0, width, height);
-        this.width = width;
-        this.height = height;
-        if (WindowManager.RAY_TRACING) { // Make sure to notify the raytracer so it can upscale the resolution
+        this.pixelWidth = width;
+        this.pixelHeight = height;
+
+        if (GameContainerGL.RAY_TRACING) { // Make sure to notify the raytracer so it can upscale its working resolution
             RayTracer.setDimensions(width, height);
         }
     }
@@ -106,11 +118,7 @@ public class WindowGL {
         return window;
     }
 
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
+    public void update() {}
+    public void display() {}
+    public void close() {}
 }

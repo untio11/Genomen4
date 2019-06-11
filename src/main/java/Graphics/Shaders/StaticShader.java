@@ -37,6 +37,7 @@ public class StaticShader extends ShaderProgram {
         super.bindAttribute(4, "boneWeights");
     }
 
+    /* Old way of loading uniforms to shader*/
     @Override
     protected void getAllUniformLocations() {
 //        location_transformationMatrix = super.getUniformLocation("transformationMatrix");

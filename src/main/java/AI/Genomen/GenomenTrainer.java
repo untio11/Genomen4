@@ -3,10 +3,11 @@ package AI.Genomen;
 import AI.Genomen.Player.AIGenomenPlayer;
 import AI.Trainer.BiAIGameTrainer;
 import Engine.Controller.Controller;
-import Engine.GameContainer;
+import Engine.GameContainerSwing;
 import GameState.MapConfiguration;
 import GameState.MapConfigurations;
 import GameState.World;
+import org.joml.Vector3f;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import util.Pair;
 
@@ -14,10 +15,15 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPlayer, GameContainer> {
+public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPlayer, GameContainerSwing> {
 
-    private static MapConfiguration mapConfig = MapConfigurations.getEmptyMap();
+    private static final int WINNING_FACTOR = 4;
+
+    private static final int TIME_FACTOR = 2;
+
+    private static MapConfiguration mapConfig = MapConfigurations.getBigEmptyMap();
 
     public GenomenTrainer(int nPlayers, int iterations) {
         super(nPlayers, iterations);
@@ -29,21 +35,29 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
     }
 
     public static void main(String[] args) {
-        int players = 2;
-        GenomenTrainer trainer = new GenomenTrainer(players, 1);
+        int players = 30;
+        GenomenTrainer trainer = new GenomenTrainer(players, 20);
+
+        long startTime = System.nanoTime();
 
         trainer.init();
         trainer.runGeneticAlgorithm();
 
-        LinkedHashMap<AIGenomenPlayer, Integer> sortedPlayers = trainer.getScoredPlayers1();
+        long endTime = System.nanoTime();
+        long durationNano = endTime - startTime;
+        long durationSecs = TimeUnit.NANOSECONDS.toSeconds(durationNano);
+
+        System.out.println("Genetic algorithm duration: " +  durationSecs + " seconds");
+
+        LinkedHashMap<AIGenomenPlayer, Integer> sortedPlayers = trainer.getScoredPlayers2();
 
         // Play against the best father player
         World.initWorld(mapConfig);
-        final GameContainer game = new GameContainer(World.getInstance(), true);
-        Controller fatherAI = sortedPlayers.entrySet().iterator().next().getKey();
-        fatherAI.setPlayer(World.getInstance().getFather());
-        game.setFatherAI(fatherAI);
-        game.setKidnapperPlayer();
+        final GameContainerSwing game = new GameContainerSwing(World.getInstance(), true);
+        Controller kidnapperAI = sortedPlayers.entrySet().iterator().next().getKey();
+        kidnapperAI.setPlayer(World.getInstance().getKidnapper());
+        game.setKidnapperAI(kidnapperAI);
+        game.setFatherPlayer();
         game.start();
     }
 
@@ -92,9 +106,9 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
     }
 
     @Override
-    protected GameContainer createGame(Pair<AIGenomenPlayer, AIGenomenPlayer> players) {
+    protected GameContainerSwing createGame(Pair<AIGenomenPlayer, AIGenomenPlayer> players) {
         World.initWorld(mapConfig);
-        GameContainer gc = new GameContainer(World.getInstance(), false);
+        GameContainerSwing gc = new GameContainerSwing(World.getInstance(), false);
         players.getFirst().setPlayer(World.getInstance().getFather());
         gc.setFatherAI(players.getFirst());
         players.getSecond().setPlayer(World.getInstance().getKidnapper());
@@ -103,7 +117,7 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
     }
 
     @Override
-    protected void playGame(GameContainer game) {
+    protected void playGame(GameContainerSwing game) {
         game.start();
 
         boolean fatherWins = game.isFatherWin();
@@ -113,15 +127,22 @@ public class GenomenTrainer extends BiAIGameTrainer<AIGenomenPlayer, AIGenomenPl
         int kidnapperScore = 0;
 
         if (fatherWins) {
-            fatherScore += roundTime;
+            fatherScore += roundTime * WINNING_FACTOR;
         } else {
-            kidnapperScore += roundTime;
+            kidnapperScore += roundTime * WINNING_FACTOR;
         }
-        fatherScore += remainingTime;
-        kidnapperScore += roundTime - remainingTime;
+        fatherScore += remainingTime * TIME_FACTOR;
+        kidnapperScore += (roundTime - remainingTime) * TIME_FACTOR;
 
         AIGenomenPlayer fatherPlayer = (AIGenomenPlayer) game.getFatherController();
+        Vector3f fatherPos = fatherPlayer.getPlayer().getPosition();
         AIGenomenPlayer kidnapperPlayer = (AIGenomenPlayer) game.getKidnapperController();
+        Vector3f kidnapperPos = kidnapperPlayer.getPlayer().getPosition();
+
+        int distance = (int) fatherPos.distance(kidnapperPos);
+
+        kidnapperScore += distance;
+        fatherScore += game.getMaxDistance() - distance;
 
         this.setResults1(fatherPlayer, fatherScore);
         this.setResults2(kidnapperPlayer, kidnapperScore);

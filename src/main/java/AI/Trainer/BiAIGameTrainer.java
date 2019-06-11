@@ -3,6 +3,7 @@ package AI.Trainer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import util.Pair;
 
+import java.io.File;
 import java.util.*;
 
 public abstract class BiAIGameTrainer<A extends TrainerAIPlayer, B extends TrainerAIPlayer, G> extends BaseAIGameTrainer<G> {
@@ -17,6 +18,8 @@ public abstract class BiAIGameTrainer<A extends TrainerAIPlayer, B extends Train
 
     private GeneticAlgorithm<A> geneticAlgorithm1;
     private GeneticAlgorithm<B> geneticAlgorithm2;
+
+    private int iter = 0;
 
     public BiAIGameTrainer(int nPlayers, int iterations) {
         super(nPlayers, iterations);
@@ -84,7 +87,26 @@ public abstract class BiAIGameTrainer<A extends TrainerAIPlayer, B extends Train
         String fileName2 = date.getTime() + "-" + this.getName() + "-2" + "-" + bestPlayer2Entry.getValue();
         this.savePlayer(bestPlayer2Entry.getKey(), fileName2);
 
-        System.out.println("Best Scores: \t" + bestPlayer1Entry.getValue() + "\t | \t" + bestPlayer2Entry.getValue());
+        // Compute the average scores
+        int sum1 = 0;
+        for (Map.Entry<A, Integer> entry : sortedPlayers1.entrySet()) {
+            sum1 += entry.getValue();
+        }
+
+        // Compute the average scores
+        int sum2 = 0;
+        for (Map.Entry<B, Integer> entry : sortedPlayers2.entrySet()) {
+            sum2 += entry.getValue();
+        }
+
+        double avg1 = sum1 * 1f / sortedPlayers1.size();
+        double avg2 = sum2 * 1f / sortedPlayers2.size();
+
+        iter++;
+
+        System.out.print("i: "+ iter + "\tBest Scores: \t" + bestPlayer1Entry.getValue() + "\t | \t" + bestPlayer2Entry.getValue());
+
+        System.out.println("\t Average Scores: \t" + avg1 + "\t | \t" + avg2);
     }
 
     @Override
@@ -111,6 +133,11 @@ public abstract class BiAIGameTrainer<A extends TrainerAIPlayer, B extends Train
         for (B player : players2) {
             playerScores2.put(player, 0);
         }
+    }
+
+    @Override
+    protected void saveStatistics(File f) {
+        // TODO: implement the statistics saving
     }
 
 

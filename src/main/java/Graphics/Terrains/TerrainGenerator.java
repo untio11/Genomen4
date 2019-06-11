@@ -2,16 +2,16 @@ package Graphics.Terrains;
 
 import GameState.Tile;
 import GameState.TileType;
+import Graphics.GameContainerGL;
 import Graphics.Models.BaseModel;
 import Graphics.Models.TerrainModel;
 import Graphics.RenderEngine.Loader;
-import Graphics.WindowManager;
 import util.Pair;
 
 import java.util.Random;
 
 public class TerrainGenerator {
-    private static final int COORDINATE_COUNT = WindowManager.RAY_TRACING ? 4 : 3;
+    private static final int COORDINATE_COUNT = GameContainerGL.RAY_TRACING ? 4 : 3;
     private static float height;
     private static float taper = 0.2f;
     private static int vertex_count;
@@ -34,7 +34,7 @@ public class TerrainGenerator {
 
         float[] normals = new float[vertices.length];
         for (int n = 0; n < vertices.length; n++) { // All vertices have normals in the y-direction (up)
-            if (WindowManager.RAY_TRACING) {
+            if (GameContainerGL.RAY_TRACING) {
                 normals[n] = (n % 2 == 1) ? 1 : 0; // (0, 1, 0, 1) for all vertices
             } else {
                 normals[n] = (n % 3 == 1) ? 1 : 0; // (0, 1, 0) for all vertices
