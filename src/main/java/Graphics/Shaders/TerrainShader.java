@@ -7,8 +7,8 @@ import org.joml.Matrix4f;
 public class TerrainShader extends ShaderProgram {
 
 
-    private static final String VERTEX_FILE = "src/main/java/Graphics/Shaders/terrainVertexShader.txt";
-    private static final String FRAGMENT_FILE = "src/main/java/Graphics/Shaders/terrainFragmentShader.txt";
+    private static final String VERTEX_FILE = "src/main/java/Graphics/Shaders/terrainVertexShader.glsl";
+    private static final String FRAGMENT_FILE = "src/main/java/Graphics/Shaders/terrainFragmentShader.glsl";
 
     private int location_transformationMatrix;
     private int location_projectionMatrix;

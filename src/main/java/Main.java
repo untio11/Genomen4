@@ -1,7 +1,6 @@
 import AI.Genomen.Player.AIGenomenPlayer;
 import AI.Genomen.Player.SimpleGenomenPlayer;
 import Engine.AbstractGameContainer;
-import Engine.GameContainerSwing;
 import GameState.MapConfigurations;
 import GameState.World;
 import Graphics.GameContainerGL;
@@ -21,11 +20,11 @@ public class Main {
         World.initWorld(MapConfigurations.getStarterMap());
         AbstractGameContainer gc = new GameContainerGL(World.getInstance(), true);
 
-        boolean fatherAI = true;
-        boolean fatherLoad = true;
+        boolean fatherAI = false;
+        boolean fatherLoad = false;
 
         boolean kidnapperAI = false;
-        boolean kidnapperLoad = true;
+        boolean kidnapperLoad = false;
 
         if (!fatherAI) {
             gc.setFatherPlayer();

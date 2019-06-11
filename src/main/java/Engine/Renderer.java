@@ -69,7 +69,7 @@ public class Renderer implements AbstractRenderer {
     }
 
     @Override
-    public void init() { }
+    public void init(Scene scene) { }
 
     @Override
     public void clean() { }
