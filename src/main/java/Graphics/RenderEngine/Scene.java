@@ -24,8 +24,8 @@ import java.util.stream.Stream;
 public class Scene {
     private static final int CHUNK_WIDTH = 6;
     private static final int CHUNK_HEIGHT = 3;
-    private static final int X_TILES_TO_EDGE = 7;
-    private static final int Y_TILES_TO_EDGE = 4;
+    private static final int X_TILES_TO_EDGE = 6;
+    private static final int Y_TILES_TO_EDGE = 3;
     private int x_chunks;
     private int y_chunks;
     private static Chunk[][] chunks;
