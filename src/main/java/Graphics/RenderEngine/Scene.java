@@ -246,6 +246,10 @@ public class Scene {
         return result;
     }
 
+    public LightSource[] getLights() {
+        return lights;
+    }
+
     private boolean insideBounds(float[] target, float[] top_left, float[] bottom_right) {
         return ((top_left[0] <= target[0] && target[0] < bottom_right[0]) &&
                 (top_left[1] <= target[1] && target[1] < bottom_right[1]));

@@ -135,12 +135,11 @@ public class RayTracer implements AbstractRenderer {
             old_z = camera.z;
         }
         if (chunks != null) old_chunks = chunks;
-        List<LightSource> lights = scene.getVisibleLights(old_chunks);
+        LightSource[] lights = scene.getLights();
 
         for (int i = 0; i < player_light.length; i++) {
-            if (lights.isEmpty()) break;
-            player_light[i] = lights.get(0).getPosition().get(i);
-            enemy_light[i] = (lights.size() > 1) ? lights.get(1).getPosition().get(i) : -1f;
+            player_light[i] = lights[0].getPosition().get(i);
+            enemy_light[i] = lights[1].getPosition().get(i);
         }
 
         if (chunks == null) return; // Scene not updated, so just draw it as is

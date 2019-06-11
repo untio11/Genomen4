@@ -38,7 +38,8 @@ layout(std430, binding = 6) buffer TopLefts {
 ivec2 pixel_coords;
 ivec2 dimensions;
 vec4 debugcolor;
-float view_distance = 7.8;
+float view_distance = 6.0;
+float enemy_light_range = 3.5;
 
 
 vec3 discriminant(vec3 ray, vec3 source, vec3 target, float sphere_radius) {
@@ -145,6 +146,9 @@ vec4 trace() {
     vec3 normal, intersection; // Normal of the triangle, the intersection point and base color for shading
     vec4 base_color;
 
+    float enemy_distance, player_distance;
+    vec4 enemy_contribution, player_contribution;
+
     float closest = 1.0 / 0.0;
 
     for (int j = 0; j < chunk_info.x * chunk_info.y; j++) {
@@ -182,15 +186,28 @@ vec4 trace() {
             color = vec4(0.0, 0.0, 0.0, 1.0);
             base_color = vec4((parsed_colors[indices[(i * 3) + 0]] * (1 - u - v) + parsed_colors[indices[(i * 3) + 1]] * u + parsed_colors[indices[(i * 3) + 2]] * v).xyz, 1.0);
 
-            if (t < 7.7) {
-                normal = normalize(cross(v01, v02));
-                color += phong(intersection, normal, player_light, base_color, 5.0);
-                color *= shadowBounce(intersection + 0.0001 * normal, player_light);
-                color *= sqrt(view_distance - t) / sqrt(view_distance);
-                color = pow(color, vec4(0.9));
-                //color *= vec4(1.0, 0.8, 0.8, 1.0);
+            enemy_distance = length(enemy_light - intersection);
+            enemy_contribution = vec4(0.0, 0.0, 0.0, 1.0);
+            player_contribution = vec4(0.0, 0.0, 0.0, 1.0);
+            normal = normalize(cross(v01, v02));
+            player_distance = length(player_light - intersection);
+
+            if (enemy_distance < enemy_light_range) {
+                enemy_contribution += phong(intersection, normal, enemy_light, base_color, 5.0);
+                enemy_contribution *= (enemy_light_range - enemy_distance) / sqrt(enemy_light_range);
+                enemy_contribution *= vec4(1.0, 0.6, 0.2, 1.0) * 0.7;
+                enemy_contribution *= shadowBounce(intersection + 0.0001 * normal, enemy_light);
             }
 
+            if (player_distance < view_distance) {
+                player_contribution += phong(intersection, normal, player_light, base_color, 5.0);
+                player_contribution *= (view_distance - player_distance) / sqrt(view_distance + 5.0);
+                player_contribution *= vec4(1.0, 1.0, 1.0, 1.0) * 0.72;
+            }
+
+            color = player_contribution + enemy_contribution;
+            color *= shadowBounce(intersection + 0.0001 * normal, player_light - vec3(0.0, 0.5, 0.0));
+            color = pow(color, vec4(1.02));
         }
     }
 
