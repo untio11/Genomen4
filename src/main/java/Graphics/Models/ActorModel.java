@@ -7,7 +7,6 @@ import org.joml.Matrix4f;
 
 public class ActorModel extends BaseModel {
     private Actor actor;
-    private int model_SSBO;
 
     public ActorModel(int vaoID, int[] dataBufferIDs, int vertexCount) {
         super(vaoID, dataBufferIDs, vertexCount);
@@ -20,7 +19,6 @@ public class ActorModel extends BaseModel {
      */
     public ActorModel(Actor actor, BaseModel baseModel) {
         super(baseModel);
-        this.model_SSBO = TerrainLoader.loadDataToBuffer(baseModel.position_data);
         this.actor = actor;
     }
 
@@ -30,10 +28,6 @@ public class ActorModel extends BaseModel {
 
     public Actor getActor() {
         return actor;
-    }
-
-    public int getModelSSBO() {
-        return model_SSBO;
     }
 
     @Override

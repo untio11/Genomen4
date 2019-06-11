@@ -16,7 +16,7 @@ public class LightSource extends Entity implements Observer<Actor> {
     @Override
     public void update(Actor observable) {
         Vector3f actor_pos = observable.get3DPosition();
-        //this.offset.rotateY(observable.getRotY());
+        this.offset.rotateY(observable.getRotY());
         this.position = actor_pos.add(offset, new Vector3f());
     }
 }

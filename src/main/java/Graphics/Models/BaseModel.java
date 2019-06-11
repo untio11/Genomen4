@@ -9,8 +9,9 @@ import org.joml.Vector3f;
  */
 public class BaseModel {
     private int vaoID = -1;
+    // positions, normals, texture, indices:
     private int[] dataBufferIDs = {-1, -1, -1, -1};
-    protected float[] position_data;
+    float[] position_data;
     private float[] normal_data;
     private float[] color_data;
     private float[] texture_data;
@@ -88,10 +89,6 @@ public class BaseModel {
         this.index_data = index_data;
     }
 
-    protected BaseModel() {
-
-    }
-
     public void setTexture(int textureID) {
         this.textureID = textureID;
     }
@@ -124,6 +121,14 @@ public class BaseModel {
 
     public int[] getDataBufferIDs() {
         return dataBufferIDs;
+    }
+
+    public int getVertexSSBO() {
+        return dataBufferIDs[0];
+    }
+
+    public int getIndexSSBO() {
+        return dataBufferIDs[3];
     }
 
     public float getScale() {

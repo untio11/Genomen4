@@ -35,7 +35,7 @@ public class Loader {
         };
 
         BaseModel result =  new BaseModel(vaoID, bufferIDs, indices.length);
-        result.setPositionData(positions);
+        //result.setPositionData(positions);
         return result;
     }
 

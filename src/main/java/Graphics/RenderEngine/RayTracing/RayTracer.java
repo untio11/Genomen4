@@ -1,6 +1,7 @@
 package Graphics.RenderEngine.RayTracing;
 
 import GameState.Entities.LightSource;
+import Graphics.Models.ActorModel;
 import Graphics.RenderEngine.AbstractRenderer;
 import Graphics.RenderEngine.Scene;
 import org.joml.Vector3f;
@@ -30,18 +31,17 @@ public class RayTracer implements AbstractRenderer {
     private static float scaling = 0.65f;
     private static int terrain_work_x, terrain_work_y, model_work_x, model_work_y;
     private static int[] terrain_work_group_size = new int[3], model_work_group_size = new int[3];
-    private static Scene.Chunk[] old_chunks;
 
     // VAO, VBO & SSBO stuff
     private static int vaoId, IndexVBO;
     private static int vertexSSBO, indexSSBO, colorSSBO, offsetSSBO, topLeftSSBO;
-    private static int tringlecount;
 
     // Shader stuff
     private static int terrainProgram, modelProgram, quadProgram;
     private static int rayTexture;
     public static int[] chunk_count = new int[2]; // # horizontal visible chunks, # vertical visible chunks
     private static float[] player_light = new float[3], enemy_light = new float[3];
+    private static ActorModel father;
 
     // Quad stuff
     private static float[] quad_vertices = {
@@ -103,12 +103,17 @@ public class RayTracer implements AbstractRenderer {
 
         //glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
-        model_work_x = (int) Math.ceil((width * scaling)/ (float)   model_work_group_size[0]);
-        model_work_y = (int) Math.ceil((height * scaling) / (float) model_work_group_size[1]);
+//        model_work_x = (int) Math.ceil((width * scaling)/ (float)   model_work_group_size[0]);
+//        model_work_y = (int) Math.ceil((height * scaling) / (float) model_work_group_size[1]);
 
-        glUseProgram(modelProgram);
-        loadCameraData(modelProgram);
-        glDispatchCompute(model_work_x, model_work_y, 1);
+//        glUseProgram(modelProgram);
+//        loadCameraData(modelProgram);
+
+//        GL43.glProgramUniform1i(modelProgram, 5, father.getTriangleCount());
+//        GL43.glBindBufferBase(modelProgram, 1, father.getVertexSSBO());
+//        GL43.glBindBufferBase(modelProgram, 2, father.getIndexSSBO());
+
+//        glDispatchCompute(model_work_x, model_work_y, 1);
 
 
 
@@ -134,7 +139,6 @@ public class RayTracer implements AbstractRenderer {
             old_x = camera.x;
             old_z = camera.z;
         }
-        if (chunks != null) old_chunks = chunks;
 
         LightSource[] lights = scene.getLights();
 
@@ -153,7 +157,7 @@ public class RayTracer implements AbstractRenderer {
         indexSSBO = ssbos[2];
         offsetSSBO = ssbos[3];
         topLeftSSBO = ssbos[4];
-        tringlecount = TerrainLoader.tringle_count;
+        father = scene.getEntities().get(0);
     }
 
     public void render(Scene scene) { // TODO: loadVertexPositions the data from the scene object into the compute shader
