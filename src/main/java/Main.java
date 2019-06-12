@@ -13,7 +13,7 @@ public class Main {
     public static void main(String[] args) {
 
         World.initWorld(MapConfigurations.getNormalMap());
-        AbstractGameContainer gc = new GameContainerSwing(World.getInstance(), true);
+        AbstractGameContainer gc = new GameContainerGL(World.getInstance(), true);
 
         boolean kidnapperAI = false;
         boolean kidnapperLoad = true;
