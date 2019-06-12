@@ -15,7 +15,7 @@ import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class GameContainerGL implements Runnable, AbstractGameContainer {
-    public static final boolean RAY_TRACING = true;
+    public static final boolean RAY_TRACING = false;
     private static final double ROUND_TIME = 60;
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
