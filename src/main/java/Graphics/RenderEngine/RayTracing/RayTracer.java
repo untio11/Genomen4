@@ -160,7 +160,7 @@ public class RayTracer implements AbstractRenderer {
         father = scene.getEntities().get(0);
     }
 
-    public void render(Scene scene) { // TODO: loadVertexPositions the data from the scene object into the compute shader
+    public void render(Scene scene, boolean screamActive, int oppoAngle) { // TODO: loadVertexPositions the data from the scene object into the compute shader
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         prepare(scene);
         executeRay();
@@ -194,6 +194,16 @@ public class RayTracer implements AbstractRenderer {
     }
 
     public void clean() {
+
+    }
+
+    @Override
+    public void renderMenu() {
+
+    }
+
+    @Override
+    public void renderEnd(boolean win) {
 
     }
 

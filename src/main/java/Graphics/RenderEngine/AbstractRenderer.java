@@ -12,10 +12,14 @@ public interface AbstractRenderer {
     /**
      * Render the given scene on screen.
      */
-    void render(Scene scene);
+    void render(Scene scene, boolean screamActive, int oppoAngle);
 
     /**
      * Clean all the memory or something.
      */
     void clean();
+
+    void renderMenu();
+
+    void renderEnd(boolean win);
 }

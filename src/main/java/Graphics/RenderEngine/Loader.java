@@ -39,6 +39,7 @@ public class Loader {
         return result;
     }
 
+
     public int loadTexture(String fileName) {
         int textureID;
         int width, height;
