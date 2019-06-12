@@ -27,7 +27,7 @@ public class Main {
 
 
         boolean kidnapperAI = false;
-        boolean kidnapperLoad = false;
+        boolean kidnapperLoad = true;
 
         if (!fatherAI) {
             gc.setFatherPlayer();
@@ -42,7 +42,7 @@ public class Main {
             if (!fatherLoad) {
                 fatherController.init();
             } else {
-                File f = new File("res/network/01-single-genomen-1-4092.net");
+                File f = new File("res/network/1559508107999-single-genomen-1-4084.net");
                 try {
                     fatherController.loadNetwork(f);
                 } catch (IOException e) {
