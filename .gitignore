@@ -37,3 +37,6 @@
 
 /res/network/*.net
 *.log
+/res/network/training/*.*
+!/res/network/training/README.txt
+
