@@ -27,7 +27,7 @@ public class GameContainerSwing implements Runnable, AbstractGameContainer {
     private Thread thread = new Thread(this);
 
     private Window window;
-    private AbstractRenderer renderer; // TODO: Add extra layer above MasterRenderer (AbstractRenderer?) to cover normal rasterizition shading and raytracing
+    private AbstractRenderer renderer;
     private Controller fatherController, kidnapperController;
 
     ArrayList<SoundClip> clips;

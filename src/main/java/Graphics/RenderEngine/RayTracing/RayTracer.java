@@ -197,6 +197,16 @@ public class RayTracer implements AbstractRenderer {
 
     }
 
+    @Override
+    public void renderMenu() {
+
+    }
+
+    @Override
+    public void renderEnd(boolean win) {
+
+    }
+
     /**
      * Add the quad vertices to the VBO to be rendered on screen
      */

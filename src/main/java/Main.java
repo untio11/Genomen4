@@ -12,12 +12,15 @@ import java.io.File;
 public class Main {
     public static void main(String[] args) {
 
-        World.initWorld(MapConfigurations.getStarterMap());
+        World.initWorld(MapConfigurations.getNormalMap());
         AbstractGameContainer gc = new GameContainerGL(World.getInstance(), true);
+
+        boolean kidnapperAI = false;
+        boolean kidnapperLoad = true;
 
         // Booleans indicating whether to load the father or kidnapper AI or play as a human
         boolean fatherAI = true;
-        boolean kidnapperAI = true;
+        boolean fatherLoad = true;
 
         // If the father is the AI, load from the stored file and construct an AI player
         if (fatherAI) {
@@ -48,10 +51,8 @@ public class Main {
             kidnapperController.setPlayer(World.getInstance().getKidnapper());
             gc.setKidnapperAI(kidnapperController);
         } else {
-            // Else, set the kidnapper as the human player
             gc.setKidnapperPlayer();
         }
-
         gc.start();
         System.out.println(gc.isFatherWin() + " " + gc.getRemainingTime());
     }
