@@ -147,7 +147,6 @@ public class MenuRenderer {
 
         glLinkProgram(quadProgram);
         glValidateProgram(quadProgram);
-        System.out.println("[QuadProgram]: " + GL20.glGetProgramInfoLog(quadProgram));
     }
 
     /**
@@ -161,7 +160,6 @@ public class MenuRenderer {
         Matrix4f matrix = Maths.createTransformationMatrix(guiTexture.getPosition(), guiTexture.getScale(), 0 ,0);
         transLoc = glGetUniformLocation(quadProgram, "transformationMatrix");
         GL41.glProgramUniformMatrix4fv(quadProgram, transLoc, false, matrix.get(transMat));
-        System.out.println(Arrays.toString(transMat));
         GL30.glBindVertexArray(vaoId);
         GL20.glEnableVertexAttribArray(0); // Vertex position data
         GL11.glEnable(GL11.GL_BLEND);
