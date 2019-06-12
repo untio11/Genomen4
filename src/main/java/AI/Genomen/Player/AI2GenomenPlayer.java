@@ -20,7 +20,7 @@ public class AI2GenomenPlayer extends AIGenomenPlayer {
     protected final int updateFrequency = 30;
 
     // The number of inputs of the neural network
-    protected final int inputCount = 1;
+    protected final int inputCount = 4;
 
     // Add the player position to the input
     protected final boolean addPosition = true;
@@ -33,7 +33,7 @@ public class AI2GenomenPlayer extends AIGenomenPlayer {
 
     // The number of values that the neural network should remember
     // These will be passed through in the next iteration
-    protected final int rememberCount = 0;
+    protected final int rememberCount = 2;
 
     // The maximum length of each ray coming from the player
     protected final int maxRayLength = 6;

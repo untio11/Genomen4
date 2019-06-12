@@ -27,7 +27,7 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
 
     private static final int TIME_FACTOR = 2;
 
-    private static MapConfiguration mapConfig = MapConfigurations.getBigStarterMap();
+    private static MapConfiguration mapConfig = MapConfigurations.getStarterMap();
 
     public SingleGenomenTrainer(int nPlayers, int iterations) {
         super(nPlayers, iterations);
@@ -43,8 +43,8 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
     }
 
     public static void main(String[] args) {
-        int players = 100;
-        SingleGenomenTrainer trainer = new SingleGenomenTrainer(players, 1000);
+        int players = 80;
+        SingleGenomenTrainer trainer = new SingleGenomenTrainer(players, 60);
 
         long startTime = System.nanoTime();
 
@@ -78,14 +78,14 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
 
     @Override
     protected AIGenomenPlayer createPlayer1() {
-        AIGenomenPlayer player = new AIGenomenPlayer(true);
+        AIGenomenPlayer player = new AI2GenomenPlayer(true);
         player.init();
         return player;
     }
 
     @Override
     protected AIGenomenPlayer createPlayer1(Map<String, INDArray> paramTable) {
-        AIGenomenPlayer player = new AIGenomenPlayer(true);
+        AIGenomenPlayer player = new AI2GenomenPlayer(true);
         player.init();
         player.getNetwork().setParamTable(paramTable);
         return player;

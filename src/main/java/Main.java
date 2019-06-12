@@ -1,4 +1,6 @@
+import AI.Genomen.Player.AI2GenomenPlayer;
 import AI.Genomen.Player.GenomenAISettings;
+import AI.Genomen.Player.LoadAI2GenomenPlayer;
 import AI.Genomen.Player.LoadAIGenomenPlayer;
 import Engine.AbstractGameContainer;
 import Engine.Controller.Controller;
@@ -13,7 +15,7 @@ public class Main {
     public static void main(String[] args) {
 
         World.initWorld(MapConfigurations.getStarterMap());
-        AbstractGameContainer gc = new GameContainerGL(World.getInstance(), true);
+        AbstractGameContainer gc = new GameContainerSwing(World.getInstance(), true);
 
         // Booleans indicating whether to load the father or kidnapper AI or play as a human
         boolean fatherAI = true;
@@ -30,10 +32,18 @@ public class Main {
              * Example code for loading an AI with different settings
              * This AI was trained without ray inputs on an empty map, but performs reasonably on any map
              */
-            File f = new File("res/network/father/01-single-genomen-1-4092.net");
+//            File f = new File("res/network/father/01-single-genomen-1-4092.net");
+//            GenomenAISettings settings = new GenomenAISettings();
+//            settings.setInputCount(0).setRememberCount(2).setUpdateFrequency(10);
+//            Controller fatherController = new LoadAIGenomenPlayer(f, settings);
+
+//            AI2GenomenPlayer fatherController = new AI2GenomenPlayer();
+//            fatherController.init();
+
+            File f = new File("res/network/father/1560357406073-single-genomen-father-1-3152.net");
             GenomenAISettings settings = new GenomenAISettings();
-            settings.setInputCount(0).setRememberCount(2).setUpdateFrequency(10);
-            Controller fatherController = new LoadAIGenomenPlayer(f, settings);
+            settings.setInputCount(4).setRememberCount(2).setUpdateFrequency(30);
+            Controller fatherController = new LoadAI2GenomenPlayer(f, settings);
 
             fatherController.setPlayer(World.getInstance().getFather());
             gc.setFatherAI(fatherController);
