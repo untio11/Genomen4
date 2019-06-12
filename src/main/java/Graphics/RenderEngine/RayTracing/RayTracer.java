@@ -1,6 +1,7 @@
 package Graphics.RenderEngine.RayTracing;
 
 import GameState.Entities.LightSource;
+import Graphics.GameContainerGL;
 import Graphics.Models.ActorModel;
 import Graphics.RenderEngine.AbstractRenderer;
 import Graphics.RenderEngine.Scene;
@@ -91,8 +92,13 @@ public class RayTracer implements AbstractRenderer {
         loadCameraData(terrainProgram);
 
         GL43.glProgramUniform2iv(terrainProgram, 3, chunk_count);
-        GL43.glProgramUniform3fv(terrainProgram, 4, player_light);
-        GL43.glProgramUniform3fv(terrainProgram, 5, enemy_light);
+        if (GameContainerGL.isPlayerFather()) {
+            GL43.glProgramUniform3fv(terrainProgram, 4, player_light);
+            GL43.glProgramUniform3fv(terrainProgram, 5, enemy_light);
+        } else {
+            GL43.glProgramUniform3fv(terrainProgram, 4, enemy_light);
+            GL43.glProgramUniform3fv(terrainProgram, 5, player_light);
+        }
         GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 1, vertexSSBO);
         GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 3, colorSSBO);
         GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 4, indexSSBO);
