@@ -6,13 +6,13 @@ import GameState.Entities.LightSource;
 import GameState.Tile;
 import GameState.TileType;
 import GameState.World;
+import Graphics.Gui.GuiTexture;
+import org.joml.Vector3f;
 import Graphics.Models.ActorModel;
 import Graphics.Models.BaseModel;
 import Graphics.Models.TerrainModel;
 import Graphics.RenderEngine.RayTracing.RayTracer;
 import Graphics.Terrains.TerrainGenerator;
-import com.sun.istack.internal.Nullable;
-import javafx.scene.effect.Light;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.*;
@@ -36,6 +36,7 @@ public class Scene {
     private World world;
     private List<ActorModel> entities;
     private List<TerrainModel> terrain_list;
+    private GuiTexture gui;
     private LightSource[] lights = new LightSource[2];
     private Map<String, TerrainModel> terrain_map;
     private Map<Integer, List<TerrainModel>> texture_to_terrainlist_map;
@@ -96,6 +97,7 @@ public class Scene {
     public void init() throws IllegalStateException {
         initTileMap();
         initActors(world.getActors());
+        initGui();
         generateChunks();
         camera = world.getCamera();
         initLights();
@@ -255,6 +257,10 @@ public class Scene {
                 (top_left[1] <= target[1] && target[1] < bottom_right[1]));
     }
 
+    private void initGui() {
+        gui = new GuiTexture(loader.loadTexture("indicator"), new Vector3f(0.8f, 0f, 0f), new Vector3f(0.15f, 0.15f, 1f), 45f, 45f);
+    }
+
     private void initActors(Actor[] actors) {
         for (Actor actor : actors) {
             BaseModel playerBase = OBJLoader.loadObjModelInVao("player", loader); // TODO: get model and texture for thief
@@ -313,6 +319,10 @@ public class Scene {
 
     public List<ActorModel> getEntities() {
         return entities;
+    }
+
+    public GuiTexture getGui() {
+        return gui;
     }
 
     /**

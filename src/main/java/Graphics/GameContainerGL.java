@@ -15,7 +15,7 @@ import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class GameContainerGL implements Runnable, AbstractGameContainer {
-    public static final boolean RAY_TRACING = true;
+    public static final boolean RAY_TRACING = false;
     private static final double ROUND_TIME = 60;
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
@@ -29,7 +29,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
     private double roundTime;
     private boolean fatherWin;
 
-    private Thread thread = new Thread(this);
+//    private Thread thread = new Thread(this);
 
     private WindowGL windowGL;
     private AbstractRenderer renderer; // TODO: Add extra layer above MasterRenderer (AbstractRenderer?) to cover normal rasterizition shading and raytracing
@@ -40,6 +40,8 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
 
     private World world;
     private int maxDistance;
+    private boolean screamActive;
+    private int oppoAngle;
 
     public GameContainerGL(World world, boolean renderWindow) {
         this.world = world;
@@ -54,6 +56,8 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
             this.windowGL = new WindowGL(pixelWidth, pixelHeight, scale);
             renderer = RAY_TRACING ? new RayTracer(pixelWidth, pixelHeight) : new MasterRenderer();
             this.scene = new Scene(this.world); // First do window gl and initglfw, otherwise no openGL context will be available
+            renderer.init(scene);
+
             renderer.init(scene);
 
             music = new SoundClip("res/music.wav");
@@ -97,7 +101,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
 
     public void start() {
         if (kidnapperController != null || fatherController != null) {     //if all the controllers have been initialized
-            thread.run();
+            this.run();
         } else {
             System.err.println("Please define controllers");
         }
@@ -170,7 +174,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
         double roundTime= ROUND_TIME;
 
         music.loop();
-        while (!glfwWindowShouldClose(windowGL.getWindow()) || !running) { // TODO: Have a genaral Renderer.render() function to call
+        while (!glfwWindowShouldClose(windowGL.getWindow())) { // TODO: Have a genaral Renderer.render() function to call
             render = false;
             firstTime = System.nanoTime() / 1e9d;
             passedTime = firstTime - lastTime;
@@ -181,8 +185,11 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
 
             cryTimer -= passedTime;
             if (cryTimer < 0) {
+                screamActive = true;
+                startScreamTimer();
                 World.getInstance().getKidnapper().receiveScream();
                 World.getInstance().getFather().receiveScream();
+                oppoAngle = (int) World.getInstance().getFather().getPreviousAngle(); //TODO check for which player is opponent
                 cryTimer = cryInterval;
                 clips.get(cryNumber).play();
                 cryNumber = (cryNumber + 1) % clips.size();
@@ -239,7 +246,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
 
     public void finalRender() {
         // render the given scene
-        renderer.render(scene);
+        renderer.render(scene, screamActive, oppoAngle);
         glfwSwapBuffers(windowGL.getWindow()); // swap the color buffers, that is: show on screen what is happening
         // Poll for window events. The key callback above will only be
         // invoked during this call.
@@ -251,6 +258,58 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
         fatherController.update(UPDATE_CAP);
         kidnapperController.passInput(windowGL.getPressedKeys());
         kidnapperController.update(UPDATE_CAP);
+    }
+
+    private void startScreamTimer() {
+        new java.util.Timer().schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        screamActive = false;
+                    }
+                },
+                500
+        );
+
+        new java.util.Timer().schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        screamActive = true;
+                    }
+                },
+                1000
+        );
+
+        new java.util.Timer().schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        screamActive = false;
+                    }
+                },
+                1500
+        );
+
+        new java.util.Timer().schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        screamActive = true;
+                    }
+                },
+                2000
+        );
+
+        new java.util.Timer().schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        screamActive = false;
+                    }
+                },
+                2500
+        );
     }
 
     public double getRemainingTime() { return roundTime; }

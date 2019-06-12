@@ -1,6 +1,7 @@
 package Graphics.RenderEngine.TraditionalRendering;
 
 import GameState.Entities.Camera;
+import Graphics.Gui.GuiRenderer;
 import Graphics.Models.ActorModel;
 import Graphics.Models.TerrainModel;
 import Graphics.RenderEngine.AbstractRenderer;
@@ -10,6 +11,7 @@ import Graphics.Shaders.TerrainShader;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +27,7 @@ public class MasterRenderer implements AbstractRenderer {
     private static TerrainRenderer terrainRenderer; // Can the renderers can be static?
     private static TerrainShader terrainShader = new TerrainShader();
     private static ActorRenderer actorRenderer;
+    private static GuiRenderer guiRenderer;
 
     private static Camera camera;
 
@@ -32,14 +35,15 @@ public class MasterRenderer implements AbstractRenderer {
         createProjectionMatrix();
         terrainRenderer = new TerrainRenderer(terrainShader, projectionMatrix);
         actorRenderer = new ActorRenderer(shader, projectionMatrix);
+        guiRenderer = new GuiRenderer();
     }
 
     public void init(Scene scene) { // TODO: should this just all be done in the constructor?
-
+        guiRenderer.init(scene);
     }
 
     // TODO: Make sure that this can just render a given scene
-    public void render(Scene scene) {
+    public void render(Scene scene, boolean screamActive, int oppoAngle) {
         camera = scene.getCamera();
         prepare();
         List<ActorModel> entities = scene.getEntities();
@@ -57,6 +61,10 @@ public class MasterRenderer implements AbstractRenderer {
         terrainShader.loadViewMatrix(camera);
         terrainRenderer.render(terrain_map);
         terrainShader.stop();
+
+        if (screamActive) {
+            guiRenderer.render(oppoAngle);
+        }
     }
 
     public void clean() {

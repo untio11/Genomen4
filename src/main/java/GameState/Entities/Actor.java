@@ -392,4 +392,8 @@ public class Actor extends Entity implements Observable {
         }
         return (angle / 90) % 4 + 1;
     }
+
+    public double getPreviousAngle() {
+        return previousAngle;
+    }
 }
