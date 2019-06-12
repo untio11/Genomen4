@@ -134,7 +134,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
 
     public void menu() {
         //todo: add menu music
-        while (true) {
+        while (!glfwWindowShouldClose(windowGL.getWindow())) {
             renderer.renderMenu();
             glfwSwapBuffers(windowGL.getWindow()); // swap the color buffers, that is: show on screen what is happening
             // Poll for window events. The key callback above will only be
@@ -163,7 +163,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
 
     public void end() {
         //todo: add end music
-        while (true) {
+        while (!glfwWindowShouldClose(windowGL.getWindow())) {
             boolean win = false;
             if ((fatherWin && playerFather) || (!fatherWin && !playerFather))  {
                 win = true;
