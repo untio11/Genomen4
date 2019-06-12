@@ -317,6 +317,7 @@ public class Actor extends Entity implements Observable {
             rayToOpponent[1] = distanceToOpponent;
             previousAngle = rayToOpponent[2];
             results[results.length - 1] = rayToOpponent;
+            this.updateOpponentPosition();
         } else {
             rayToOpponent[0] = 0;
             rayToOpponent[1] = -1;
@@ -342,6 +343,10 @@ public class Actor extends Entity implements Observable {
         previousAngle = getScreamAngle();
         doScream = true;
 
+        this.updateOpponentPosition();
+    }
+
+    private void updateOpponentPosition() {
         Vector3f opponentPos;
         if (kidnapper) {
             opponentPos = world.getFather().getPosition();

@@ -55,9 +55,9 @@ public class AI2GenomenPlayer extends AIGenomenPlayer {
             position = this.getPosition();
         }
 
-        double[] opponentPos = this.getOpponentPosition();
-
         double[][] input = this.getInput(getInputCount(), getMaxRayLength());
+
+        double[] opponentPos = this.getOpponentPosition();
         // Process the input so the neural network can accept it
         INDArray indArray = this.inputToINDArray(input, position, opponentPos);
 
