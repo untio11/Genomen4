@@ -1,13 +1,21 @@
 package Graphics;
 
+import AI.Genomen.Player.AIGenomenPlayer;
+import AI.Genomen.Player.SimpleGenomenPlayer;
 import Engine.AbstractGameContainer;
 import Engine.Controller.Controller;
 import Engine.SoundClip;
 import GameState.World;
+import Graphics.Gui.GuiRenderer;
+import Graphics.Gui.GuiTexture;
+import Graphics.Gui.MenuRenderer;
 import Graphics.RenderEngine.AbstractRenderer;
+import Graphics.RenderEngine.Loader;
 import Graphics.RenderEngine.RayTracing.RayTracer;
 import Graphics.RenderEngine.TraditionalRendering.MasterRenderer;
 import Graphics.RenderEngine.Scene;
+import org.joml.Vector3f;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 
@@ -28,11 +36,12 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
 
     private double roundTime;
     private boolean fatherWin;
+    private boolean playerFather;
 
 //    private Thread thread = new Thread(this);
 
     private WindowGL windowGL;
-    private AbstractRenderer renderer; // TODO: Add extra layer above MasterRenderer (AbstractRenderer?) to cover normal rasterizition shading and raytracing
+    private AbstractRenderer renderer; // 
     private Controller fatherController, kidnapperController;
 
     ArrayList<SoundClip> clips;
@@ -100,11 +109,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
     }
 
     public void start() {
-        if (kidnapperController != null || fatherController != null) {     //if all the controllers have been initialized
-            this.run();
-        } else {
-            System.err.println("Please define controllers");
-        }
+        run();
     }
 
     public void close() {
@@ -121,10 +126,60 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
 
     public void run() {
         if (renderWindow) {
+            menu();
             windowed();
+            end();
         } else {
             headless();
         }
+    }
+
+    public void menu() {
+        //todo: add menu music
+        while (!glfwWindowShouldClose(windowGL.getWindow())) {
+            renderer.renderMenu();
+            glfwSwapBuffers(windowGL.getWindow()); // swap the color buffers, that is: show on screen what is happening
+            // Poll for window events. The key callback above will only be
+            // invoked during this call.
+            glfwPollEvents();
+            if (windowGL.getPressedKeys().contains(GLFW_KEY_F)) {
+                setFatherPlayer();
+                SimpleGenomenPlayer kidnapperController = new SimpleGenomenPlayer();
+                kidnapperController.setPlayer(World.getInstance().getKidnapper());
+                setKidnapperAI(kidnapperController);
+                world.setCameraFather();
+                playerFather = true;
+                break;
+            } else if (windowGL.getPressedKeys().contains(GLFW_KEY_K)) {
+                AIGenomenPlayer fatherController = new AIGenomenPlayer();
+                fatherController.init();
+                fatherController.setPlayer(World.getInstance().getFather());
+                setFatherAI(fatherController);
+                setKidnapperPlayer();
+                world.setCameraKidnapper();
+                playerFather = false;
+                break;
+            }
+        }
+    }
+
+    public void end() {
+        //todo: add end music
+        while (!glfwWindowShouldClose(windowGL.getWindow())) {
+            boolean win = false;
+            if ((fatherWin && playerFather) || (!fatherWin && !playerFather))  {
+                win = true;
+            }
+            renderer.renderEnd(win);
+            glfwSwapBuffers(windowGL.getWindow()); // swap the color buffers, that is: show on screen what is happening
+            // Poll for window events. The key callback above will only be
+            // invoked during this call.
+            glfwPollEvents();
+            if (windowGL.getPressedKeys().contains(GLFW_KEY_SPACE)) {
+                break;
+            }
+        }
+        close();
     }
 
     public void headless() {
@@ -148,11 +203,9 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
 
             if (world.isPlayerCollision()) {
                 fatherWin = true;
-                running = false;
                 break;
             } else if (roundTime < 0) {
                 fatherWin = false;
-                running = false;
                 break;
             }
         }
@@ -170,11 +223,10 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
         int fps = 0;
         double cryTimer = cryInterval;
         int cryNumber = 0;
-        boolean running = true;
         double roundTime= ROUND_TIME;
 
         music.loop();
-        while (!glfwWindowShouldClose(windowGL.getWindow())) { // TODO: Have a genaral Renderer.render() function to call
+        while (!glfwWindowShouldClose(windowGL.getWindow())) { //
             render = false;
             firstTime = System.nanoTime() / 1e9d;
             passedTime = firstTime - lastTime;
@@ -189,7 +241,12 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
                 startScreamTimer();
                 World.getInstance().getKidnapper().receiveScream();
                 World.getInstance().getFather().receiveScream();
-                oppoAngle = (int) World.getInstance().getFather().getPreviousAngle(); //TODO check for which player is opponent
+                if (playerFather) {
+                    oppoAngle = (int) World.getInstance().getFather().getPreviousAngle();
+                } else {
+                    //todo: should we remove indicator for kidnapper?
+                    oppoAngle = (int) World.getInstance().getKidnapper().getPreviousAngle();
+                }
                 cryTimer = cryInterval;
                 clips.get(cryNumber).play();
                 cryNumber = (cryNumber + 1) % clips.size();
@@ -216,14 +273,12 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
                     windowGL.close();
                 }
                 fatherWin = true;
-                running = false;
                 break;
             } else if (roundTime < 0) {
                 if (this.renderWindow) {
                     windowGL.close();
                 }
                 fatherWin = false;
-                running = false;
                 break;
             }
 
@@ -239,9 +294,8 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
                 }
             }
         }
-        music.stop();
-        close();
         this.roundTime = roundTime;
+        music.stop();
     }
 
     public void finalRender() {

@@ -73,4 +73,15 @@ public class Renderer implements AbstractRenderer {
 
     @Override
     public void clean() { }
+
+    @Override
+    public void renderMenu() {
+
+    }
+
+    @Override
+    public void renderEnd(boolean win) {
+
+    }
+
 }
