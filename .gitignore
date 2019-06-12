@@ -36,3 +36,4 @@
 .DS_Store
 
 /res/network/*.net
+*.log
