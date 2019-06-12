@@ -1,6 +1,6 @@
 package Graphics.RenderEngine;
 
-import Graphics.Models.RawModel;
+import Graphics.Models.BaseModel;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -13,7 +13,7 @@ import java.util.List;
 
 public class OBJLoader {
 
-    public static RawModel loadObjModel(String fileName, Loader loader) {
+    public static BaseModel loadObjModelInVao(String fileName, Loader loader) {
         FileReader fr = null;
         try {
             fr = new FileReader(new File("res/" + fileName + ".obj"));
@@ -79,16 +79,18 @@ public class OBJLoader {
         indicesArray = new int[indices.size()];
 
         int vertexPointer = 0;
-        for(Vector3f vertex:vertices) {
+        for (Vector3f vertex : vertices) {
             verticesArray[vertexPointer++] = vertex.x;
             verticesArray[vertexPointer++] = vertex.y;
             verticesArray[vertexPointer++] = vertex.z;
         }
 
-        for(int i=0; i<indices.size(); i++) {
+        for (int i = 0; i < indices.size(); i++) {
             indicesArray[i] = indices.get(i);
         }
-        return loader.loadToVAO(verticesArray, textureArray, normalsArray, indicesArray);
+
+
+        return loader.loadToModel(verticesArray, textureArray, normalsArray, indicesArray);
 
     }
 

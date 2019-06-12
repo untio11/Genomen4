@@ -24,22 +24,26 @@ public class World {
 
     private double randomStart;
 
-    private World(MapConfiguration mapConfig) {
+    private long seed;
+    private Random r;
+
+    private World(MapConfiguration mapConfig, long seed) {
         this.mapConfig = mapConfig;
         this.width = mapConfig.getMapSize();
         this.height = mapConfig.getMapSize();
+        this.seed = seed;
 
-        Random r = new Random();
+        r = new Random(seed);
         this.randomStart = r.nextDouble();
 
-        this.data = new MapGenerator(mapConfig).generate();
+        this.data = new MapGenerator(mapConfig, r.nextLong()).generate();
 
         this.father = spawnActor(false);
         this.kidnapper = spawnActor(true);
 
         this.camera = new Camera(); // Camera will be put over the head later
         camera.setPosition(new Vector3f(0.0f, 0.0f, 10.0f));
-        father.add(camera);
+        father.add(camera); // We should move this to somewhere else and pick the player controlled actor.
     }
 
     /**
@@ -57,17 +61,20 @@ public class World {
 
     /**
      * Generate an instance of the world. Ensure that no world is current before calling this by using World.cleanWorld().
-     * @param width The width the world should have in tiles
-     * @param height The height the world should have in tiles.
      * @throws IllegalStateException If there already is a current world.
      */
-
     public static void initWorld() throws IllegalStateException {
-        instance = new World(MapConfigurations.getNormalMap());
+        Random r = new Random();
+        instance = new World(MapConfigurations.getNormalMap(), r.nextLong());
     }
 
     public static void initWorld(MapConfiguration mapConfig) throws IllegalStateException {
-        instance = new World(mapConfig);
+        Random r = new Random();
+        instance = new World(mapConfig, r.nextLong());
+    }
+
+    public static void initWorld(MapConfiguration mapConfig, long seed) throws IllegalStateException {
+        instance = new World(mapConfig, seed);
     }
 
     /**
@@ -88,8 +95,7 @@ public class World {
      * Returns a random position in the world
      */
     private Position getRandomTile() {
-        Random random = new Random();
-        return new Position(random.nextInt(width), random.nextInt(height));
+        return new Position(r.nextInt(width), r.nextInt(height));
     }
 
     /**
@@ -158,6 +164,10 @@ public class World {
 
     public Actor getKidnapper() { return kidnapper; }
 
+    /**
+     * Get the actors, in order
+     * @return {Father, Kidnapper}
+     */
     public Actor[] getActors() {
         return new Actor[] {father, kidnapper};
     };

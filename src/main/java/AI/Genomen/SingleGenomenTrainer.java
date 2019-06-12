@@ -1,9 +1,6 @@
 package AI.Genomen;
 
-import AI.Genomen.Player.AIGenomenPlayer;
-import AI.Genomen.Player.RandomGenomenPlayer;
-import AI.Genomen.Player.SimpleGenomenPlayer;
-import AI.Genomen.Player.StaticGenomenPlayer;
+import AI.Genomen.Player.*;
 import AI.Trainer.SingleBiAIGameTrainer;
 import Engine.Controller.Controller;
 import Engine.GameContainerSwing;
@@ -14,18 +11,16 @@ import org.joml.Vector3f;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import util.Pair;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer, Controller, GameContainerSwing> {
 
     // Boolean for choosing between the father and kidnapper
-    private boolean fatherAI = true;
+    private static boolean fatherAI = true;
 
-    private static final int GAMES = 3;
+    private static final int GAMES = 6;
+    private long[] worldSeeds = new long[GAMES];
 
     private static final int WINNING_FACTOR = 4;
 
@@ -39,12 +34,16 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
 
     @Override
     protected String getName() {
-        return "single-genomen";
+        if (fatherAI) {
+            return "single-genomen-father";
+        } else {
+            return "single-genomen-kidnapper";
+        }
     }
 
     public static void main(String[] args) {
-        int players = 100;
-        SingleGenomenTrainer trainer = new SingleGenomenTrainer(players, 100);
+        int players = 80;
+        SingleGenomenTrainer trainer = new SingleGenomenTrainer(players, 150);
 
         long startTime = System.nanoTime();
 
@@ -62,10 +61,17 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
         // Play against the best father player
         World.initWorld(mapConfig);
         final GameContainerSwing game = new GameContainerSwing(World.getInstance(), true);
-        Controller fatherAI = sortedPlayers.entrySet().iterator().next().getKey();
-        fatherAI.setPlayer(World.getInstance().getFather());
-        game.setFatherAI(fatherAI);
-        game.setKidnapperPlayer();
+        if (fatherAI) {
+            Controller fatherAI = sortedPlayers.entrySet().iterator().next().getKey();
+            fatherAI.setPlayer(World.getInstance().getFather());
+            game.setFatherAI(fatherAI);
+            game.setKidnapperPlayer();
+        } else {
+            Controller kidnapperAI = sortedPlayers.entrySet().iterator().next().getKey();
+            kidnapperAI.setPlayer(World.getInstance().getKidnapper());
+            game.setKidnapperAI(kidnapperAI);
+            game.setFatherPlayer();
+        }
         game.start();
     }
 
@@ -89,12 +95,18 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
         players.add(new StaticGenomenPlayer());
         players.add(new RandomGenomenPlayer());
         players.add(new SimpleGenomenPlayer());
-        players.add(new SimpleGenomenPlayer());
+        players.add(new EvadingGenomenPlayer());
     }
 
     @Override
     protected List<Pair<AIGenomenPlayer, Controller>> createCompetition(List<AIGenomenPlayer> players1, List<Controller> players2) {
         List<Pair<AIGenomenPlayer, Controller>> competition = new ArrayList<>();
+
+        Random r = new Random();
+
+        for (int i = 0; i < GAMES; i++) {
+            worldSeeds[i] = r.nextLong();
+        }
 
         // Create a bipartite graph as the competition
         for (AIGenomenPlayer player1 : players1) {
@@ -109,13 +121,21 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
     }
 
     @Override
-    protected GameContainerSwing createGame(Pair<AIGenomenPlayer, Controller> players) {
-        World.initWorld(mapConfig);
+    protected GameContainerSwing createGame(Pair<AIGenomenPlayer, Controller> players, int gameId) {
+        long seed = worldSeeds[gameId % GAMES];
+        World.initWorld(mapConfig, seed);
         GameContainerSwing gc = new GameContainerSwing(World.getInstance(), false);
-        players.getFirst().setPlayer(World.getInstance().getFather());
-        gc.setFatherAI(players.getFirst());
-        players.getSecond().setPlayer(World.getInstance().getKidnapper());
-        gc.setKidnapperAI(players.getSecond());
+        if (fatherAI) {
+            players.getFirst().setPlayer(World.getInstance().getFather());
+            gc.setFatherAI(players.getFirst());
+            players.getSecond().setPlayer(World.getInstance().getKidnapper());
+            gc.setKidnapperAI(players.getSecond());
+        } else {
+            players.getFirst().setPlayer(World.getInstance().getKidnapper());
+            gc.setKidnapperAI(players.getFirst());
+            players.getSecond().setPlayer(World.getInstance().getFather());
+            gc.setFatherAI(players.getSecond());
+        }
         return gc;
     }
 

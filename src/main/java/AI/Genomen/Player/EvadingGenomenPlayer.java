@@ -4,7 +4,7 @@ import Engine.Controller.AIController;
 
 import java.util.Random;
 
-public class SimpleGenomenPlayer extends AIController {
+public class EvadingGenomenPlayer extends AIController {
     // The number of frames between every update of the ai player
     public static final int UPDATE_FREQUENCY = 30;
 
@@ -17,16 +17,9 @@ public class SimpleGenomenPlayer extends AIController {
     // The current number of frames elapsed since the last update
     protected int frame = 0;
 
-    // Boolean indicating whether the player is the father
-    protected boolean father;
-
-    public SimpleGenomenPlayer() {
-        this.father = false;
-    }
-
-    public SimpleGenomenPlayer(boolean father) {
-        this.father = father;
-    }
+    private boolean seen = false;
+    private double angle;
+    private boolean left;
 
     @Override
     public void update(double dt) {
@@ -41,11 +34,35 @@ public class SimpleGenomenPlayer extends AIController {
                 xAxis = r.nextDouble() * 2 - 1;
                 yAxis = r.nextDouble() * 2 - 1;
                 frame = UPDATE_FREQUENCY;
+                seen = false;
             } else {
-                xAxis = Math.cos(Math.toRadians(angle + getAngleOffset()));
-                yAxis = Math.sin(Math.toRadians(angle + getAngleOffset()));
-                frame = UPDATE_FREQUENCY * getVisibleTimeoutFactor();
+                xAxis = Math.cos(Math.toRadians(angle + angleOffset));
+                yAxis = Math.sin(Math.toRadians(angle + angleOffset));
+                frame = UPDATE_FREQUENCY * 2;
+                seen = true;
+                this.angle = angle;
+                Random r = new Random();
+                this.left = r.nextBoolean();
             }
+            this.setAxis(xAxis, yAxis);
+        }
+
+        if (this.seen) {
+            Random r = new Random();
+            boolean evade = r.nextDouble() < 0.005;
+            double a = r.nextDouble() * 2;
+            if (evade) {
+                a = 45;
+            }
+            if (this.left) {
+                angle += a;
+            } else {
+                angle -= a;
+            }
+            double xAxis = Math.cos(Math.toRadians(angle + angleOffset));
+            double yAxis = Math.sin(Math.toRadians(angle + angleOffset));
+            xAxis /= Math.abs(xAxis);
+            yAxis /= Math.abs(yAxis);
             this.setAxis(xAxis, yAxis);
         }
 
@@ -54,19 +71,5 @@ public class SimpleGenomenPlayer extends AIController {
 
         // Decrease the frame counter
         frame--;
-    }
-
-    private double getAngleOffset() {
-        if (this.father) {
-            return 0;
-        }
-        return 180;
-    }
-
-    private int getVisibleTimeoutFactor() {
-        if (this.father) {
-            return 8;
-        }
-        return 2;
     }
 }

@@ -5,6 +5,7 @@ import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL43;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -16,16 +17,39 @@ public abstract class ShaderProgram {
     private int programID;
     private int vertexShaderID;
     private int fragmentShaderID;
+    private int computeShaderID;
 
     private static FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
 
-    public ShaderProgram(String vertexFile, String fragmentFile) {
+    /**
+     * Setup traditional vertex+fragment shader program
+     * @param vertexFile The path to the vertex shader file
+     * @param fragmentFile The path to the fragment shader file
+     */
+    ShaderProgram(String vertexFile, String fragmentFile) {
         vertexShaderID = loadShader(vertexFile, GL20.GL_VERTEX_SHADER);
         fragmentShaderID = loadShader(fragmentFile, GL20.GL_FRAGMENT_SHADER);
         programID = GL20.glCreateProgram();
         GL20.glAttachShader(programID, vertexShaderID);
         GL20.glAttachShader(programID, fragmentShaderID);
         bindAttributes();
+        GL20.glLinkProgram(programID);
+        GL20.glValidateProgram(programID);
+        getAllUniformLocations();
+    }
+
+    /**
+     * Setup a compute shader program
+     * @param computeFile The path to the compute shader file
+     */
+    ShaderProgram(String computeFile) {
+        computeShaderID = loadShader(computeFile, GL43.GL_COMPUTE_SHADER);
+
+        programID = GL20.glCreateProgram();
+        GL20.glAttachShader(programID, computeShaderID);
+
+        bindAttributes();
+
         GL20.glLinkProgram(programID);
         GL20.glValidateProgram(programID);
         getAllUniformLocations();
