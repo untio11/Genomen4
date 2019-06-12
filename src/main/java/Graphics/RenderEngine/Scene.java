@@ -257,14 +257,14 @@ public class Scene {
     }
 
     private void initActors(Actor[] actors) {
-        for (Actor actor : actors) {
-            //BaseModel playerBase = OBJLoader.loadObjModelInVao("player", loader); // TODO: get model and texture for thief
-            BaseModel playerBase = AnimModelLoader.loadAnimModelInVao("res/gnomeTestSelect.dae", loader);
-            int playerTexture = loader.loadTexture("gnomeUV");
-            playerBase.setTexture(playerTexture);
-            playerBase.setScale(0.1f);
-            entities.add(new ActorModel(actor, playerBase, playerBase.getRootBone(), playerBase.getBoneCount(), playerBase.getAnimation()));
-        }
+        BaseModel playerBase = AnimModelLoader.loadAnimModelInVao("res/gnomeTestSelect.dae", loader);
+        playerBase.setScale(0.04f);
+        int fatherTexture = loader.loadTexture("gnomeUV");
+        int kidnapperTexture = loader.loadTexture("gnomeTexture");
+        playerBase.setTexture(fatherTexture);
+        entities.add(new ActorModel(actors[0], playerBase, playerBase.getRootBone(), playerBase.getBoneCount(), playerBase.getAnimation()));
+        playerBase.setTexture(kidnapperTexture);
+        entities.add(new ActorModel(actors[0], playerBase, playerBase.getRootBone(), playerBase.getBoneCount(), playerBase.getAnimation()));
     }
 
     /**
