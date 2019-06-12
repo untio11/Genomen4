@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer, Controller, GameContainerSwing> {
 
     // Boolean for choosing between the father and kidnapper
-    private static boolean fatherAI = false;
+    private static boolean fatherAI = true;
 
     private static final int GAMES = 6;
     private long[] worldSeeds = new long[GAMES];
@@ -27,7 +27,7 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
 
     private static final int TIME_FACTOR = 2;
 
-    private static MapConfiguration mapConfig = MapConfigurations.getBigEmptyMap();
+    private static MapConfiguration mapConfig = MapConfigurations.getBigStarterMap();
 
     public SingleGenomenTrainer(int nPlayers, int iterations) {
         super(nPlayers, iterations);
@@ -43,8 +43,8 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
     }
 
     public static void main(String[] args) {
-        int players = 80;
-        SingleGenomenTrainer trainer = new SingleGenomenTrainer(players, 50);
+        int players = 100;
+        SingleGenomenTrainer trainer = new SingleGenomenTrainer(players, 1000);
 
         long startTime = System.nanoTime();
 
@@ -93,12 +93,12 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
 
     @Override
     protected void createPlayers2(List<Controller> players) {
-//        players.add(new StaticGenomenPlayer());
+        players.add(new StaticGenomenPlayer());
         players.add(new RandomGenomenPlayer());
-        players.add(new SimpleGenomenPlayer(true));
-        players.add(new SimpleGenomenPlayer(true, 30));
-        players.add(new FatherAIGenomenPlayer(new File("res/network/1560138909372-single-genomen-1-9006.net")));
-//        players.add(new EvadingGenomenPlayer());
+        players.add(new SimpleGenomenPlayer(false));
+//        players.add(new SimpleGenomenPlayer(true, 30));
+//        players.add(new LoadAIGenomenPlayer(new File("res/network/1560138909372-single-genomen-1-9006.net")));
+        players.add(new EvadingGenomenPlayer());
     }
 
     @Override
