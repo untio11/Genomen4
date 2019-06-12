@@ -1,30 +1,26 @@
 package AI.Genomen.Player;
 
-import AI.Trainer.TrainerAIPlayer;
-import Engine.Controller.AIController;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.distribution.UniformDistribution;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
-import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Sgd;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.Arrays;
 
-public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
+public class AI2GenomenPlayer extends AIGenomenPlayer {
 
     // The number of frames between every update of the ai player
     protected final int updateFrequency = 30;
 
     // The number of inputs of the neural network
-    protected final int inputCount = 4;
+    protected final int inputCount = 1;
 
     // Add the player position to the input
     protected final boolean addPosition = true;
@@ -37,60 +33,33 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
 
     // The number of values that the neural network should remember
     // These will be passed through in the next iteration
-    protected final int rememberCount = 6;
+    protected final int rememberCount = 0;
 
     // The maximum length of each ray coming from the player
     protected final int maxRayLength = 6;
 
-    // The current number of frames elapsed since the last update
-    protected int frame = 0;
-
-    protected MultiLayerNetwork net;
-
-    protected double[] rememberInputs;
-
-    public AIGenomenPlayer() {
+    public AI2GenomenPlayer() {
         super();
         addBoost = false;
     }
 
-    public AIGenomenPlayer(boolean boost) {
-        super();
+    public AI2GenomenPlayer(boolean boost) {
+        super(boost);
         addBoost = boost;
     }
 
-    public void init() {
-        rememberInputs = new double[getRememberCount()];
-        if (this.net == null) {
-            this.createNetwork();
-        }
-    }
-
     @Override
-    public void update(double dt) {
-        // First check if the AI should update the movement axes
-        if (frame > getUpdateFrequency()) {
-            // If so, update these
-            this.movePlayer();
-            frame = 0;
-        }
-
-        // Next, update the AI controller
-        super.update(dt);
-
-        // Increase the frame counter
-        frame++;
-    }
-
     protected void movePlayer() {
         double[] position = new double[0];
         if (isAddPosition()) {
             position = this.getPosition();
         }
 
+        double[] opponentPos = this.getOpponentPosition();
+
         double[][] input = this.getInput(getInputCount(), getMaxRayLength());
         // Process the input so the neural network can accept it
-        INDArray indArray = this.inputToINDArray(position, input);
+        INDArray indArray = this.inputToINDArray(input, position, opponentPos);
 
         // Evaluate the network with the processed input
         INDArray output = this.evaluateNetwork(indArray);
@@ -108,20 +77,22 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
         this.setAxis(xAxis, yAxis);
     }
 
-    protected INDArray inputToINDArray(double[] position, double[][] input) {
+    protected INDArray inputToINDArray(double[][] input, double[] pos, double[] opPos) {
         // Process the input array from a 2D double array to 1D double array and normalize values if necessary
         double[] processedInput = this.processInput(input);
 
         // adding the remembered inputs to the processed inputs
-        int length = position.length + processedInput.length + getRememberCount();
+        int length = pos.length + opPos.length + processedInput.length + getRememberCount();
         double[] netInput = new double[length];
         for (int i = 0; i < length; i++) {
-            if (i < position.length) {
-                netInput[i] = position[i];
-            } else if (i < position.length + processedInput.length) {
-                netInput[i] = processedInput[i - position.length];
+            if (i < processedInput.length) {
+                netInput[i] = processedInput[i];
+            } else if (i < processedInput.length + pos.length) {
+                netInput[i] = pos[i - processedInput.length];
+            } else if (i < processedInput.length + pos.length + opPos.length) {
+                netInput[i] = opPos[i - processedInput.length - pos.length];
             } else {
-                netInput[i] = rememberInputs[i - position.length - processedInput.length];
+                netInput[i] = rememberInputs[i - processedInput.length - pos.length - opPos.length];
             }
         }
 
@@ -130,23 +101,9 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
         return indArray;
     }
 
-    private double[] processInput(double[][] input) {
-        double[] processed = new double[(getInputCount() + 1) * 2 + 1];
-        for (int i = 0; i < input.length; i++) {
-            if (i == input.length - 1) {
-                processed[i*2] = input[i][0];
-
-                double magnitude = input[i][1];
-                double angle = input[i][2];
-                double angleOffset = 0;
-
-                double xOffset = Math.cos(Math.toRadians(angle + angleOffset));
-                double yOffset = Math.sin(Math.toRadians(angle + angleOffset));
-
-                processed[i*2+1] = xOffset; //input[i][1];
-                processed[i*2+2] = yOffset; //input[i][2];
-                continue;
-            }
+    protected double[] processInput(double[][] input) {
+        double[] processed = new double[getInputCount() * 2];
+        for (int i = 0; i < input.length - 1; i++) {
             // Normalize the values and store them in the 1D array
             processed[i*2] = this.normalizeAccessible(input[i][0]);
             processed[i*2+1] = this.normalizeDistance(input[i][1]);
@@ -154,35 +111,15 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
         return processed;
     }
 
-    protected double normalizeAccessible(double input) {
-        return input;
-    }
-
-    protected double normalizeDistance(double input) {
-        return input;
-    }
-
-    protected INDArray evaluateNetwork(INDArray indArray) {
-        // Evaluate the neural network with set input and return the output
-        INDArray output = net.output(indArray);
-        // set rememberInputs to the last part of the output
-        for (int i = 0; i < getRememberCount(); i++) {
-            rememberInputs[i] = output.getDouble(0, i + getOutputCount() + getBoostCount());
-        }
-
-        return output;
-    }
-
+    @Override
     protected void createNetwork() {
-        // TODO: Improve dummy network
-        // TODO: Implement remembering in the network
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .updater(new Sgd(0.1))
                 .biasInit(0)
                 .miniBatch(false)
                 .list()
                 .layer(new DenseLayer.Builder()
-                        .nIn((getInputCount() + 1) * 2 + 1 + getRememberCount() + getPositionCount())
+                        .nIn(getInputCount() * 2 + getPositionCount() + getOpponentPositionCount() + getRememberCount())
                         .nOut(20)
                         .activation(Activation.RELU)
                         .weightInit(new UniformDistribution(-1, 1))
@@ -204,54 +141,52 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     }
 
     @Override
-    public MultiLayerNetwork getNetwork() {
-        return this.net;
-    }
-
-    @Override
-    public void saveNetwork(File f) throws IOException {
-        ModelSerializer.writeModel(this.net, f, false);
-    }
-
-    @Override
-    public MultiLayerNetwork loadNetwork(File f) throws IOException {
-        this.net = ModelSerializer.restoreMultiLayerNetwork(f, false);
-        return this.net;
-    }
-
     public int getUpdateFrequency() {
         return updateFrequency;
     }
 
+    @Override
     public int getInputCount() {
         return inputCount;
     }
 
+    @Override
     public boolean isAddPosition() {
         return addPosition;
     }
 
+    @Override
     public int getPositionCount() {
         return addPosition ? 2 : 0;
     }
 
+    public int getOpponentPositionCount() {
+        return 2;
+    }
+
+    @Override
     public int getOutputCount() {
         return outputCount;
     }
 
+    @Override
     public boolean isAddBoost() {
         return addBoost;
     }
 
+    @Override
     public int getBoostCount() {
         return addBoost ? 1 : 0;
     }
 
+    @Override
     public int getRememberCount() {
         return rememberCount;
     }
 
+    @Override
     public int getMaxRayLength() {
         return maxRayLength;
     }
+
 }

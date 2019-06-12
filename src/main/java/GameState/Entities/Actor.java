@@ -25,6 +25,8 @@ public class Actor extends Entity implements Observable {
     private boolean doScream = false;
     private double targetAngle;
 
+    private Vector3f opponentPos;
+
     // Turnspeed has to be a divisor of 90
     private float turnSpeed = 10f;
 
@@ -51,6 +53,11 @@ public class Actor extends Entity implements Observable {
         this.speed = kidnapper ? 3 : 4; //different speed for the two players
         this.world = world;
         this.observers = new ArrayList<>();
+
+        float centerX = world.getWidth() * 1f / 2;
+        float centerY = world.getHeight() * 1f / 2;
+
+        this.opponentPos = new Vector3f(centerX, centerY, 0);
 
         this.hasBoost = kidnapper;
     }
@@ -327,9 +334,22 @@ public class Actor extends Entity implements Observable {
         return results;
     }
 
-    public  void receiveScream() {
+    public Vector3f getOpponentPosition() {
+        return this.opponentPos;
+    }
+
+    public void receiveScream() {
         previousAngle = getScreamAngle();
         doScream = true;
+
+        Vector3f opponentPos;
+        if (kidnapper) {
+            opponentPos = world.getFather().getPosition();
+        } else {
+            opponentPos = world.getKidnapper().getPosition();
+        }
+
+        this.opponentPos = new Vector3f(opponentPos.x, opponentPos.y, opponentPos.z);
     }
 
     public int getScreamAngle() {

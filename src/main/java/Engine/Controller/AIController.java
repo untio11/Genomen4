@@ -38,4 +38,14 @@ public class AIController extends Controller {
         y = y * 2 - 1;
         return new double[] {x, y};
     }
+
+    public double[] getOpponentPosition() {
+        Vector3f pos = this.player.getOpponentPosition();
+        World w = World.getInstance();
+        double x = pos.x / w.getWidth();
+        double y = pos.y / w.getHeight();
+        x = x * 2 - 1;
+        y = y * 2 - 1;
+        return new double[] {x, y};
+    }
 }
