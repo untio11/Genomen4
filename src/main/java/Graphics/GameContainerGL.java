@@ -11,7 +11,8 @@ import Graphics.Gui.GuiTexture;
 import Graphics.Gui.MenuRenderer;
 import Graphics.RenderEngine.AbstractRenderer;
 import Graphics.RenderEngine.Loader;
-import Graphics.RenderEngine.MasterRenderer;
+import Graphics.RenderEngine.RayTracing.RayTracer;
+import Graphics.RenderEngine.TraditionalRendering.MasterRenderer;
 import Graphics.RenderEngine.Scene;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
@@ -22,7 +23,7 @@ import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class GameContainerGL implements Runnable, AbstractGameContainer {
-
+    public static final boolean RAY_TRACING = false;
     private static final double ROUND_TIME = 60;
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
@@ -62,8 +63,9 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
         pixelHeight = 900;
         if (renderWindow) {
             this.windowGL = new WindowGL(pixelWidth, pixelHeight, scale);
-            renderer = new MasterRenderer();
+            renderer = RAY_TRACING ? new RayTracer(pixelWidth, pixelHeight) : new MasterRenderer();
             this.scene = new Scene(this.world); // First do window gl and initglfw, otherwise no openGL context will be available
+            renderer.init(scene);
 
             renderer.init(scene);
 

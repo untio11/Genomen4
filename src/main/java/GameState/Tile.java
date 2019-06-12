@@ -4,7 +4,6 @@ public class Tile {
 
     private Position position;
     private TileType type;
-    private float height;
     private int heuristic;
     private int gCost;
     private int fScore;
@@ -13,19 +12,14 @@ public class Tile {
     /**
      * Constructor for a tile required a type and a height.
      */
-    Tile(TileType t, int height, int[] coordinates, int heuristic) {
+    public Tile(TileType t, int[] coordinates, int heuristic) {
         this.type = t;
-        this.height = height;
         this.position = new Position(coordinates[1], coordinates[0]); // row -> y, column -> x
         this.heuristic = heuristic;
     }
 
     public boolean isAccessible() {
         return type.isAccessible(type);
-    }
-
-    public float getHeight() {
-        return height;
     }
 
     public TileType getType() {
@@ -66,6 +60,10 @@ public class Tile {
 
     public void setParent(Tile t) {
         this.parent = t;
+    }
+
+    public Position getPosition() {
+        return position;
     }
 
     @Override

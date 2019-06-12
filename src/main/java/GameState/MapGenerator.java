@@ -11,14 +11,29 @@ public class MapGenerator {
     private int startWidthOffset;
 
     private MapConfiguration config;
+    private long seed;
+    private Random r;
 
     public MapGenerator() {
         this.config = MapConfigurations.getNormalMap();
+        r = new Random();
     }
 
+    public MapGenerator(long seed) {
+        this.config = MapConfigurations.getNormalMap();
+        this.seed = seed;
+        r = new Random(seed);
+    }
 
     public MapGenerator(MapConfiguration config) {
         this.config = config;
+        r = new Random();
+    }
+
+    public MapGenerator(MapConfiguration config, long seed) {
+        this.config = config;
+        this.seed = seed;
+        r = new Random(seed);
     }
 
     public Tile[][] generate() {
@@ -41,9 +56,9 @@ public class MapGenerator {
         }
 
         //Then define the starting point of the chaser and the escapee
-        map[(int) Math.floor(height/2)][startWidthOffset] = new Tile(TileType.GRASS, 0,
+        map[(int) Math.floor(height/2)][startWidthOffset] = new Tile(TileType.GRASS,
                 new int[] {startRow, startWidthOffset}, calcHeuristic(startRow, startWidthOffset));
-        map[startRow][width - startWidthOffset] = new Tile(TileType.GRASS, 0,
+        map[startRow][width - startWidthOffset] = new Tile(TileType.GRASS,
                 new int[] {startRow, width - startWidthOffset}, calcHeuristic(startRow, width - startWidthOffset));
 
         //Then fill a skeleton of the map to increase randomness
@@ -83,19 +98,19 @@ public class MapGenerator {
 
     private Tile getBayesianTile(int r, int c) {
         if (isWorldEdge(r, c)) {
-            return new Tile(TileType.WATER, 0, new int[] {r, c}, calcHeuristic(r, c));
+            return new Tile(TileType.WATER, new int[] {r, c}, calcHeuristic(r, c));
         }
 
         double chance[] = getChanceDistribution2(r, c);
-        double random = Math.random();
+        double random = this.r.nextDouble();
         if (random <= chance[0]) {
-            return  new Tile(TileType.GRASS, 0, new int[] {r, c}, calcHeuristic(r, c));
+            return  new Tile(TileType.GRASS, new int[] {r, c}, calcHeuristic(r, c));
         } else if (random <= chance[0] + chance[1]) {
-            return new Tile(TileType.SAND, 0, new int[] {r, c}, calcHeuristic(r, c));
+            return new Tile(TileType.SAND, new int[] {r, c}, calcHeuristic(r, c));
         } else if (random <= chance[0] + chance[1] + chance[2] ) {
-            return new Tile(TileType.TREE, 0, new int[] {r, c}, calcHeuristic(r, c));
+            return new Tile(TileType.TREE, new int[] {r, c}, calcHeuristic(r, c));
         } else {
-            return new Tile(TileType.WATER, 0, new int[] {r, c}, calcHeuristic(r, c));
+            return new Tile(TileType.WATER, new int[] {r, c}, calcHeuristic(r, c));
         }
 
     }
@@ -336,7 +351,7 @@ public class MapGenerator {
                     if (c - 1 >= 0 && map[r][c-1].isAccessible()) {
                         shore += 1000;
                     }
-                    map[r][c] = new Tile(shoreMap.get(shore), 0, new int[] {r, c}, calcHeuristic(r, c));
+                    map[r][c] = new Tile(shoreMap.get(shore), new int[] {r, c}, calcHeuristic(r, c));
                 }
             }
         }

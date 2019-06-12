@@ -21,33 +21,37 @@ import java.io.IOException;
 public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
 
     // The number of frames between every update of the ai player
-    public static final int UPDATE_FREQUENCY = 30;
+    protected final int updateFrequency = 30;
 
     // The number of inputs of the neural network
-    public static final int INPUT_COUNT = 8;
+    protected final int inputCount = 8;
 
     // Add the player position to the input
-    public static final boolean ADD_POSITION = true;
-    public static final int POSITION_COUNT = ADD_POSITION ? 2 : 0;
+    protected final boolean addPosition = true;
 
     // The number of outputs of the neural network
-    public static final int OUTPUT_COUNT = 2;
+    protected final int outputCount = 2;
 
     // The number of values that the neural network should remember
     // These will be passed through in the next iteration
-    public static final int REMEMBER_COUNT = 3;
+    protected final int rememberCount = 3;
 
     // The maximum length of each ray coming from the player
-    public static final int MAX_RAY_LENGTH = 6;
+    protected final int maxRayLength = 6;
 
     // The current number of frames elapsed since the last update
     protected int frame = 0;
 
     protected MultiLayerNetwork net;
 
-    private double[] rememberInputs = new double[REMEMBER_COUNT];
+    private double[] rememberInputs;
+
+    public AIGenomenPlayer() {
+
+    }
 
     public void init() {
+        rememberInputs = new double[getRememberCount()];
         if (this.net == null) {
             this.createNetwork();
         }
@@ -56,7 +60,7 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     @Override
     public void update(double dt) {
         // First check if the AI should update the movement axes
-        if (frame > UPDATE_FREQUENCY) {
+        if (frame > getUpdateFrequency()) {
             // If so, update these
             this.movePlayer();
             frame = 0;
@@ -71,11 +75,11 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
 
     protected void movePlayer() {
         double[] position = new double[0];
-        if (ADD_POSITION) {
+        if (isAddPosition()) {
             position = this.getPosition();
         }
 
-        double[][] input = this.getInput(INPUT_COUNT, MAX_RAY_LENGTH);
+        double[][] input = this.getInput(getInputCount(), getMaxRayLength());
         // Process the input so the neural network can accept it
         INDArray indArray = this.inputToINDArray(position, input);
 
@@ -95,7 +99,7 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
         double[] processedInput = this.processInput(input);
 
         // adding the remembered inputs to the processed inputs
-        int length = position.length + processedInput.length + REMEMBER_COUNT;
+        int length = position.length + processedInput.length + getRememberCount();
         double[] netInput = new double[length];
         for (int i = 0; i < length; i++) {
             if (i < position.length) {
@@ -113,7 +117,7 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     }
 
     private double[] processInput(double[][] input) {
-        double[] processed = new double[(INPUT_COUNT + 1) * 2 + 1];
+        double[] processed = new double[(getInputCount() + 1) * 2 + 1];
         for (int i = 0; i < input.length; i++) {
             if (i == input.length - 1) {
                 processed[i*2] = input[i][0];
@@ -148,8 +152,8 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
         // Evaluate the neural network with set input and return the output
         INDArray output = net.output(indArray);
         // set rememberInputs to the last part of the output
-        for (int i = 0; i < REMEMBER_COUNT; i++) {
-            rememberInputs[i] = output.getDouble(0, i + OUTPUT_COUNT);
+        for (int i = 0; i < getRememberCount(); i++) {
+            rememberInputs[i] = output.getDouble(0, i + getOutputCount());
         }
 
         return output;
@@ -164,23 +168,18 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
                 .miniBatch(false)
                 .list()
                 .layer(new DenseLayer.Builder()
-                        .nIn((INPUT_COUNT + 1) * 2 + 1 + REMEMBER_COUNT + POSITION_COUNT)
-                        .nOut((INPUT_COUNT + 1) * 2 + 1 + REMEMBER_COUNT + POSITION_COUNT)
+                        .nIn((getInputCount() + 1) * 2 + 1 + getRememberCount() + getPositionCount())
+                        .nOut(16)
                         .activation(Activation.RELU)
                         .weightInit(new UniformDistribution(-1, 1))
                         .build())
                 .layer(new DenseLayer.Builder()
-                        .nOut(30)
-                        .activation(Activation.TANH)
-                        .weightInit(new UniformDistribution(-1, 1))
-                        .build())
-                .layer(new DenseLayer.Builder()
-                        .nOut(20)
+                        .nOut(10)
                         .activation(Activation.TANH)
                         .weightInit(new UniformDistribution(-1, 1))
                         .build())
                 .layer(new OutputLayer.Builder(LossFunctions.LossFunction.L2)
-                        .nOut(OUTPUT_COUNT + REMEMBER_COUNT)
+                        .nOut(getOutputCount() + getRememberCount())
                         .activation(Activation.TANH)
                         .weightInit(new UniformDistribution(-1, 1))
                         .build())
@@ -204,5 +203,33 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
     public MultiLayerNetwork loadNetwork(File f) throws IOException {
         this.net = ModelSerializer.restoreMultiLayerNetwork(f, false);
         return this.net;
+    }
+
+    public int getUpdateFrequency() {
+        return updateFrequency;
+    }
+
+    public int getInputCount() {
+        return inputCount;
+    }
+
+    public boolean isAddPosition() {
+        return addPosition;
+    }
+
+    public int getPositionCount() {
+        return addPosition ? 2 : 0;
+    }
+
+    public int getOutputCount() {
+        return outputCount;
+    }
+
+    public int getRememberCount() {
+        return rememberCount;
+    }
+
+    public int getMaxRayLength() {
+        return maxRayLength;
     }
 }
