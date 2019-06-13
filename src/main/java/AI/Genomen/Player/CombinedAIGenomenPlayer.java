@@ -60,7 +60,6 @@ public class CombinedAIGenomenPlayer extends AIController {
         double[][] input = this.getInput(0, getMaxRayLength());
         boolean enemyVisible = input[0][0] == 2;
         AIGenomenPlayer controller;
-        System.out.println(enemyVisible);
         if (enemyVisible) {
             controller = catchingPlayer;
         } else {
