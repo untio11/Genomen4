@@ -15,7 +15,7 @@ public class GameContainerSwing implements Runnable, AbstractGameContainer {
     private static final double ROUND_TIME = 60;
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
-    private final double cryInterval = 4;
+    private final double cryInterval = 3;
 
     private boolean renderWindow;
     private int pixelWidth, pixelHeight;

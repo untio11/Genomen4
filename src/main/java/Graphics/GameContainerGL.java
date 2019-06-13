@@ -27,7 +27,8 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
     private static final double ROUND_TIME = 60;
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
-    private final double cryInterval = 4;
+    private final double cryInterval = 3;
+    private final double humanCryInterval = 7;
 
     private boolean renderWindow;
     private int pixelWidth, pixelHeight;
@@ -222,6 +223,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
         int frames = 0;
         int fps = 0;
         double cryTimer = cryInterval;
+        double humanCryTimer = humanCryInterval;
         int cryNumber = 0;
         double roundTime= ROUND_TIME;
 
@@ -236,9 +238,8 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
             roundTime -= passedTime;
 
             cryTimer -= passedTime;
+            humanCryTimer -= passedTime;
             if (cryTimer < 0) {
-                screamActive = true;
-                startScreamTimer();
                 World.getInstance().getKidnapper().receiveScream();
                 World.getInstance().getFather().receiveScream();
                 if (playerFather) {
@@ -248,6 +249,23 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
                     oppoAngle = (int) World.getInstance().getKidnapper().getPreviousAngle();
                 }
                 cryTimer = cryInterval;
+            }
+
+            if (humanCryTimer < 0) {
+                screamActive = true;
+                startScreamTimer();
+                if (playerFather) {
+                    World.getInstance().getFather().receiveScream();
+                } else {
+                    World.getInstance().getKidnapper().receiveScream();
+                }
+                if (playerFather) {
+                    oppoAngle = (int) World.getInstance().getFather().getPreviousAngle();
+                } else {
+                    //todo: should we remove indicator for kidnapper?
+                    oppoAngle = (int) World.getInstance().getKidnapper().getPreviousAngle();
+                }
+                humanCryTimer = humanCryInterval;
                 clips.get(cryNumber).play();
                 cryNumber = (cryNumber + 1) % clips.size();
             }
