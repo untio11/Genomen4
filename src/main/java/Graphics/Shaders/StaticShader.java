@@ -8,7 +8,7 @@ import org.joml.Matrix4f;
 
 public class StaticShader extends ShaderProgram {
 
-    private static final int MAX_BONES = 12;    //max number of bones in the skeleton
+    private static final int MAX_BONES = 16;    //max number of bones in the skeleton
 
     private static final String VERTEX_FILE = "src/main/java/Graphics/Animation/renderer/animatedEntityVertex.glsl";
     private static final String FRAGMENT_FILE = "src/main/java/Graphics/Animation/renderer/animatedEntityFragment.glsl";

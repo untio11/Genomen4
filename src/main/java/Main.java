@@ -5,6 +5,7 @@ import Engine.Controller.Controller;
 import Engine.GameContainerSwing;
 import GameState.MapConfigurations;
 import GameState.World;
+import Graphics.GameContainerGL;
 
 import java.io.File;
 
@@ -12,10 +13,10 @@ public class Main {
     public static void main(String[] args) {
 
         World.initWorld(MapConfigurations.getStarterMap());
-        AbstractGameContainer gc = new GameContainerSwing(World.getInstance(), true);
+        AbstractGameContainer gc = new GameContainerGL(World.getInstance(), true);
 
         // Booleans indicating whether to load the father or kidnapper AI or play as a human
-        boolean fatherAI = true;
+        boolean fatherAI = false;
         boolean kidnapperAI = true;
 
         // If the father is the AI, load from the stored file and construct an AI player
