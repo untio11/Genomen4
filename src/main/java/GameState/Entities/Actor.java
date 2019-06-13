@@ -328,7 +328,7 @@ public class Actor extends Entity implements Observable {
             }
         }
 
-        doScream = false;
+//        doScream = false;
 
         results[results.length - 1] = rayToOpponent;
 

@@ -21,8 +21,20 @@ public class AIController extends Controller {
         this.yAxis = Math.max(-1, Math.min(1, yAxis));
     }
 
+    public double getXAxis() {
+        return xAxis;
+    }
+
+    public double getYAxis() {
+        return yAxis;
+    }
+
     public void setBoost(boolean value) {
         this.boost = value;
+    }
+
+    public boolean isBoost() {
+        return boost;
     }
 
     public double[][] getInput(int nRays, int maxLength) {

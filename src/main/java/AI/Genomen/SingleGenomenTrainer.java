@@ -20,7 +20,7 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
     // Boolean for choosing between the father and kidnapper
     private static boolean fatherAI = true;
 
-    private static final int GAMES = 6;
+    private static final int GAMES = 8;
     private long[] worldSeeds = new long[GAMES];
 
     private static final int WINNING_FACTOR = 4;
@@ -43,8 +43,8 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
     }
 
     public static void main(String[] args) {
-        int players = 80;
-        SingleGenomenTrainer trainer = new SingleGenomenTrainer(players, 60);
+        int players = 100;
+        SingleGenomenTrainer trainer = new SingleGenomenTrainer(players, 1000);
 
         long startTime = System.nanoTime();
 
@@ -78,14 +78,14 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
 
     @Override
     protected AIGenomenPlayer createPlayer1() {
-        AIGenomenPlayer player = new AI2GenomenPlayer(true);
+        AIGenomenPlayer player = new AIGenomenPlayer(true);
         player.init();
         return player;
     }
 
     @Override
     protected AIGenomenPlayer createPlayer1(Map<String, INDArray> paramTable) {
-        AIGenomenPlayer player = new AI2GenomenPlayer(true);
+        AIGenomenPlayer player = new AIGenomenPlayer(true);
         player.init();
         player.getNetwork().setParamTable(paramTable);
         return player;
@@ -94,7 +94,7 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
     @Override
     protected void createPlayers2(List<Controller> players) {
         players.add(new StaticGenomenPlayer());
-        players.add(new RandomGenomenPlayer());
+//        players.add(new RandomGenomenPlayer());
         players.add(new SimpleGenomenPlayer(false));
 //        players.add(new SimpleGenomenPlayer(true, 30));
 //        players.add(new LoadAIGenomenPlayer(new File("res/network/1560138909372-single-genomen-1-9006.net")));

@@ -58,8 +58,12 @@ public class AI2GenomenPlayer extends AIGenomenPlayer {
         double[][] input = this.getInput(getInputCount(), getMaxRayLength());
 
         double[] opponentPos = this.getOpponentPosition();
+
+        double xOffset = opponentPos[0] - position[0];
+        double yOffset = opponentPos[1] - position[1];
+        double[] offset = new double[] { xOffset, yOffset };
         // Process the input so the neural network can accept it
-        INDArray indArray = this.inputToINDArray(input, position, opponentPos);
+        INDArray indArray = this.inputToINDArray(input, position, offset);
 
         // Evaluate the network with the processed input
         INDArray output = this.evaluateNetwork(indArray);
@@ -120,12 +124,12 @@ public class AI2GenomenPlayer extends AIGenomenPlayer {
                 .list()
                 .layer(new DenseLayer.Builder()
                         .nIn(getInputCount() * 2 + getPositionCount() + getOpponentPositionCount() + getRememberCount())
-                        .nOut(20)
-                        .activation(Activation.RELU)
+                        .nOut(18)
+                        .activation(Activation.TANH)
                         .weightInit(new UniformDistribution(-1, 1))
                         .build())
                 .layer(new DenseLayer.Builder()
-                        .nOut(10)
+                        .nOut(16)
                         .activation(Activation.TANH)
                         .weightInit(new UniformDistribution(-1, 1))
                         .build())

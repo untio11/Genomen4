@@ -37,7 +37,7 @@ public class AIGenomenPlayer extends AIController implements TrainerAIPlayer {
 
     // The number of values that the neural network should remember
     // These will be passed through in the next iteration
-    protected final int rememberCount = 6;
+    protected final int rememberCount = 2;
 
     // The maximum length of each ray coming from the player
     protected final int maxRayLength = 6;
