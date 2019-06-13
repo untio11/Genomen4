@@ -30,6 +30,7 @@ public class InputHandler extends Controller {
         boolean left = false;
         boolean up = false;
         boolean down = false;
+        boolean shift = false;
         for (int keyPressed : pressedKeys) {
             switch (keyPressed) {
                 case GLFW_KEY_W:
@@ -44,8 +45,14 @@ public class InputHandler extends Controller {
                 case GLFW_KEY_D:
                     right = true;
                     break;
+                case GLFW_KEY_LEFT_SHIFT:
+                    shift = true;
+                    break;
             }
         }
+
+        player.setBoost(shift);
+
         double horizontal = 0;
         double vertical = 0;
 
@@ -65,7 +72,7 @@ public class InputHandler extends Controller {
             vertical = dt;
         }
 
-        player.move(horizontal, vertical);
+        player.move(horizontal, vertical, dt);
     }
 
 

@@ -4,9 +4,10 @@ import GameState.Entities.Actor;
 import GameState.TileType;
 import GameState.World;
 import Graphics.RenderEngine.AbstractRenderer;
+import Graphics.RenderEngine.RenderInterface;
 import Graphics.RenderEngine.Scene;
 
-public class Renderer implements AbstractRenderer {
+public class Renderer implements RenderInterface {
     public static final int TS = 16;
     private Window window;
     private World world;
@@ -73,4 +74,10 @@ public class Renderer implements AbstractRenderer {
 
     @Override
     public void clean() { }
+
+    @Override
+    public void renderMenu() {
+
+    }
+
 }

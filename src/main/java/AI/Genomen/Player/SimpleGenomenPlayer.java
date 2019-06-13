@@ -20,6 +20,8 @@ public class SimpleGenomenPlayer extends AIController {
     // Boolean indicating whether the player is the father
     protected boolean father;
 
+    protected int maxRayLength = MAX_RAY_LENGTH;
+
     public SimpleGenomenPlayer() {
         this.father = false;
     }
@@ -28,11 +30,16 @@ public class SimpleGenomenPlayer extends AIController {
         this.father = father;
     }
 
+    public SimpleGenomenPlayer(boolean father, int maxRayLength) {
+        this.father = father;
+        this.maxRayLength = maxRayLength;
+    }
+
     @Override
     public void update(double dt) {
 
         if (frame < 0) {
-            double[][] input = this.getInput(0, MAX_RAY_LENGTH);
+            double[][] input = this.getInput(0, maxRayLength);
             double angle = input [0][2];
             double xAxis;
             double yAxis;
@@ -41,10 +48,14 @@ public class SimpleGenomenPlayer extends AIController {
                 xAxis = r.nextDouble() * 2 - 1;
                 yAxis = r.nextDouble() * 2 - 1;
                 frame = UPDATE_FREQUENCY;
+                this.setBoost(false);
             } else {
                 xAxis = Math.cos(Math.toRadians(angle + getAngleOffset()));
                 yAxis = Math.sin(Math.toRadians(angle + getAngleOffset()));
                 frame = UPDATE_FREQUENCY * getVisibleTimeoutFactor();
+                if (input[0][0] > 0) {
+                    this.setBoost(true);
+                }
             }
             this.setAxis(xAxis, yAxis);
         }

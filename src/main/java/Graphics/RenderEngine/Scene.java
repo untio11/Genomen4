@@ -37,7 +37,7 @@ public class Scene {
     private World world;
     private List<ActorModel> entities;
     private List<TerrainModel> terrain_list;
-    private GuiTexture gui;
+    private GuiTexture gui, menu, lost, win;
     private LightSource[] lights = new LightSource[2];
     private Map<String, TerrainModel> terrain_map;
     private Map<Integer, List<TerrainModel>> texture_to_terrainlist_map;
@@ -258,8 +258,12 @@ public class Scene {
                 (top_left[1] <= target[1] && target[1] < bottom_right[1]));
     }
 
+    //todo: better menu and end screen
     private void initGui() {
-        gui = new GuiTexture(loader.loadTexture("indicator"), new Vector3f(0.8f, 0f, 0f), new Vector3f(0.15f, 0.15f, 1f), 45f, 45f);
+        gui = new GuiTexture(loader.loadTexture("indicator"), new Vector3f(0.5f, 0f, 0f), new Vector3f(0.25f, 0.25f, 1f), 45f, 45f);
+        menu = new GuiTexture(loader.loadTexture("menu"), new Vector3f(0f, 0f, 0f), new Vector3f(1f, 1f, 1f), 0, 0);
+        lost = new GuiTexture(loader.loadTexture("lost"), new Vector3f(0f, 0f, 0f), new Vector3f(1f, 1f, 1f), 0, 0);
+        win = new GuiTexture(loader.loadTexture("win"), new Vector3f(0f, 0f, 0f), new Vector3f(1f, 1f, 1f), 0, 0);
     }
 
     private void initActors(Actor[] actors) {
@@ -324,6 +328,18 @@ public class Scene {
 
     public GuiTexture getGui() {
         return gui;
+    }
+
+    public GuiTexture getMenu() {
+        return menu;
+    }
+
+    public GuiTexture getLost() {
+        return lost;
+    }
+
+    public GuiTexture getWin() {
+        return win;
     }
 
     /**

@@ -21,17 +21,19 @@ public class Main {
 
         // If the father is the AI, load from the stored file and construct an AI player
         if (fatherAI) {
-            File f = new File("res/network/father/1560138928134-single-genomen-1-8986.net");
-            Controller fatherController = new LoadAIGenomenPlayer(f);
+//            File f = new File("res/network/father/1560317776191-single-genomen-father-1-9958.net");
+//            GenomenAISettings settings = new GenomenAISettings();
+//            settings.setInputCount(4).setRememberCount(6);
+//            Controller fatherController = new LoadAIGenomenPlayer(f, settings);
 
             /*
              * Example code for loading an AI with different settings
              * This AI was trained without ray inputs on an empty map, but performs reasonably on any map
              */
-//            File f = new File("res/network/father/01-single-genomen-1-4092.net");
-//            GenomenAISettings settings = new GenomenAISettings();
-//            settings.setInputCount(0).setRememberCount(2);
-//            Controller fatherController = new LoadAIGenomenPlayer(f, settings);
+            File f = new File("res/network/father/01-single-genomen-1-4092.net");
+            GenomenAISettings settings = new GenomenAISettings();
+            settings.setInputCount(0).setRememberCount(2).setUpdateFrequency(10);
+            Controller fatherController = new LoadAIGenomenPlayer(f, settings);
 
             fatherController.setPlayer(World.getInstance().getFather());
             gc.setFatherAI(fatherController);
@@ -42,8 +44,13 @@ public class Main {
 
         // If the kidnapper is the AI, load from the stored file and construct an AI player
         if (kidnapperAI) {
-            File f = new File("res/network/kidnapper/1560171989699-single-genomen-kidnapper-1-4972.net");
-            Controller kidnapperController = new LoadAIGenomenPlayer(f);
+//            File f = new File("res/network/kidnapper/1560171989699-single-genomen-kidnapper-1-4972.net");
+//            Controller kidnapperController = new LoadAIGenomenPlayer(f);
+
+            File f = new File("res/network/kidnapper/1560215259902-single-genomen-kidnapper-1-5809.net");
+            GenomenAISettings settings = new GenomenAISettings();
+            settings.setAddBoost(true);
+            Controller kidnapperController = new LoadAIGenomenPlayer(f, settings);
 
             kidnapperController.setPlayer(World.getInstance().getKidnapper());
             gc.setKidnapperAI(kidnapperController);

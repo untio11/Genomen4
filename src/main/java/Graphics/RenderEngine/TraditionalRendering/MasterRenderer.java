@@ -2,6 +2,7 @@ package Graphics.RenderEngine.TraditionalRendering;
 
 import GameState.Entities.Camera;
 import Graphics.Gui.GuiRenderer;
+import Graphics.Gui.MenuRenderer;
 import Graphics.Models.ActorModel;
 import Graphics.Models.TerrainModel;
 import Graphics.RenderEngine.AbstractRenderer;
@@ -11,11 +12,10 @@ import Graphics.Shaders.TerrainShader;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class MasterRenderer implements AbstractRenderer {
+public class MasterRenderer extends AbstractRenderer {
 
     private static final float FOV = 100;
     private static final float NEAR_PLANE = 0.1f;
@@ -27,19 +27,19 @@ public class MasterRenderer implements AbstractRenderer {
     private static TerrainRenderer terrainRenderer; // Can the renderers can be static?
     private static TerrainShader terrainShader = new TerrainShader();
     private static ActorRenderer actorRenderer;
-    private static GuiRenderer guiRenderer;
 
     private static Camera camera;
 
     public MasterRenderer() {
+        super();
         createProjectionMatrix();
         terrainRenderer = new TerrainRenderer(terrainShader, projectionMatrix);
         actorRenderer = new ActorRenderer(shader, projectionMatrix);
-        guiRenderer = new GuiRenderer();
     }
 
-    public void init(Scene scene) { // TODO: should this just all be done in the constructor?
-        guiRenderer.init(scene);
+    @Override
+    public void init(Scene scene) {
+        super.init(scene);
     }
 
     // TODO: Make sure that this can just render a given scene
@@ -72,7 +72,8 @@ public class MasterRenderer implements AbstractRenderer {
         terrainShader.cleanUp();
     }
 
-    public void prepare() {
+    @Override
+    protected void prepare() {
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
         GL11.glClearColor(0, 0.45f, 1.0f, 1);

@@ -16,10 +16,10 @@ public class TerrainGenerator {
     private static float taper = 0.2f;
     private static int vertex_count;
     private static Random generator = new Random();
-    private static boolean should_taper = true; // Enable this if you want randomly tapered trees for cool shadow effects
+    private static boolean should_taper = GameContainerGL.RAY_TRACING; // Enable this if you want randomly tapered trees for cool shadow effects
 
     public static TerrainModel generateTerrain(Tile tile, int texture, Loader loader) {
-        height = (tile.getType() == TileType.TREE) ? 1 : 0;
+        height = (tile.getType() == TileType.TREE) ? (GameContainerGL.RAY_TRACING ? 1 : 10) : 0;
         taper = (should_taper && tile.getType() == TileType.TREE) ? generator.nextFloat() * 0.4f : 0.0f;
         BaseModel base = generateTerrainBase(loader);
         base.setTexture(texture);
