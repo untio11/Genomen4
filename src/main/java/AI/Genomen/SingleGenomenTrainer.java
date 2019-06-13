@@ -20,14 +20,14 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
     // Boolean for choosing between the father and kidnapper
     private static boolean fatherAI = true;
 
-    private static final int GAMES = 6;
+    private static final int GAMES = 8;
     private long[] worldSeeds = new long[GAMES];
 
     private static final int WINNING_FACTOR = 4;
 
     private static final int TIME_FACTOR = 2;
 
-    private static MapConfiguration mapConfig = MapConfigurations.getBigStarterMap();
+    private static MapConfiguration mapConfig = MapConfigurations.getStarterMap();
 
     public SingleGenomenTrainer(int nPlayers, int iterations) {
         super(nPlayers, iterations);
@@ -94,7 +94,7 @@ public class SingleGenomenTrainer extends SingleBiAIGameTrainer<AIGenomenPlayer,
     @Override
     protected void createPlayers2(List<Controller> players) {
         players.add(new StaticGenomenPlayer());
-        players.add(new RandomGenomenPlayer());
+//        players.add(new RandomGenomenPlayer());
         players.add(new SimpleGenomenPlayer(false));
 //        players.add(new SimpleGenomenPlayer(true, 30));
 //        players.add(new LoadAIGenomenPlayer(new File("res/network/1560138909372-single-genomen-1-9006.net")));

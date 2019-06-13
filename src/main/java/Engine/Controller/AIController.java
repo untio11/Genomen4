@@ -21,8 +21,20 @@ public class AIController extends Controller {
         this.yAxis = Math.max(-1, Math.min(1, yAxis));
     }
 
+    public double getXAxis() {
+        return xAxis;
+    }
+
+    public double getYAxis() {
+        return yAxis;
+    }
+
     public void setBoost(boolean value) {
         this.boost = value;
+    }
+
+    public boolean isBoost() {
+        return boost;
     }
 
     public double[][] getInput(int nRays, int maxLength) {
@@ -31,6 +43,16 @@ public class AIController extends Controller {
 
     public double[] getPosition() {
         Vector3f pos = this.player.getPosition();
+        World w = World.getInstance();
+        double x = pos.x / w.getWidth();
+        double y = pos.y / w.getHeight();
+        x = x * 2 - 1;
+        y = y * 2 - 1;
+        return new double[] {x, y};
+    }
+
+    public double[] getOpponentPosition() {
+        Vector3f pos = this.player.getOpponentPosition();
         World w = World.getInstance();
         double x = pos.x / w.getWidth();
         double y = pos.y / w.getHeight();
