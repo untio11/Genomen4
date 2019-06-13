@@ -1,5 +1,6 @@
 package Graphics.Shaders;
 
+import Graphics.Animation.shaderUniforms.Uniform;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
@@ -61,6 +62,12 @@ public abstract class ShaderProgram {
         return GL20.glGetUniformLocation(programID, uniformName);
     }
 
+    protected void storeAllUniformLocation(Uniform... uniforms) {
+        for(Uniform uniform : uniforms) {
+            uniform.storeUniformLocation(programID);
+        }
+    }
+
     public void start() {
         GL20.glUseProgram(programID);
     }
@@ -107,6 +114,12 @@ public abstract class ShaderProgram {
 
     protected void loadMatrix(int location, Matrix4f matrix) {
         GL20.glUniformMatrix4fv(location, false, matrix.get(matrixBuffer));
+    }
+
+    protected void loadMatrixArray(int[] locations, Matrix4f[] matrixArray) {
+        for(int i=0; i< matrixArray.length; i++) {
+            loadMatrix(locations[i], matrixArray[i]);
+        }
     }
 
     private static int loadShader(String file, int type) {

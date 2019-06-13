@@ -15,8 +15,8 @@ public class Main {
         AbstractGameContainer gc = new GameContainerGL(World.getInstance(), true);
 
         // Booleans indicating whether to load the father or kidnapper AI or play as a human
-        boolean fatherAI = true;
-        boolean kidnapperAI = false;
+        boolean fatherAI = false;
+        boolean kidnapperAI = true;
 
         // If the father is the AI, load from the stored file and construct an AI player
         if (fatherAI) {

@@ -6,6 +6,7 @@ import GameState.Entities.LightSource;
 import GameState.Tile;
 import GameState.TileType;
 import GameState.World;
+import Graphics.Animation.loaders.AnimModelLoader;
 import Graphics.Gui.GuiTexture;
 import org.joml.Vector3f;
 import Graphics.Models.ActorModel;
@@ -266,14 +267,14 @@ public class Scene {
     }
 
     private void initActors(Actor[] actors) {
-        for (Actor actor : actors) {
-            BaseModel playerBase = OBJLoader.loadObjModelInVao("player", loader); // TODO: get model and texture for thief
-            int playerTexture = loader.loadTexture("playerTexture");
-            playerBase.setTexture(playerTexture);
-            playerBase.setScale(0.2f);
-
-            entities.add(new ActorModel(actor, playerBase));
-        }
+        BaseModel playerBase = AnimModelLoader.loadAnimModelInVao("res/gnomeTestSelect.dae", loader);
+        playerBase.setScale(0.04f);
+        int fatherTexture = loader.loadTexture("gnomeUV");
+        int kidnapperTexture = loader.loadTexture("gnomeTexture");
+        playerBase.setTexture(fatherTexture);
+        entities.add(new ActorModel(actors[0], playerBase, playerBase.getRootBone(), playerBase.getBoneCount(), playerBase.getAnimation()));
+        playerBase.setTexture(kidnapperTexture);
+        entities.add(new ActorModel(actors[1], playerBase, playerBase.getRootBone(), playerBase.getBoneCount(), playerBase.getAnimation()));
     }
 
     /**

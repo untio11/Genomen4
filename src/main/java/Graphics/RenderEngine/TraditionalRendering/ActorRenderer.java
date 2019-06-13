@@ -31,6 +31,9 @@ public class ActorRenderer {
         for(ActorModel model : entities) {
             prepareModel(model);
             setTransformationMatrix(model);
+            setJointTransforms(model);
+            shader.loadJointTransforms(model.getJointTransforms());
+
             GL11.glDrawElements(GL11.GL_TRIANGLES, model.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
             unbindTextureModel();
         }
@@ -38,16 +41,22 @@ public class ActorRenderer {
 
     private void prepareModel(ActorModel model) {
         GL30.glBindVertexArray(model.getVaoID());
-        GL20.glEnableVertexAttribArray(0);
-        GL20.glEnableVertexAttribArray(1);
+        GL20.glEnableVertexAttribArray(0);  //position
+        GL20.glEnableVertexAttribArray(1);  //texture
+        GL20.glEnableVertexAttribArray(2);  //normals   ToDo: add for bones
+        GL20.glEnableVertexAttribArray(3);  //bones
+        GL20.glEnableVertexAttribArray(4);  //bone weights
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, model.getTextureID());
 
     }
 
     private void unbindTextureModel() {
-        GL20.glDisableVertexAttribArray(0);
-        GL20.glDisableVertexAttribArray(1);
+        GL20.glDisableVertexAttribArray(0);     //position
+        GL20.glDisableVertexAttribArray(1);     //texture
+        GL20.glDisableVertexAttribArray(2);     //normals   ToDo: add for bones
+        GL20.glDisableVertexAttribArray(3);     //bones
+        GL20.glDisableVertexAttribArray(4);     //bone weights
         GL30.glBindVertexArray(0);
     }
 
@@ -55,11 +64,17 @@ public class ActorRenderer {
         Actor actor = model.getActor();
         Matrix4f transformationMatrix = Maths.createTransformationMatrix(
                 actor.get3DPosition(), // Translation
-                actor.getRotX(), actor.getRotY(), actor.getRotZ(), // Rotation
+                actor.getRotX()-90, actor.getRotZ(), actor.getRotY(), // Rotation
                 model.getScale() // Scaling
         );
 
         shader.loadTransformationMatrix(transformationMatrix);
+    }
+
+    private void setJointTransforms(ActorModel model) {
+        Actor actor = model.getActor();
+        model.update();
+        shader.loadJointTransforms(model.getJointTransforms());
     }
 
     /** Old renderer method, now divided in multiple methods (see above)
