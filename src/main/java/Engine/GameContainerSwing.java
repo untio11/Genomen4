@@ -4,6 +4,7 @@ import Engine.Controller.Controller;
 import Engine.Controller.KeyController;
 import GameState.World;
 import Graphics.RenderEngine.AbstractRenderer;
+import Graphics.RenderEngine.RenderInterface;
 import Graphics.RenderEngine.Scene;
 
 import java.awt.event.KeyEvent;
@@ -14,7 +15,7 @@ public class GameContainerSwing implements Runnable, AbstractGameContainer {
     private static final double ROUND_TIME = 60;
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
-    private final double cryInterval = 7;
+    private final double cryInterval = 3;
 
     private boolean renderWindow;
     private int pixelWidth, pixelHeight;
@@ -27,7 +28,7 @@ public class GameContainerSwing implements Runnable, AbstractGameContainer {
     private Thread thread = new Thread(this);
 
     private Window window;
-    private AbstractRenderer renderer; // TODO: Add extra layer above MasterRenderer (AbstractRenderer?) to cover normal rasterizition shading and raytracing
+    private RenderInterface renderer;
     private Controller fatherController, kidnapperController;
 
     ArrayList<SoundClip> clips;
@@ -259,7 +260,7 @@ public class GameContainerSwing implements Runnable, AbstractGameContainer {
     }
 
     public void finalRender() {
-        renderer.render(scene);  //render game
+        renderer.render(scene, false, 0);  //render game
     }
 
     public void updateActor() {

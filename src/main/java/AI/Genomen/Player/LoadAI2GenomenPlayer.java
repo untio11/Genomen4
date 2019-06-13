@@ -3,17 +3,17 @@ package AI.Genomen.Player;
 import java.io.File;
 import java.io.IOException;
 
-public class LoadAIGenomenPlayer extends AIGenomenPlayer {
+public class LoadAI2GenomenPlayer extends AI2GenomenPlayer {
 
     private GenomenAISettings settings;
 
-    public LoadAIGenomenPlayer(File f) {
+    public LoadAI2GenomenPlayer(File f) {
         super();
         settings = new GenomenAISettings();
         this.loadNetworkOrInit(f);
     }
 
-    public LoadAIGenomenPlayer(File f, GenomenAISettings settings) {
+    public LoadAI2GenomenPlayer(File f, GenomenAISettings settings) {
         super();
         this.settings = settings;
         this.loadNetworkOrInit(f);

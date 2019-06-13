@@ -1,6 +1,7 @@
 package Graphics.RenderEngine.RayTracing;
 
 import GameState.Entities.LightSource;
+import Graphics.GameContainerGL;
 import Graphics.Models.ActorModel;
 import Graphics.RenderEngine.AbstractRenderer;
 import Graphics.RenderEngine.Scene;
@@ -26,7 +27,7 @@ import static org.lwjgl.opengl.GL42C.glMemoryBarrier;
 import static org.lwjgl.opengl.GL43C.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-public class RayTracer implements AbstractRenderer {
+public class RayTracer extends AbstractRenderer {
     private static int width, height;
     private static float scaling = 0.65f;
     private static int terrain_work_x, terrain_work_y, model_work_x, model_work_y;
@@ -66,6 +67,7 @@ public class RayTracer implements AbstractRenderer {
     };
 
     public RayTracer(int _width, int _height) {
+        super();
         setDimensions(_width, _height);
     }
 
@@ -76,10 +78,16 @@ public class RayTracer implements AbstractRenderer {
     }
 
     public void init(Scene scene) {
+        super.init(scene);
         setupQuad();
         createQuadProgram();
         setupTexture();
         createRayProgram();
+    }
+
+    @Override
+    protected void prepare() {
+
     }
 
     private static void executeRay() {
@@ -91,8 +99,13 @@ public class RayTracer implements AbstractRenderer {
         loadCameraData(terrainProgram);
 
         GL43.glProgramUniform2iv(terrainProgram, 3, chunk_count);
-        GL43.glProgramUniform3fv(terrainProgram, 4, player_light);
-        GL43.glProgramUniform3fv(terrainProgram, 5, enemy_light);
+        if (GameContainerGL.isPlayerFather()) {
+            GL43.glProgramUniform3fv(terrainProgram, 4, player_light);
+            GL43.glProgramUniform3fv(terrainProgram, 5, enemy_light);
+        } else {
+            GL43.glProgramUniform3fv(terrainProgram, 4, enemy_light);
+            GL43.glProgramUniform3fv(terrainProgram, 5, player_light);
+        }
         GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 1, vertexSSBO);
         GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 3, colorSSBO);
         GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 4, indexSSBO);
@@ -160,11 +173,14 @@ public class RayTracer implements AbstractRenderer {
         father = scene.getEntities().get(0);
     }
 
-    public void render(Scene scene) { // TODO: loadVertexPositions the data from the scene object into the compute shader
+    public void render(Scene scene, boolean screamActive, int oppoAngle) { // TODO: loadVertexPositions the data from the scene object into the compute shader
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         prepare(scene);
         executeRay();
         renderQuad();
+        if (screamActive) {
+            guiRenderer.render(oppoAngle);
+        }
     }
 
     /**

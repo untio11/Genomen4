@@ -42,8 +42,15 @@ public class World {
         this.kidnapper = spawnActor(true);
 
         this.camera = new Camera(); // Camera will be put over the head later
-        camera.setPosition(new Vector3f(0.0f, 0.0f, 10.0f));
-        father.add(camera); // We should move this to somewhere else and pick the player controlled actor.
+        camera.setPosition(new Vector3f(width/2, 30.0f, height/2));
+
+    }
+    public void setCameraFather() {
+        father.add(camera);
+    }
+
+    public void setCameraKidnapper() {
+        kidnapper.add(camera);
     }
 
     /**

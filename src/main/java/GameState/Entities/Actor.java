@@ -25,8 +25,18 @@ public class Actor extends Entity implements Observable {
     private boolean doScream = false;
     private double targetAngle;
 
+    private Vector3f opponentPos;
+
     // Turnspeed has to be a divisor of 90
     private float turnSpeed = 10f;
+
+    private boolean hasBoost;
+    private boolean enableBoost = false;
+    private static double BOOST_DURATION = 2;
+    private static double BOOST_RECOVERY = 10;
+    private double boostEffect = 2;
+
+    private double boostTimeout = 0;
 
     /**
      * Initialize a actor with the appropriate properties
@@ -43,6 +53,13 @@ public class Actor extends Entity implements Observable {
         this.speed = kidnapper ? 3 : 4; //different speed for the two players
         this.world = world;
         this.observers = new ArrayList<>();
+
+        float centerX = world.getWidth() * 1f / 2;
+        float centerY = world.getHeight() * 1f / 2;
+
+        this.opponentPos = new Vector3f(centerX, centerY, 0);
+
+        this.hasBoost = kidnapper;
     }
 
     public float resetDegrees(float angle) {
@@ -59,7 +76,7 @@ public class Actor extends Entity implements Observable {
      * Move the actor up, unless obstacle
      * @param dt time elapsed
      */
-    public void moveUp(double dt) { // TODO: should this logic for turning be here? I also think the logic for time<->movement should not be here
+    public void moveUp(double dt) { //
         int tileY = (int) (position.y - size / 2);                  //the tile where the upper side of the actor is
         float offY = (position.y - size / 2) - tileY;               //the y offset in that tile
         int tileXLeft = (int) (position.x - size / 2);              //the tile where the left side of the actor is in
@@ -139,7 +156,21 @@ public class Actor extends Entity implements Observable {
         position.x += distance;
     }
 
-    public void move(double horizontal, double vertical) {
+    public void move(double horizontal, double vertical, double dt) {
+        if (boostTimeout > 0) {
+            boostTimeout -= dt;
+        }
+        boolean boostAvailable = boostTimeout <= 0;
+        if (hasBoost && boostAvailable && enableBoost) {
+            boostTimeout = BOOST_RECOVERY + BOOST_DURATION;
+        }
+
+        boolean boostActive = boostTimeout > BOOST_RECOVERY;
+        if (boostActive) {
+            horizontal *= boostEffect;
+            vertical *= boostEffect;
+        }
+
         if (horizontal != 0 && vertical != 0) {
             if (vertical > 0) {
                 moveDown(Math.sqrt(2)/2 * vertical);
@@ -182,6 +213,10 @@ public class Actor extends Entity implements Observable {
             }
         }
         broadcast();
+    }
+
+    public void setBoost(boolean value) {
+        this.enableBoost = value;
     }
 
     public double getTargetAngle() {
@@ -282,6 +317,7 @@ public class Actor extends Entity implements Observable {
             rayToOpponent[1] = distanceToOpponent;
             previousAngle = rayToOpponent[2];
             results[results.length - 1] = rayToOpponent;
+            this.updateOpponentPosition();
         } else {
             rayToOpponent[0] = 0;
             rayToOpponent[1] = -1;
@@ -292,16 +328,33 @@ public class Actor extends Entity implements Observable {
             }
         }
 
-        doScream = false;
+//        doScream = false;
 
         results[results.length - 1] = rayToOpponent;
 
         return results;
     }
 
-    public  void receiveScream() {
+    public Vector3f getOpponentPosition() {
+        return this.opponentPos;
+    }
+
+    public void receiveScream() {
         previousAngle = getScreamAngle();
         doScream = true;
+
+        this.updateOpponentPosition();
+    }
+
+    private void updateOpponentPosition() {
+        Vector3f opponentPos;
+        if (kidnapper) {
+            opponentPos = world.getFather().getPosition();
+        } else {
+            opponentPos = world.getKidnapper().getPosition();
+        }
+
+        this.opponentPos = new Vector3f(opponentPos.x, opponentPos.y, opponentPos.z);
     }
 
     public int getScreamAngle() {
@@ -391,5 +444,9 @@ public class Actor extends Entity implements Observable {
             angle += 360;
         }
         return (angle / 90) % 4 + 1;
+    }
+
+    public double getPreviousAngle() {
+        return previousAngle;
     }
 }
