@@ -23,7 +23,7 @@ import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class GameContainerGL implements Runnable, AbstractGameContainer {
-    public static final boolean RAY_TRACING = false;
+    public static final boolean RAY_TRACING = true;
     private static final double ROUND_TIME = 60;
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
@@ -36,7 +36,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
 
     private double roundTime;
     private boolean fatherWin;
-    private boolean playerFather;
+    private static boolean playerFather;
 
 //    private Thread thread = new Thread(this);
 
@@ -66,9 +66,6 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
             renderer = RAY_TRACING ? new RayTracer(pixelWidth, pixelHeight) : new MasterRenderer();
             this.scene = new Scene(this.world); // First do window gl and initglfw, otherwise no openGL context will be available
             renderer.init(scene);
-
-            renderer.init(scene);
-
             music = new SoundClip("res/music.wav");
             clips = new ArrayList<>();
             SoundClip clip1 = new SoundClip("res/cry1.wav");
@@ -176,6 +173,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
             // invoked during this call.
             glfwPollEvents();
             if (windowGL.getPressedKeys().contains(GLFW_KEY_SPACE)) {
+                glfwSetWindowShouldClose(windowGL.getWindow(), true);
                 break;
             }
         }
@@ -379,6 +377,10 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
     public static double getRoundTime() { return ROUND_TIME; }
 
     public Controller getFatherController() { return fatherController; }
+
+    public static boolean isPlayerFather() {
+        return playerFather;
+    }
 
     public Controller getKidnapperController() { return kidnapperController; }
 }
