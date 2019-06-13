@@ -51,7 +51,7 @@ public class Scene {
         int sand =  loader.loadTexture("sand");
         int grass = loader.loadTexture("grass");
         int tree =  loader.loadTexture("tree");
-        int shore = loader.loadTexture("shore");
+        int shore = loader.loadTexture("water");
         backupTexture = loader.loadTexture("black");
 
         // put them in the hashmap

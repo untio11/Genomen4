@@ -55,11 +55,13 @@ public class GeneticAlgorithmTest {
     public void testNetworkLoading() {
         AIGenomenPlayer player = new AIGenomenPlayer();
 
-        File f = new File("res/network/1560138928134-single-genomen-1-8986.net");
+        File f = new File("res/network/father/1560138928134-single-genomen-1-8986.net");
         MultiLayerNetwork net;
         try {
             net = player.loadNetwork(f);
-            System.out.println(net.paramTable());
+//            System.out.println(net.paramTable());
+
+            System.out.println(net.summary());
         } catch (IOException e) {
             e.printStackTrace();
         }
