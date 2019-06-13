@@ -12,7 +12,7 @@ public class Main {
     public static void main(String[] args) {
 
         World.initWorld(MapConfigurations.getStarterMap());
-        AbstractGameContainer gc = new GameContainerSwing(World.getInstance(), true);
+        AbstractGameContainer gc = new GameContainerGL(World.getInstance(), true);
 
         // Booleans indicating whether to load the father or kidnapper AI or play as a human
         boolean fatherAI = true;

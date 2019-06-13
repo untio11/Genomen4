@@ -1,7 +1,6 @@
 package Graphics;
 
-import AI.Genomen.Player.AIGenomenPlayer;
-import AI.Genomen.Player.SimpleGenomenPlayer;
+import AI.Genomen.Player.*;
 import Engine.AbstractGameContainer;
 import Engine.Controller.Controller;
 import Engine.SoundClip;
@@ -17,13 +16,14 @@ import Graphics.RenderEngine.Scene;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class GameContainerGL implements Runnable, AbstractGameContainer {
-    public static final boolean RAY_TRACING = true;
+    public static final boolean RAY_TRACING = false;
     private static final double ROUND_TIME = 60;
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
@@ -141,15 +141,17 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
             glfwPollEvents();
             if (windowGL.getPressedKeys().contains(GLFW_KEY_F)) {
                 setFatherPlayer();
-                SimpleGenomenPlayer kidnapperController = new SimpleGenomenPlayer();
+                File f = new File("res/network/kidnapper/1560215259902-single-genomen-kidnapper-1-5809.net");
+                GenomenAISettings settings = new GenomenAISettings();
+                settings.setAddBoost(true);
+                Controller kidnapperController = new LoadAIGenomenPlayer(f, settings);
                 kidnapperController.setPlayer(World.getInstance().getKidnapper());
                 setKidnapperAI(kidnapperController);
                 world.setCameraFather();
                 playerFather = true;
                 break;
             } else if (windowGL.getPressedKeys().contains(GLFW_KEY_K)) {
-                AIGenomenPlayer fatherController = new AIGenomenPlayer();
-                fatherController.init();
+                Controller fatherController = new CombinedAIGenomenPlayer();
                 fatherController.setPlayer(World.getInstance().getFather());
                 setFatherAI(fatherController);
                 setKidnapperPlayer();
