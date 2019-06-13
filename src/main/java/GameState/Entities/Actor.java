@@ -28,6 +28,14 @@ public class Actor extends Entity implements Observable {
     // Turnspeed has to be a divisor of 90
     private float turnSpeed = 10f;
 
+    private boolean hasBoost;
+    private boolean enableBoost = false;
+    private static double BOOST_DURATION = 2;
+    private static double BOOST_RECOVERY = 10;
+    private double boostEffect = 2;
+
+    private double boostTimeout = 0;
+
     /**
      * Initialize a actor with the appropriate properties
      *
@@ -43,6 +51,8 @@ public class Actor extends Entity implements Observable {
         this.speed = kidnapper ? 3 : 4; //different speed for the two players
         this.world = world;
         this.observers = new ArrayList<>();
+
+        this.hasBoost = kidnapper;
     }
 
     public float resetDegrees(float angle) {
@@ -139,7 +149,21 @@ public class Actor extends Entity implements Observable {
         position.x += distance;
     }
 
-    public void move(double horizontal, double vertical) {
+    public void move(double horizontal, double vertical, double dt) {
+        if (boostTimeout > 0) {
+            boostTimeout -= dt;
+        }
+        boolean boostAvailable = boostTimeout <= 0;
+        if (hasBoost && boostAvailable && enableBoost) {
+            boostTimeout = BOOST_RECOVERY + BOOST_DURATION;
+        }
+
+        boolean boostActive = boostTimeout > BOOST_RECOVERY;
+        if (boostActive) {
+            horizontal *= boostEffect;
+            vertical *= boostEffect;
+        }
+
         if (horizontal != 0 && vertical != 0) {
             if (vertical > 0) {
                 moveDown(Math.sqrt(2)/2 * vertical);
@@ -182,6 +206,10 @@ public class Actor extends Entity implements Observable {
             }
         }
         broadcast();
+    }
+
+    public void setBoost(boolean value) {
+        this.enableBoost = value;
     }
 
     public double getTargetAngle() {

@@ -39,6 +39,11 @@ public class LoadAIGenomenPlayer extends AIGenomenPlayer {
     }
 
     @Override
+    public boolean isAddBoost() {
+        return settings.addBoost;
+    }
+
+    @Override
     public int getRememberCount() {
         return settings.rememberCount;
     }

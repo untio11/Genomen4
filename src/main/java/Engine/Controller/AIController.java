@@ -8,14 +8,21 @@ public class AIController extends Controller {
     private double yAxis = 0;
     private double xAxis = 0;
 
+    private boolean boost = false;
+
     @Override
     public void update(double dt) {
-        player.move(xAxis * dt,-yAxis * dt);
+        player.setBoost(boost);
+        player.move(xAxis * dt,-yAxis * dt, dt);
     }
 
     public void setAxis(double xAxis, double yAxis) {
         this.xAxis = Math.max(-1, Math.min(1, xAxis));
         this.yAxis = Math.max(-1, Math.min(1, yAxis));
+    }
+
+    public void setBoost(boolean value) {
+        this.boost = value;
     }
 
     public double[][] getInput(int nRays, int maxLength) {

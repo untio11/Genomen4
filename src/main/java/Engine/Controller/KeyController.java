@@ -15,6 +15,7 @@ public class KeyController extends Controller implements KeyListener {
     private int down = KeyEvent.VK_S;
     private int left = KeyEvent.VK_A;
     private int right = KeyEvent.VK_D;
+    private int shift = KeyEvent.VK_SHIFT;
 
 
     public KeyController(Window window) {
@@ -49,7 +50,9 @@ public class KeyController extends Controller implements KeyListener {
             vertical = dt;
         }
 
-        player.move(horizontal, vertical);
+        player.setBoost(keys[shift]);
+
+        player.move(horizontal, vertical, dt);
     }
 
     @Override
