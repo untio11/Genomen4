@@ -4,6 +4,7 @@ import Engine.Controller.Controller;
 import Engine.Controller.KeyController;
 import GameState.World;
 import Graphics.RenderEngine.AbstractRenderer;
+import Graphics.RenderEngine.RenderInterface;
 import Graphics.RenderEngine.Scene;
 
 import java.awt.event.KeyEvent;
@@ -27,7 +28,7 @@ public class GameContainerSwing implements Runnable, AbstractGameContainer {
     private Thread thread = new Thread(this);
 
     private Window window;
-    private AbstractRenderer renderer;
+    private RenderInterface renderer;
     private Controller fatherController, kidnapperController;
 
     ArrayList<SoundClip> clips;

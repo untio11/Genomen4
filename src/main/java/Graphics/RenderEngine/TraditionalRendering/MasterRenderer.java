@@ -15,7 +15,7 @@ import org.lwjgl.opengl.GL11;
 import java.util.List;
 import java.util.Map;
 
-public class MasterRenderer implements AbstractRenderer {
+public class MasterRenderer extends AbstractRenderer {
 
     private static final float FOV = 100;
     private static final float NEAR_PLANE = 0.1f;
@@ -27,27 +27,19 @@ public class MasterRenderer implements AbstractRenderer {
     private static TerrainRenderer terrainRenderer; // Can the renderers can be static?
     private static TerrainShader terrainShader = new TerrainShader();
     private static ActorRenderer actorRenderer;
-    private static GuiRenderer guiRenderer;
-    private static MenuRenderer menuRenderer, lostRenderer, winRenderer;
 
     private static Camera camera;
 
     public MasterRenderer() {
+        super();
         createProjectionMatrix();
         terrainRenderer = new TerrainRenderer(terrainShader, projectionMatrix);
         actorRenderer = new ActorRenderer(shader, projectionMatrix);
-        guiRenderer = new GuiRenderer();
-        menuRenderer = new MenuRenderer();
-        winRenderer = new MenuRenderer();
-        lostRenderer = new MenuRenderer();
     }
 
-    public void init(Scene scene) { // TODO: should this just all be done in the constructor?
-
-        guiRenderer.init(scene);
-        menuRenderer.init(scene,0);
-        winRenderer.init(scene,1);
-        lostRenderer.init(scene,2);
+    @Override
+    public void init(Scene scene) {
+        super.init(scene);
     }
 
     // TODO: Make sure that this can just render a given scene
@@ -75,26 +67,13 @@ public class MasterRenderer implements AbstractRenderer {
         }
     }
 
-    public void renderMenu() {
-        prepare();
-        menuRenderer.render();
-    }
-
-    public void renderEnd(boolean win) {
-        prepare();
-        if (win) {
-            winRenderer.render();
-        } else {
-            lostRenderer.render();
-        }
-    }
-
     public void clean() {
         shader.cleanUp();
         terrainShader.cleanUp();
     }
 
-    public void prepare() {
+    @Override
+    protected void prepare() {
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
         GL11.glClearColor(0, 0.45f, 1.0f, 1);

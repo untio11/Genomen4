@@ -35,6 +35,7 @@
 !/.teamcity/Gradle_Check_dsl.iml
 .DS_Store
 
+/res/network/*.net
+*.log
 /res/network/training/*.*
 !/res/network/training/README.txt
-*.log
