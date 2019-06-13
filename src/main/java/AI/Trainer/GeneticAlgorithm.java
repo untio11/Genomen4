@@ -22,7 +22,7 @@ public class GeneticAlgorithm<A extends TrainerAIPlayer> {
 
     // With mutate cubic distribution, the random mutation values have a tendency to stay low with higher extremes
     // This could improve random mutations and avoid local minimums
-    private boolean mutateCubicDistribution = false;
+    private boolean mutateCubicDistribution = true;
 
     // This percentage indicates the number of players that will be copied directly into the new iteration without
     // being changed by the genetic algorithm. Rounded up to the next integer

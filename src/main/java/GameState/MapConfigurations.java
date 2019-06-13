@@ -87,6 +87,34 @@ public class MapConfigurations {
         return new MapConfiguration(chanceMap, minPathLength, accessTerrain, mapSize);
     }
 
+    public static MapConfiguration getBigStarterMap() {
+        //create the bayesian network
+        Map<Integer, double[]> chanceMap = new HashMap<>();
+        chanceMap.put(0, new double[] {0.65, 0.30, 0.05, 0.0});
+        chanceMap.put(1, new double[] {0.0, 0.1, 0.0, 0.9});
+        chanceMap.put(10, new double[] {0.55, 0.40, 0.05, 0.0});
+        chanceMap.put(11, new double[] {0.0, 0.7, 0.0, 0.3});
+        chanceMap.put(100, new double[] {0.3, 0.6, 0.0, 0.1});
+        chanceMap.put(101, new double[] {0.0, 0.50, 0.0, 0.50});
+        chanceMap.put(110, new double[] {0.05, 0.85, 0.05, 0.0});
+        chanceMap.put(111, new double[] {0.0, 0.3, 0.0, 0.7});
+        chanceMap.put(1000, new double[] {0.90, 0.05, 0.05, 0.0});
+        chanceMap.put(1001, new double[] {0.0, 0.8, 0.0, 0.2});
+        chanceMap.put(1010, new double[] {0.85, 0.1, 0.05, 0.0});
+        chanceMap.put(1011, new double[] {0.0, 1, 0.0, 0.0});
+        chanceMap.put(1100, new double[] {0.5, 0.5, 0.0, 0.0});
+        chanceMap.put(1101, new double[] {0.0, 0.7, 0.0, 0.3});
+        chanceMap.put(1110, new double[] {0.6, 0.2, 0.2, 0.0});
+        chanceMap.put(1111, new double[] {0.0, 0.9, 0.0, 0.1});
+
+        double minPathLength = 0.1;
+        double accessTerrain = 0.74;
+        int mapSize = 50;
+        int startRadius = 20;
+
+        return new MapConfiguration(chanceMap, minPathLength, accessTerrain, mapSize, startRadius);
+    }
+
     public static MapConfiguration getVerySimpleMap() {
         //create the bayesian network
         Map<Integer, double[]> chanceMap = new HashMap<>();
