@@ -267,14 +267,16 @@ public class Scene {
     }
 
     private void initActors(Actor[] actors) {
-        BaseModel playerBase = AnimModelLoader.loadAnimModelInVao("res/gnomeTestSelect.dae", loader);
-        playerBase.setScale(0.04f);
-        int fatherTexture = loader.loadTexture("gnomeUV");
-        int kidnapperTexture = loader.loadTexture("gnomeTexture");
-        playerBase.setTexture(fatherTexture);
-        entities.add(new ActorModel(actors[0], playerBase, playerBase.getRootBone(), playerBase.getBoneCount(), playerBase.getAnimation()));
-        playerBase.setTexture(kidnapperTexture);
-        entities.add(new ActorModel(actors[1], playerBase, playerBase.getRootBone(), playerBase.getBoneCount(), playerBase.getAnimation()));
+            BaseModel playerBase = AnimModelLoader.loadAnimModelInVao("res/gnomeTestSelect.dae", loader);
+            int fatherTexture = loader.loadTexture("gnomeUV");
+            playerBase.setTexture(fatherTexture);
+            playerBase.setScale(0.04f);
+            entities.add(new ActorModel(actors[0], playerBase, playerBase.getRootBone(), playerBase.getBoneCount(), playerBase.getAnimation()));
+
+            int kidnapperTextuere = loader.loadTexture("gnomeTextureKidnapper");
+            playerBase.setTexture(kidnapperTextuere);
+            entities.add(new ActorModel(actors[1], playerBase, playerBase.getRootBone(), playerBase.getBoneCount(), playerBase.getAnimation()));
+
     }
 
     /**

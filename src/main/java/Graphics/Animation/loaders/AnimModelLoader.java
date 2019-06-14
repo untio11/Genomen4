@@ -93,7 +93,8 @@ public class AnimModelLoader {
          * fills bone and weight array
          * loops every bone, then loops every weight
          */
-        for(int b=0; b < mesh.mNumBones(); b++) {
+        int numBones = mesh.mNumBones();
+        for(int b=0; b < numBones; b++) {
             AIBone bone = AIBone.create(mesh.mBones().get(b));
             for(int w=0; w < bone.mNumWeights(); w++) {
                 AIVertexWeight weight = bone.mWeights().get(w);
@@ -126,11 +127,18 @@ public class AnimModelLoader {
         /**
          * create Bones heirarchy and put them in a Bone array
          */
-        bones = new Bone[mesh.mNumBones()];
+        bones = new Bone[numBones];
         boneIndex = 0;
+        //System.out.println(scene.mRootNode().mName().dataString());
         AINode sceneNode = scene.mRootNode();
+        for(int n=0 ; n<sceneNode.mNumChildren(); n++) {
+            System.out.println(AINode.create(sceneNode.mChildren().get(n)).mName().dataString());
+        }
         AINode armatureNode = AINode.create(sceneNode.mChildren().get(0));
+        System.out.println(sceneNode.mName().dataString()+", "+ armatureNode.mName().dataString()+", ");
+
         AINode root = AINode.create(armatureNode.mChildren().get(0));
+
         Matrix4f rootTransform = Maths.fromAssimpMatrix(root.mTransformation());
         Bone rootBone = new Bone(root.mName().dataString(),boneIndex, null, rootTransform, rootTransform );
         bones[boneIndex] = rootBone;
@@ -140,7 +148,7 @@ public class AnimModelLoader {
             setBoneHeirarchy( childNodes[child], rootBone);
         }
 
-
+        System.out.println(boneIndex);
 /**
  * Creating the KeyFrames from the animation
  */
@@ -163,7 +171,7 @@ public class AnimModelLoader {
             Map<String, JointTransform> poseMap = new HashMap<>();
             for(AINodeAnim nodeAnim : nodeAnims) {
                 Vector3f position = new Vector3f();
-                Quaternion rotation = new Quaternion(0,0,0,0);
+                Quaternion rotation = new Quaternion(0,0,1,0);
                 for(AIVectorKey vecKey : nodeAnim.mPositionKeys()) {
                     //System.out.print(vecKey.mTime()+", ");
                     if(vecKey.mTime() == time) {
@@ -175,27 +183,26 @@ public class AnimModelLoader {
                         rotation = Maths.fromAssimpQuat(quatKey.mValue());
                     }
                 }
-                String boneName = nodeAnim.mNodeName().dataString();
-                //System.out.println("jointTransform pos "+boneName+ ": "+position.x+" "+position.y+" "+position.z);
-                JointTransform jointTransform = new JointTransform(position, rotation);
-                poseMap.put(nodeAnim.mNodeName().dataString(), jointTransform);
+                    String boneName = nodeAnim.mNodeName().dataString();
+//                    System.out.println("jointTransform  " + boneName + " pos: " + position.x + " " + position.y + " " + position.z +"\n" +
+//                            "rot: "+ rotation.getQ1()+" "+ rotation.getQ2()+" "+ rotation.getQ3() +" "+ rotation.getQ0());
+                    JointTransform jointTransform = new JointTransform(position, rotation);
+                    poseMap.put(nodeAnim.mNodeName().dataString(), jointTransform);
             }
-            KeyFrame keyFrame = new KeyFrame((float)time, poseMap);
-            keyFrames[timeIndex] = keyFrame;
-            timeIndex++;
+                KeyFrame keyFrame = new KeyFrame((float) time, poseMap);
+                keyFrames[timeIndex] = keyFrame;
+                timeIndex++;
         }
-
+//System.out.println(timeIndex);
         /**
          * Initialize the Animation with the keyframes
          */
        // System.out.println("animDur:"+aiAnimation.mDuration());
        // System.out.println("ticks/sec: "+ aiAnimation.mTicksPerSecond());
         Animation animation = new Animation((float)aiAnimation.mDuration(), keyFrames);
-
-
-        //TODO: Assimp.freeScene() somewhere to free scene from memory
+        
         Assimp.aiFreeScene(scene);
-        return loader.loadToModel(verticesArray, textureArray, normalsArray, indicesArray, boneArray, boneWeight, rootBone, mesh.mNumBones(), animation);
+        return loader.loadToModel(verticesArray, textureArray, normalsArray, indicesArray, boneArray, boneWeight, rootBone, numBones, animation);
     }
 
     private static void setBoneHeirarchy(AINode node, Bone pBone) {

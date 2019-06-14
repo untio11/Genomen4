@@ -5,17 +5,18 @@ import java.util.Map;
 
 import Graphics.Models.ActorModel;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 /**
  *
  * This class contains all the functionality to apply an animation to an
- * animated entity. An Animator instance is associated with just one
+ * animated model. An Animator instance is associated with just one
  * {@link ActorModel}. It also keeps track of the running time (in seconds)
  * of the current animation, along with a reference to the currently playing
- * animation for the corresponding entity.
+ * animation for the corresponding model.
  *
  * An Animator instance needs to be updated every frame, in order for it to keep
- * updating the animation pose of the associated entity. The currently playing
+ * updating the animation pose of the associated model. The currently playing
  * animation can be changed at any time using the doAnimation() method. The
  * Animator will keep looping the current animation until a new animation is
  * chosen.
@@ -29,21 +30,22 @@ import org.joml.Matrix4f;
  */
 public class Animator {
 
-    private final ActorModel entity;
+    private final ActorModel model;
+    private Vector3f currentPos;
 
     private Animation currentAnimation;
     private float animationTime = 0;
 
     /**
-     * @param entity
-     *            - the entity which will by animated by this animator.
+     * @param model
+     *            - the model which will by animated by this animator.
      */
-    public Animator(ActorModel entity) {
-        this.entity = entity;
+    public Animator(ActorModel model) {
+        this.model = model;
     }
 
     /**
-     * Indicates that the entity should carry out the given animation. Resets
+     * Indicates that the model should carry out the given animation. Resets
      * the animation time so that the new animation starts from the beginning.
      *
      * @param animation
@@ -52,12 +54,13 @@ public class Animator {
     public void doAnimation(Animation animation) {
         this.animationTime = 0;
         this.currentAnimation = animation;
+        this.currentPos = model.getActor().get3DPosition();
     }
 
     /**
      * This method should be called each frame to update the animation currently
      * being played. This increases the animation time (and loops it back to
-     * zero if necessary), finds the pose that the entity should be in at that
+     * zero if necessary), finds the pose that the model should be in at that
      * time of the animation, and then applies that pose to all the model's
      * joints by setting the joint transforms.
      */
@@ -65,9 +68,12 @@ public class Animator {
         if (currentAnimation == null) {
             return;
         }
-        increaseAnimationTime();
+        Vector3f newPos = model.getActor().get3DPosition();
+        float speed = calcSpeed(newPos);
+        increaseAnimationTime(speed);
         Map<String, Matrix4f> currentPose = calculateCurrentAnimationPose();
-        applyPoseToJoints(currentPose, entity.getRootBone(), new Matrix4f());
+        applyPoseToJoints(currentPose, model.getRootBone(), new Matrix4f());
+        currentPos = newPos;
     }
 
     /**
@@ -75,15 +81,20 @@ public class Animator {
      * progress. If the current animation has reached the end then the timer is
      * reset, causing the animation to loop.
      */
-    private void increaseAnimationTime() {
-        animationTime += 0.05; //WindowManager.getFrameTime()/10;
+    private void increaseAnimationTime(float speed) {
+        animationTime += speed; //WindowManager.getFrameTime()/10;   // multiply by its speed
         if (animationTime > currentAnimation.getLength()) {
             this.animationTime %= currentAnimation.getLength();
         }
     }
 
+    private float calcSpeed(Vector3f newPos) {
+        float speed = currentPos.distance(newPos);
+        return speed;
+    }
+
     /**
-     * This method returns the current animation pose of the entity. It returns
+     * This method returns the current animation pose of the model. It returns
      * the desired local-space transforms for all the joints in a map, indexed
      * by the name of the joint that they correspond to.
      *
@@ -143,7 +154,7 @@ public class Animator {
     private void applyPoseToJoints(Map<String, Matrix4f> currentPose, Bone bone, Matrix4f parentTransform) {
         Matrix4f currentLocalTransform = currentPose.get(bone.name);
         Matrix4f currentTransform = parentTransform.mul( currentLocalTransform);
-       // currentTransform = bone.getAnimationTransform();
+        //currentTransform = currentTransform.add(currentLocalTransform);
 
         //currentTransform = currentTransform.mul(bone.getInverseBindTransform());
         //bone.setAnimationTransform(currentLocalTransform);
@@ -151,8 +162,9 @@ public class Animator {
             applyPoseToJoints(currentPose, childBone, currentLocalTransform);
         }
         //System.out.println(bone.name);
-        //currentTransform = currentLocalTransform.mul(bone.getInverseBindTransform());
-        bone.setAnimationTransform(currentTransform);
+        //currentTransform = currentTransform.mul(currentLocalTransform.mul(bone.getInverseBindTransform()));
+        //currentTransform = currentTransform.mul(bone.getInverseBindTransform());
+            bone.setAnimationTransform(currentTransform);
     }
 
     /**
@@ -223,7 +235,6 @@ public class Animator {
             //currentPose.put(jointName, nextTransform.getLocalTransform());
         }
         return currentPose;
-        //return currentAnimation.getKeyFrames()[1].getJointKeyFrames().g;
     }
 
 
