@@ -15,7 +15,7 @@ public class BaseModel {
     private float[] normal_data;
     private float[] color_data;
     private float[] texture_data;
-    private int[] index_data;
+    int[] index_data;
     private int textureID = -1;
     private int vertexCount = -1;
     float scale = 1f;
