@@ -6,6 +6,7 @@ import Toolbox.Maths;
 import org.apache.commons.lang3.ArrayUtils;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,6 +16,7 @@ import java.util.stream.Stream;
 public class ActorModel extends BaseModel {
     private Actor actor;
     private float[] circumscribing_spheres = null;
+    int boundingSSBO = -1;
 
     public ActorModel(int vaoID, int[] dataBufferIDs, int vertexCount) {
         super(vaoID, dataBufferIDs, vertexCount);
@@ -77,14 +79,15 @@ public class ActorModel extends BaseModel {
         Vector3f ac = v1.add(v0.negate(new Vector3f()), new Vector3f());
         Vector3f ab = v2.add(v0.negate(new Vector3f()), new Vector3f());
         Vector3f ab_cross_ac = ab.cross(ac, new Vector3f());
-
+        // Here be dragons
         Vector3f aToCenter = ((ab_cross_ac.cross(ab, new Vector3f()).mul(ac.lengthSquared())).add(
                 ac.cross(ab_cross_ac, new Vector3f()).mul(ab.lengthSquared()))).mul(1f / (2f * ab_cross_ac.lengthSquared()));
         float radius = aToCenter.length();
-        aToCenter.add(v0);
-        result[0] = aToCenter.x;
-        result[1] = aToCenter.y;
-        result[2] = aToCenter.z;
+        Vector4f temp = new Vector4f(aToCenter.add(v0, new Vector3f()), 1);
+        getTransformationMatrix().transform(temp);
+        result[0] = temp.x;
+        result[1] = temp.y;
+        result[2] = temp.z;
         result[3] = radius;
         return result;
     }
@@ -94,5 +97,13 @@ public class ActorModel extends BaseModel {
         Matrix4f transformationMatrix = Maths.createTransformationMatrix(actor.get3DPosition(),
                 actor.getRotX(), actor.getRotY(), actor.getRotZ(), scale);
         return transformationMatrix;
+    }
+
+    public int getBoundingSSBO() {
+        if (boundingSSBO == -1) {
+            boundingSSBO = TerrainLoader.loadDataToBuffer(getCircumScribingSpheres());
+        }
+
+        return boundingSSBO;
     }
 }

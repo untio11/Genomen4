@@ -91,46 +91,45 @@ public class RayTracer extends AbstractRenderer {
     }
 
     private static void executeRay() {
-        terrain_work_x = (int) Math.ceil((width * scaling)/ (float) terrain_work_group_size[0]);// getNextPowerOfTwo(width  / terrain_work_group_size[0]);
-        terrain_work_y = (int) Math.ceil((height * scaling) / (float) terrain_work_group_size[1]); //getNextPowerOfTwo(height / terrain_work_group_size[1]);
+//        terrain_work_x = (int) Math.ceil((width * scaling)/ (float) terrain_work_group_size[0]);// getNextPowerOfTwo(width  / terrain_work_group_size[0]);
+//        terrain_work_y = (int) Math.ceil((height * scaling) / (float) terrain_work_group_size[1]); //getNextPowerOfTwo(height / terrain_work_group_size[1]);
+//
+//        glUseProgram(terrainProgram);
+//
+//        loadCameraData(terrainProgram);
+//
+//        GL43.glProgramUniform2iv(terrainProgram, 3, chunk_count);
+//        if (GameContainerGL.isPlayerFather()) {
+//            GL43.glProgramUniform3fv(terrainProgram, 4, player_light);
+//            GL43.glProgramUniform3fv(terrainProgram, 5, enemy_light);
+//        } else {
+//            GL43.glProgramUniform3fv(terrainProgram, 4, enemy_light);
+//            GL43.glProgramUniform3fv(terrainProgram, 5, player_light);
+//        }
+//        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 1, vertexSSBO);
+//        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 3, colorSSBO);
+//        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 4, indexSSBO);
+//        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 5, offsetSSBO);
+//        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 6, topLeftSSBO);
+//
+//        glDispatchCompute(terrain_work_x, terrain_work_y, 1);
+//
+//        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
-        glUseProgram(terrainProgram);
+        model_work_x = (int) Math.ceil((width * scaling)/ (float)   model_work_group_size[0]);
+        model_work_y = (int) Math.ceil((height * scaling) / (float) model_work_group_size[1]);
 
-        loadCameraData(terrainProgram);
+        glUseProgram(modelProgram);
+        loadCameraData(modelProgram);
 
-        GL43.glProgramUniform2iv(terrainProgram, 3, chunk_count);
-        if (GameContainerGL.isPlayerFather()) {
-            GL43.glProgramUniform3fv(terrainProgram, 4, player_light);
-            GL43.glProgramUniform3fv(terrainProgram, 5, enemy_light);
-        } else {
-            GL43.glProgramUniform3fv(terrainProgram, 4, enemy_light);
-            GL43.glProgramUniform3fv(terrainProgram, 5, player_light);
-        }
-        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 1, vertexSSBO);
-        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 3, colorSSBO);
-        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 4, indexSSBO);
-        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 5, offsetSSBO);
-        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 6, topLeftSSBO);
+        GL43.glProgramUniform1i(modelProgram, 5, father.getTriangleCount());
+        GL43.glBindBufferBase(modelProgram, 1, father.getVertexSSBO());
+        GL43.glBindBufferBase(modelProgram, 2, father.getIndexSSBO());
+        GL43.glBindBufferBase(modelProgram, 3, father.getBoundingSSBO());
 
-        glDispatchCompute(terrain_work_x, terrain_work_y, 1);
+        glDispatchCompute(model_work_x, model_work_y, 1);
 
-        //glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
-//        model_work_x = (int) Math.ceil((width * scaling)/ (float)   model_work_group_size[0]);
-//        model_work_y = (int) Math.ceil((height * scaling) / (float) model_work_group_size[1]);
-
-//        glUseProgram(modelProgram);
-//        loadCameraData(modelProgram);
-
-//        GL43.glProgramUniform1i(modelProgram, 5, father.getTriangleCount());
-//        GL43.glBindBufferBase(modelProgram, 1, father.getVertexSSBO());
-//        GL43.glBindBufferBase(modelProgram, 2, father.getIndexSSBO());
-
-//        glDispatchCompute(model_work_x, model_work_y, 1);
-
-
-
-        //GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 1, 0);
+        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 1, 0);
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
     }
 
