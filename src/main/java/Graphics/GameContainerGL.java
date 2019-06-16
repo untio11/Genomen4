@@ -111,6 +111,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
     }
 
     public void close() {
+        glfwSetWindowShouldClose(windowGL.getWindow(), true);
         renderer.clean();
 
         // Free the window callbacks and destroy the window
@@ -176,7 +177,6 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
             // invoked during this call.
             glfwPollEvents();
             if (windowGL.getPressedKeys().contains(GLFW_KEY_SPACE)) {
-                glfwSetWindowShouldClose(windowGL.getWindow(), true);
                 break;
             }
         }
