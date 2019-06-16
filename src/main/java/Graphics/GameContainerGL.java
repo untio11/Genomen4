@@ -5,16 +5,10 @@ import Engine.AbstractGameContainer;
 import Engine.Controller.Controller;
 import Engine.SoundClip;
 import GameState.World;
-import Graphics.Gui.GuiRenderer;
-import Graphics.Gui.GuiTexture;
-import Graphics.Gui.MenuRenderer;
 import Graphics.RenderEngine.AbstractRenderer;
-import Graphics.RenderEngine.Loader;
 import Graphics.RenderEngine.RayTracing.RayTracer;
 import Graphics.RenderEngine.TraditionalRendering.MasterRenderer;
 import Graphics.RenderEngine.Scene;
-import org.joml.Vector3f;
-import org.lwjgl.opengl.GL11;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,7 +16,7 @@ import java.util.ArrayList;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 
-public class GameContainerGL implements Runnable, AbstractGameContainer {
+public class GameContainerGL implements AbstractGameContainer {
     public static final boolean RAY_TRACING = false;
     private static final double ROUND_TIME = 60;
     private final int FPS = 60;
@@ -39,10 +33,8 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
     private boolean fatherWin;
     private static boolean playerFather;
 
-//    private Thread thread = new Thread(this);
-
     private WindowGL windowGL;
-    private AbstractRenderer renderer; // 
+    private AbstractRenderer renderer;
     private Controller fatherController, kidnapperController;
 
     ArrayList<SoundClip> clips;
@@ -78,38 +70,6 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
         }
     }
 
-    /**
-     * Set kidnapper to player
-     */
-    public void setKidnapperPlayer() {
-        this.kidnapperController = new InputHandler(World.getInstance().getKidnapper());
-    }
-
-    /**
-     * Set father to player
-     */
-    public void setFatherPlayer() {
-        this.fatherController = new InputHandler(World.getInstance().getFather());
-    }
-
-    /**
-     * Set father to AI
-     */
-    public void setFatherAI(Controller c) {
-        fatherController = c;
-    }
-
-    /**
-     * Set kidnapper to AI
-     */
-    public void setKidnapperAI(Controller c) {
-        kidnapperController = c;
-    }
-
-    public void start() {
-        run();
-    }
-
     public void close() {
         glfwSetWindowShouldClose(windowGL.getWindow(), true);
         renderer.clean();
@@ -123,7 +83,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
         glfwSetErrorCallback(null).free();
     }
 
-    public void run() {
+    public void start() {
         if (renderWindow) {
             menu();
             windowed();
@@ -228,7 +188,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
         double roundTime= ROUND_TIME;
 
         music.loop();
-        while (!glfwWindowShouldClose(windowGL.getWindow())) { //
+        while (!glfwWindowShouldClose(windowGL.getWindow())) {
             render = false;
             firstTime = System.nanoTime() / 1e9d;
             passedTime = firstTime - lastTime;
@@ -384,23 +344,41 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
         );
     }
 
+    /**
+     * Set kidnapper to player
+     */
+    public void setKidnapperPlayer() {
+        this.kidnapperController = new InputHandler(World.getInstance().getKidnapper()); }
+
+    /**
+     * Set father to player
+     */
+    public void setFatherPlayer() {
+        this.fatherController = new InputHandler(World.getInstance().getFather()); }
+
+    /**
+     * Set father to AI
+     */
+    public void setFatherAI(Controller c) {
+        fatherController = c; }
+
+    /**
+     * Set kidnapper to AI
+     */
+    public void setKidnapperAI(Controller c) {
+        kidnapperController = c; }
+
     public double getRemainingTime() { return roundTime; }
 
-    public boolean isFatherWin() {
-        return fatherWin;
-    }
+    public boolean isFatherWin() { return fatherWin; }
 
-    public int getMaxDistance() {
-        return maxDistance;
-    }
+    public int getMaxDistance() { return maxDistance; }
 
     public static double getRoundTime() { return ROUND_TIME; }
 
     public Controller getFatherController() { return fatherController; }
 
-    public static boolean isPlayerFather() {
-        return playerFather;
-    }
+    public static boolean isPlayerFather() { return playerFather; }
 
     public Controller getKidnapperController() { return kidnapperController; }
 }
