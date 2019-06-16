@@ -70,6 +70,9 @@ public class GameContainerGL implements AbstractGameContainer {
         }
     }
 
+    /**
+     * Closes and cleans GL
+     */
     public void close() {
         glfwSetWindowShouldClose(windowGL.getWindow(), true);
         renderer.clean();
@@ -83,6 +86,9 @@ public class GameContainerGL implements AbstractGameContainer {
         glfwSetErrorCallback(null).free();
     }
 
+    /**
+     * run the game, either with graphics or headless
+     */
     public void start() {
         if (renderWindow) {
             menu();
@@ -93,14 +99,18 @@ public class GameContainerGL implements AbstractGameContainer {
         }
     }
 
+    /**
+     * launch game menu
+     */
     public void menu() {
-        //todo: add menu music
         while (!glfwWindowShouldClose(windowGL.getWindow())) {
             renderer.renderMenu();
             glfwSwapBuffers(windowGL.getWindow()); // swap the color buffers, that is: show on screen what is happening
             // Poll for window events. The key callback above will only be
             // invoked during this call.
             glfwPollEvents();
+
+            //initialise actors
             if (windowGL.getPressedKeys().contains(GLFW_KEY_F)) {
                 setFatherPlayer();
                 File f = new File("res/network/kidnapper/1560215259902-single-genomen-kidnapper-1-5809.net");
@@ -124,25 +134,33 @@ public class GameContainerGL implements AbstractGameContainer {
         }
     }
 
+    /**
+     * display end screen with result of game
+     */
     public void end() {
-        //todo: add end music
         while (!glfwWindowShouldClose(windowGL.getWindow())) {
             boolean win = false;
             if ((fatherWin && playerFather) || (!fatherWin && !playerFather))  {
                 win = true;
             }
+            //render end screen
             renderer.renderEnd(win);
             glfwSwapBuffers(windowGL.getWindow()); // swap the color buffers, that is: show on screen what is happening
             // Poll for window events. The key callback above will only be
             // invoked during this call.
             glfwPollEvents();
+
             if (windowGL.getPressedKeys().contains(GLFW_KEY_SPACE)) {
                 break;
             }
         }
+
         close();
     }
 
+    /**
+     * run game without graphics as faast as possible
+     */
     public void headless() {
         double passedTime = 0;
         double cryTimer = cryInterval;
@@ -173,6 +191,9 @@ public class GameContainerGL implements AbstractGameContainer {
         this.roundTime = roundTime;
     }
 
+    /**
+     * run game with graphics
+     */
     public void windowed() {
         boolean render;
         double firstTime;
@@ -205,7 +226,6 @@ public class GameContainerGL implements AbstractGameContainer {
                 if (playerFather) {
                     oppoAngle = (int) World.getInstance().getFather().getPreviousAngle();
                 } else {
-                    //todo: should we remove indicator for kidnapper?
                     oppoAngle = (int) World.getInstance().getKidnapper().getPreviousAngle();
                 }
                 cryTimer = cryInterval;
@@ -222,7 +242,6 @@ public class GameContainerGL implements AbstractGameContainer {
                 if (playerFather) {
                     oppoAngle = (int) World.getInstance().getFather().getPreviousAngle();
                 } else {
-                    //todo: should we remove indicator for kidnapper?
                     oppoAngle = (int) World.getInstance().getKidnapper().getPreviousAngle();
                 }
                 humanCryTimer = humanCryInterval;
@@ -276,6 +295,9 @@ public class GameContainerGL implements AbstractGameContainer {
         music.stop();
     }
 
+    /**
+     * render game
+     */
     public void finalRender() {
         // render the given scene
         renderer.render(scene, screamActive, oppoAngle);
@@ -285,6 +307,9 @@ public class GameContainerGL implements AbstractGameContainer {
         glfwPollEvents();
     }
 
+    /**
+     * update father and kidnapper from keyboard input
+     */
     public void updateActor() {
         fatherController.passInput(windowGL.getPressedKeys());
         fatherController.update(UPDATE_CAP);
@@ -292,6 +317,9 @@ public class GameContainerGL implements AbstractGameContainer {
         kidnapperController.update(UPDATE_CAP);
     }
 
+    /**
+     * timer for scream indicator flicker
+     */
     private void startScreamTimer() {
         new java.util.Timer().schedule(
                 new java.util.TimerTask() {
