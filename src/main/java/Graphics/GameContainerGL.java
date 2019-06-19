@@ -93,12 +93,10 @@ public class GameContainerGL implements AbstractGameContainer {
      */
     public void start() {
         if (renderWindow) {
-            while (true) {
-                menu();
-                init();
-                windowed();
-                end();
-            }
+            menu();
+            init();
+            windowed();
+            end();
         } else {
             headless();
         }
@@ -136,7 +134,7 @@ public class GameContainerGL implements AbstractGameContainer {
      */
     public void end() {
         try {
-            Thread.sleep(1000);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

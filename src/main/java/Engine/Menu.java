@@ -9,7 +9,6 @@ public class Menu implements KeyListener {
     private Window window;
     private MenuRenderer menuRenderer;
     boolean render;
-    int color = 0xffff0000;
     boolean playerFather = false;
     boolean raytracing = false;
 
@@ -29,18 +28,18 @@ public class Menu implements KeyListener {
                 menuRenderer.drawText("Genomen 4", 80, 10, 0xffffffff);
 
                 if (playerFather) {
-                    menuRenderer.drawRect(30,40,40,8, color);
+                    menuRenderer.drawRect(30,40,40,8, 0xffff0000);
                 } else {
-                    menuRenderer.drawRect(130,40,40,8, color);
+                    menuRenderer.drawRect(130,40,40,8, 0xffff0000);
                 }
                 menuRenderer.drawText("Father", 38, 40, 0xffffffff);
                 menuRenderer.drawText("Kidnapper", 130, 40, 0xffffffff);
                 menuRenderer.drawText("Role: Press f or k", 65, 30, 0xffffffff);
 
                 if (raytracing) {
-                    menuRenderer.drawRect(30,70,40,8, color);
+                    menuRenderer.drawRect(30,70,40,8, 0xffff0000);
                 } else {
-                    menuRenderer.drawRect(130,70,40,8, color);
+                    menuRenderer.drawRect(130,70,40,8, 0xffff0000);
                 }
                 menuRenderer.drawText("Yes", 42, 70, 0xffffffff);
                 menuRenderer.drawText("No", 145, 70, 0xffffffff);
@@ -67,11 +66,6 @@ public class Menu implements KeyListener {
 
     public boolean isRaytracing() {
         return raytracing;
-    }
-
-    public static void main(String[] args) {
-        Menu gc = new Menu();
-        gc.run();
     }
 
     @Override
