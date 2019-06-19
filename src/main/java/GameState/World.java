@@ -130,6 +130,9 @@ public class World {
         spawn.y = (int) y;
         spawn.x = (int) x;
 
+        spawn.x = kidnapper ? width - 5 : 5;
+        spawn.y = height/2;
+
         return new Actor(
                 this,
                 0.5f,
