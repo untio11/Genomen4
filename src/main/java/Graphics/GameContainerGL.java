@@ -13,6 +13,7 @@ import Graphics.RenderEngine.Loader;
 import Graphics.RenderEngine.RayTracing.RayTracer;
 import Graphics.RenderEngine.TraditionalRendering.MasterRenderer;
 import Graphics.RenderEngine.Scene;
+import Toolbox.FramerateLogger;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
@@ -23,7 +24,7 @@ import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class GameContainerGL implements Runnable, AbstractGameContainer {
-    public static final boolean RAY_TRACING = false;
+    public static final boolean RAY_TRACING = true;
     private static final double ROUND_TIME = 60;
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
@@ -52,6 +53,7 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
     private int maxDistance;
     private boolean screamActive;
     private int oppoAngle;
+
 
     public GameContainerGL(World world, boolean renderWindow) {
         this.world = world;
@@ -214,106 +216,28 @@ public class GameContainerGL implements Runnable, AbstractGameContainer {
     }
 
     public void windowed() {
-        boolean render;
-        double firstTime;
-        double lastTime = System.nanoTime() / 1e9d;
-        double passedTime;
-        double unprocessedTime = 0;
-        double frameTime = 0;
         int frames = 0;
-        int fps = 0;
-        double cryTimer = cryInterval;
-        double humanCryTimer = humanCryInterval;
-        int cryNumber = 0;
-        double roundTime= ROUND_TIME;
+        double frame_time, frame_rate;
+        double last_time = glfwGetTime(), current_time;
 
-        music.loop();
         while (!glfwWindowShouldClose(windowGL.getWindow())) { //
-            render = false;
-            firstTime = System.nanoTime() / 1e9d;
-            passedTime = firstTime - lastTime;
-            lastTime = firstTime;
-            unprocessedTime += passedTime;
-            frameTime += passedTime;
-            roundTime -= passedTime;
+            current_time = glfwGetTime();
 
-            cryTimer -= passedTime;
-            humanCryTimer -= passedTime;
-            if (cryTimer < 0) {
-                World.getInstance().getKidnapper().receiveScream();
-                World.getInstance().getFather().receiveScream();
-                if (playerFather) {
-                    oppoAngle = (int) World.getInstance().getFather().getPreviousAngle();
-                } else {
-                    //todo: should we remove indicator for kidnapper?
-                    oppoAngle = (int) World.getInstance().getKidnapper().getPreviousAngle();
-                }
-                cryTimer = cryInterval;
+            if (current_time - last_time > 1.0) {
+                frame_time = 1000d/((double) frames);
+                frame_rate = ((double) frames)/1d;
+                FramerateLogger.setFramerate(frame_rate);
+                FramerateLogger.setFrametime(frame_time);
+                FramerateLogger.push(frames);
+                frames = 0;
+                System.out.println(frame_rate + "fps <=> " + frame_time + "ms/frame");
+                last_time = glfwGetTime();
             }
 
-            if (humanCryTimer < 0) {
-                screamActive = true;
-                startScreamTimer();
-                if (playerFather) {
-                    World.getInstance().getFather().receiveScream();
-                } else {
-                    World.getInstance().getKidnapper().receiveScream();
-                }
-                if (playerFather) {
-                    oppoAngle = (int) World.getInstance().getFather().getPreviousAngle();
-                } else {
-                    //todo: should we remove indicator for kidnapper?
-                    oppoAngle = (int) World.getInstance().getKidnapper().getPreviousAngle();
-                }
-                humanCryTimer = humanCryInterval;
-                clips.get(cryNumber).play();
-                cryNumber = (cryNumber + 1) % clips.size();
-            }
-
-            //in case the game freezes, the while loop tries to catch up by updating faster
-            while (unprocessedTime >= UPDATE_CAP) {
-                render = true;
-                unprocessedTime -= UPDATE_CAP;
-
-                //update game
-                updateActor();
-
-                if (frameTime >= 1.0) {
-                    frameTime = 0;
-                    fps = frames;
-                    System.out.println(fps + "fps <=> " + (float) 1000/frames + "ms/frame");
-                    frames = 0;
-                }
-            }
-
-            if (world.isPlayerCollision()) {
-                if (this.renderWindow) {
-                    windowGL.close();
-                }
-                fatherWin = true;
-                break;
-            } else if (roundTime < 0) {
-                if (this.renderWindow) {
-                    windowGL.close();
-                }
-                fatherWin = false;
-                break;
-            }
-
-            if (render) {
-                finalRender();
-
-                frames++;
-            } else {
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+            updateActor();
+            finalRender();
+            frames++;
         }
-        this.roundTime = roundTime;
-        music.stop();
     }
 
     public void finalRender() {

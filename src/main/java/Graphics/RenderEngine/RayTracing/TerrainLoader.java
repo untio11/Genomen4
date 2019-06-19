@@ -2,6 +2,7 @@ package Graphics.RenderEngine.RayTracing;
 
 import Graphics.Models.TerrainModel;
 import Graphics.RenderEngine.Scene;
+import Toolbox.FramerateLogger;
 import org.apache.commons.lang3.ArrayUtils;
 import org.lwjgl.opengl.GL43;
 

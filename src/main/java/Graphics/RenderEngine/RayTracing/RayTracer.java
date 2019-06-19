@@ -5,6 +5,7 @@ import Graphics.GameContainerGL;
 import Graphics.Models.ActorModel;
 import Graphics.RenderEngine.AbstractRenderer;
 import Graphics.RenderEngine.Scene;
+import Toolbox.FramerateLogger;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.*;
@@ -14,7 +15,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.List;
 
 import static org.lwjgl.opengl.GL11C.*;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
@@ -176,6 +176,7 @@ public class RayTracer extends AbstractRenderer {
     public void render(Scene scene, boolean screamActive, int oppoAngle) { // TODO: loadVertexPositions the data from the scene object into the compute shader
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         prepare(scene);
+        FramerateLogger.incrementTringleCount(TerrainLoader.tringle_count);
         executeRay();
         renderQuad();
         if (screamActive) {

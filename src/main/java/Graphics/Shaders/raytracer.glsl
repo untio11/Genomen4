@@ -50,7 +50,7 @@ vec3 discriminant(vec3 ray, vec3 source, vec3 target, float sphere_radius) {
 }
 
 bool intersectsBoundingSphere(vec3 origin, vec3 ray, vec3 top_left) {
-    vec3 center = top_left + vec3(0.5, 0.5, 0.5);
+    vec3 center = top_left + vec3(1.5, 0.5, 1.5);
     float radius = length(center - top_left);
     vec3 disc = discriminant(ray, origin, center, radius);
     float distance = min(-disc.x + sqrt(disc.z), -disc.x - sqrt(disc.z));
