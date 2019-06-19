@@ -70,6 +70,7 @@ public class Main {
 
         gc.start();
         System.out.println(gc.isFatherWin() + " " + gc.getRemainingTime());
+        System.exit(0);
     }
 }
 

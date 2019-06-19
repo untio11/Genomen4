@@ -1,0 +1,103 @@
+package Engine;
+
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
+public class Menu implements KeyListener {
+    private boolean running = false;
+
+    private Window window;
+    private MenuRenderer menuRenderer;
+    boolean render;
+    int color = 0xffff0000;
+    boolean playerFather = true;
+    boolean raytracing = false;
+
+    public Menu() {
+    }
+
+    public void start() {
+        window = new Window(200, 200, 3);
+        window.getFrame().addKeyListener(this);
+        menuRenderer = new MenuRenderer(window);
+        run();
+    }
+
+    public void run() {
+        running = true;
+        render = true;
+        while (running) {
+            if (render) {
+                menuRenderer.clear();
+
+                menuRenderer.drawText("Genomen 4", 80, 10, 0xffffffff);
+
+                if (playerFather) {
+                    menuRenderer.drawRect(30,40,40,8, color);
+                } else {
+                    menuRenderer.drawRect(130,40,40,8, color);
+                }
+                menuRenderer.drawText("Father", 38, 40, 0xffffffff);
+                menuRenderer.drawText("Kidnapper", 130, 40, 0xffffffff);
+                menuRenderer.drawText("Role: Press f or k", 65, 30, 0xffffffff);
+
+                if (raytracing) {
+                    menuRenderer.drawRect(30,70,40,8, color);
+                } else {
+                    menuRenderer.drawRect(130,70,40,8, color);
+                }
+                menuRenderer.drawText("Yes", 42, 70, 0xffffffff);
+                menuRenderer.drawText("No", 145, 70, 0xffffffff);
+                menuRenderer.drawText("Ray tracing: Press y or n", 50, 60, 0xffffffff);
+
+                menuRenderer.drawText("Press Enter to start", 60, 180, 0xffffffff);
+
+                window.update();
+                render = false;
+            } else {
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        Menu gc = new Menu();
+        gc.start();
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_F) {
+            playerFather = true;
+            System.out.println(1);
+        }
+        if (e.getKeyCode() == KeyEvent.VK_K) {
+            playerFather = false;
+        }
+        if (e.getKeyCode() == KeyEvent.VK_Y) {
+            raytracing = true;
+        }
+        if (e.getKeyCode() == KeyEvent.VK_N) {
+            raytracing = false;
+        }
+        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+            running = false;
+            window.close();
+        }
+        render = true;
+    }
+}
