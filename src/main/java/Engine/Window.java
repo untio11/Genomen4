@@ -9,7 +9,6 @@ import java.awt.image.DataBufferInt;
 public class Window {
 
     private int pixelWidth, pixelHeight;
-
     private Canvas canvas;
     private BufferStrategy bs;
     private Graphics g;
@@ -20,7 +19,6 @@ public class Window {
     public Window(int pixelWidth, int pixelHeight, float scale) {
         this.pixelWidth = pixelWidth;
         this.pixelHeight = pixelHeight;
-
         image = new BufferedImage(pixelWidth, pixelHeight, BufferedImage.TYPE_INT_RGB);
         pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
         canvas = new Canvas();
@@ -28,7 +26,6 @@ public class Window {
         canvas.setPreferredSize(s);
         canvas.setMaximumSize(s);
         canvas.setMinimumSize(s);
-
         frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
@@ -36,8 +33,8 @@ public class Window {
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
-        frame.setVisible(false);
-        canvas.requestFocusInWindow();
+        frame.setVisible(true);
+        canvas.setFocusable(false);
 
         canvas.createBufferStrategy(2);
         bs = canvas.getBufferStrategy();
@@ -74,5 +71,17 @@ public class Window {
 
     public Canvas getCanvas() {
         return canvas;
+    }
+
+    public void hide() {
+        frame.setVisible(false);
+    }
+
+    public void show() {
+        frame.setVisible(true);
+    }
+
+    public JFrame getFrame() {
+        return frame;
     }
 }
