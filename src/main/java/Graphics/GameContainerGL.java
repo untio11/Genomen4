@@ -3,6 +3,7 @@ package Graphics;
 import AI.Genomen.Player.*;
 import Engine.AbstractGameContainer;
 import Engine.Controller.Controller;
+import Engine.Menu;
 import Engine.SoundClip;
 import GameState.World;
 import Graphics.RenderEngine.AbstractRenderer;
@@ -17,7 +18,7 @@ import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class GameContainerGL implements AbstractGameContainer {
-    public static final boolean RAY_TRACING = false;
+    public static boolean RAY_TRACING = false;
     private static final double ROUND_TIME = 60;
     private final int FPS = 60;
     private final double UPDATE_CAP = 1.0 / FPS;
@@ -54,20 +55,21 @@ public class GameContainerGL implements AbstractGameContainer {
         this.renderWindow = renderWindow;
         pixelWidth = 1600;
         pixelHeight = 900;
-        if (renderWindow) {
-            this.windowGL = new WindowGL(pixelWidth, pixelHeight, scale);
-            renderer = RAY_TRACING ? new RayTracer(pixelWidth, pixelHeight) : new MasterRenderer();
-            this.scene = new Scene(this.world); // First do window gl and initglfw, otherwise no openGL context will be available
-            renderer.init(scene);
-            music = new SoundClip("res/music.wav");
-            clips = new ArrayList<>();
-            SoundClip clip1 = new SoundClip("res/cry1.wav");
-            SoundClip clip2 = new SoundClip("res/cry2.wav");
-            SoundClip clip3 = new SoundClip("res/cry3.wav");
-            clips.add(clip1);
-            clips.add(clip2);
-            clips.add(clip3);
-        }
+    }
+
+    public void init() {
+        this.windowGL = new WindowGL(pixelWidth, pixelHeight, scale);
+        renderer = RAY_TRACING ? new RayTracer(pixelWidth, pixelHeight) : new MasterRenderer();
+        this.scene = new Scene(this.world); // First do window gl and initglfw, otherwise no openGL context will be available
+        renderer.init(scene);
+        music = new SoundClip("res/music.wav");
+        clips = new ArrayList<>();
+        SoundClip clip1 = new SoundClip("res/cry1.wav");
+        SoundClip clip2 = new SoundClip("res/cry2.wav");
+        SoundClip clip3 = new SoundClip("res/cry3.wav");
+        clips.add(clip1);
+        clips.add(clip2);
+        clips.add(clip3);
     }
 
     /**
@@ -92,6 +94,7 @@ public class GameContainerGL implements AbstractGameContainer {
     public void start() {
         if (renderWindow) {
             menu();
+            init();
             windowed();
             end();
         } else {
@@ -103,35 +106,27 @@ public class GameContainerGL implements AbstractGameContainer {
      * launch game menu
      */
     public void menu() {
-        while (!glfwWindowShouldClose(windowGL.getWindow())) {
-            renderer.renderMenu();
-            glfwSwapBuffers(windowGL.getWindow()); // swap the color buffers, that is: show on screen what is happening
-            // Poll for window events. The key callback above will only be
-            // invoked during this call.
-            glfwPollEvents();
-
-            //initialise actors
-            if (windowGL.getPressedKeys().contains(GLFW_KEY_F)) {
-                setFatherPlayer();
-                File f = new File("res/network/kidnapper/1560215259902-single-genomen-kidnapper-1-5809.net");
-                GenomenAISettings settings = new GenomenAISettings();
-                settings.setAddBoost(true);
-                Controller kidnapperController = new LoadAIGenomenPlayer(f, settings);
-                kidnapperController.setPlayer(World.getInstance().getKidnapper());
-                setKidnapperAI(kidnapperController);
-                world.setCameraFather();
-                playerFather = true;
-                break;
-            } else if (windowGL.getPressedKeys().contains(GLFW_KEY_K)) {
-                Controller fatherController = new CombinedAIGenomenPlayer();
-                fatherController.setPlayer(World.getInstance().getFather());
-                setFatherAI(fatherController);
-                setKidnapperPlayer();
-                world.setCameraKidnapper();
-                playerFather = false;
-                break;
-            }
+        Menu menu = new Menu();
+        menu.run();
+        if (menu.isPlayerFather()) {
+            setFatherPlayer();
+            File f = new File("res/network/kidnapper/1560215259902-single-genomen-kidnapper-1-5809.net");
+            GenomenAISettings settings = new GenomenAISettings();
+            settings.setAddBoost(true);
+            Controller kidnapperController = new LoadAIGenomenPlayer(f, settings);
+            kidnapperController.setPlayer(World.getInstance().getKidnapper());
+            setKidnapperAI(kidnapperController);
+            world.setCameraFather();
+            playerFather = true;
+        } else {
+            Controller fatherController = new CombinedAIGenomenPlayer();
+            fatherController.setPlayer(World.getInstance().getFather());
+            setFatherAI(fatherController);
+            setKidnapperPlayer();
+            world.setCameraKidnapper();
+            playerFather = false;
         }
+        RAY_TRACING = menu.isRaytracing();
     }
 
     /**

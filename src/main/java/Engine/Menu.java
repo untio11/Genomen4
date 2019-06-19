@@ -14,13 +14,9 @@ public class Menu implements KeyListener {
     boolean raytracing = false;
 
     public Menu() {
-    }
-
-    public void start() {
         window = new Window(200, 200, 3);
         window.getFrame().addKeyListener(this);
         menuRenderer = new MenuRenderer(window);
-        run();
     }
 
     public void run() {
@@ -62,11 +58,20 @@ public class Menu implements KeyListener {
                 }
             }
         }
+        window.close();
+    }
+
+    public boolean isPlayerFather() {
+        return playerFather;
+    }
+
+    public boolean isRaytracing() {
+        return raytracing;
     }
 
     public static void main(String[] args) {
         Menu gc = new Menu();
-        gc.start();
+        gc.run();
     }
 
     @Override
@@ -83,7 +88,6 @@ public class Menu implements KeyListener {
     public void keyReleased(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_F) {
             playerFather = true;
-            System.out.println(1);
         }
         if (e.getKeyCode() == KeyEvent.VK_K) {
             playerFather = false;
@@ -96,7 +100,6 @@ public class Menu implements KeyListener {
         }
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             running = false;
-            window.close();
         }
         render = true;
     }
