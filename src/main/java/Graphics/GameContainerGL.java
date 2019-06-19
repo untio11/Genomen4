@@ -93,10 +93,12 @@ public class GameContainerGL implements AbstractGameContainer {
      */
     public void start() {
         if (renderWindow) {
-            menu();
-            init();
-            windowed();
-            end();
+            while (true) {
+                menu();
+                init();
+                windowed();
+                end();
+            }
         } else {
             headless();
         }
@@ -133,6 +135,11 @@ public class GameContainerGL implements AbstractGameContainer {
      * display end screen with result of game
      */
     public void end() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         while (!glfwWindowShouldClose(windowGL.getWindow())) {
             boolean win = false;
             if ((fatherWin && playerFather) || (!fatherWin && !playerFather))  {
@@ -144,12 +151,10 @@ public class GameContainerGL implements AbstractGameContainer {
             // Poll for window events. The key callback above will only be
             // invoked during this call.
             glfwPollEvents();
-
-            if (windowGL.getPressedKeys().contains(GLFW_KEY_SPACE)) {
+            if (windowGL.getPressedKeys().size() > 0) {
                 break;
             }
         }
-
         close();
     }
 

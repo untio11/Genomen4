@@ -10,7 +10,7 @@ public class Menu implements KeyListener {
     private MenuRenderer menuRenderer;
     boolean render;
     int color = 0xffff0000;
-    boolean playerFather = true;
+    boolean playerFather = false;
     boolean raytracing = false;
 
     public Menu() {
