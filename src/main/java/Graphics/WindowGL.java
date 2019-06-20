@@ -1,6 +1,7 @@
 package Graphics;
 
 import Graphics.RenderEngine.RayTracing.RayTracer;
+import Toolbox.FramerateLogger;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -42,6 +43,7 @@ public class WindowGL {
         }
 
         if (key == GLFW_KEY_ESCAPE) {
+            FramerateLogger.close();
             glfwSetWindowShouldClose(window, true);
         }
     }
@@ -95,7 +97,7 @@ public class WindowGL {
         // Make the OpenGL context current
         glfwMakeContextCurrent(window);
         // Enable v-sync
-        glfwSwapInterval(1);
+        glfwSwapInterval(0);
         GL.createCapabilities();
         return window;
     }

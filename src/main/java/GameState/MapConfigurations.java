@@ -82,7 +82,7 @@ public class MapConfigurations {
 
         double minPathLength = 0.5;
         double accessTerrain = 0.74;
-        int mapSize = 25;
+        int mapSize = 60;
 
         return new MapConfiguration(chanceMap, minPathLength, accessTerrain, mapSize);
     }

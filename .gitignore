@@ -39,3 +39,5 @@
 *.log
 /res/network/training/*.*
 !/res/network/training/README.txt
+.Rproj.user
+Framerate\ analysis/

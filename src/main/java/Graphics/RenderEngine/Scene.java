@@ -23,10 +23,10 @@ import java.util.stream.Stream;
  * Convert the state of the world to models for the renderer.
  */
 public class Scene {
-    private static final int CHUNK_WIDTH = 1;
-    private static final int CHUNK_HEIGHT = 1;
+    private static final int CHUNK_WIDTH = 2;
+    private static final int CHUNK_HEIGHT = 2;
     private static final int X_TILES_TO_EDGE = 6;
-    private static final int Y_TILES_TO_EDGE = 3;
+    private static final int Y_TILES_TO_EDGE = 4;
     private int x_chunks;
     private int y_chunks;
     private static Chunk[][] chunks;
@@ -372,11 +372,15 @@ public class Scene {
         private float[] top_left = new float[] {Float.MAX_VALUE, Float.MAX_VALUE};
         private ActorModel[] actors = new ActorModel[2];
         private LightSource[] lights = new LightSource[2];
+        private float[] chunk_dimensions = new float[4];
 
         Chunk(List<TerrainModel> tiles) {
             this.data = tiles;
             this.vertex_count = computeVertexCount();
             this.tringle_count = vertex_count / 3;
+            this.chunk_dimensions[0] = CHUNK_WIDTH;
+            this.chunk_dimensions[2] = CHUNK_HEIGHT;
+            this.chunk_dimensions[3] = 1;
 
             Stream<Float> coordinate_stream = Stream.of();
             Stream<Integer> index_stream = Stream.of();
@@ -388,6 +392,9 @@ public class Scene {
 
                 top_left[0] = Math.min(top_left[0], tile.getX());
                 top_left[1] = Math.min(top_left[1], tile.getY());
+                if (tile.getHeight() > 0) {
+                    this.chunk_dimensions[1] = tile.getHeight();
+                }
 
                 Integer[] tile_indices = ArrayUtils.toObject(tile.getIndexData());
                 for (int j = 0; j < tile_indices.length; j++) {
@@ -428,6 +435,10 @@ public class Scene {
 
         public int getCoordinate_amount() {
             return coordinate_amount;
+        }
+
+        public float[] getChunkDimensions() {
+            return chunk_dimensions;
         }
 
         private int computeVertexCount() {

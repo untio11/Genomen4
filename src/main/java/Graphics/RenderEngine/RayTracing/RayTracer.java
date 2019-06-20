@@ -5,6 +5,7 @@ import Graphics.GameContainerGL;
 import Graphics.Models.ActorModel;
 import Graphics.RenderEngine.AbstractRenderer;
 import Graphics.RenderEngine.Scene;
+import Toolbox.FramerateLogger;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.*;
@@ -14,7 +15,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.List;
 
 import static org.lwjgl.opengl.GL11C.*;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
@@ -35,7 +35,7 @@ public class RayTracer extends AbstractRenderer {
 
     // VAO, VBO & SSBO stuff
     private static int vaoId, IndexVBO;
-    private static int vertexSSBO, indexSSBO, colorSSBO, offsetSSBO, topLeftSSBO;
+    private static int vertexSSBO, indexSSBO, colorSSBO, offsetSSBO, topLeftSSBO, chunkdimSSBO;
 
     // Shader stuff
     private static int terrainProgram, modelProgram, quadProgram;
@@ -111,6 +111,7 @@ public class RayTracer extends AbstractRenderer {
         GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 4, indexSSBO);
         GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 5, offsetSSBO);
         GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 6, topLeftSSBO);
+        GL43.glBindBufferBase(GL43.GL_SHADER_STORAGE_BUFFER, 7, chunkdimSSBO);
 
         glDispatchCompute(terrain_work_x, terrain_work_y, 1);
 
@@ -170,12 +171,14 @@ public class RayTracer extends AbstractRenderer {
         indexSSBO = ssbos[2];
         offsetSSBO = ssbos[3];
         topLeftSSBO = ssbos[4];
+        chunkdimSSBO = ssbos[5];
         father = scene.getEntities().get(0);
     }
 
     public void render(Scene scene, boolean screamActive, int oppoAngle) { // TODO: loadVertexPositions the data from the scene object into the compute shader
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         prepare(scene);
+        FramerateLogger.incrementTringleCount(TerrainLoader.tringle_count);
         executeRay();
         renderQuad();
         if (screamActive) {
