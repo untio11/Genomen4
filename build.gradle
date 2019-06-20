@@ -46,3 +46,9 @@ dependencies {
     runtimeOnly "org.lwjgl:lwjgl-stb:$lwjglVersion:$lwjglNatives"
     testCompile 'junit:junit:4.12'
 }
+
+jar {
+    manifest {
+        attributes 'Main-Class' : 'Main'
+    }
+}
