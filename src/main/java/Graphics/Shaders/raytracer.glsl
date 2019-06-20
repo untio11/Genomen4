@@ -10,7 +10,6 @@ layout(location = 3) uniform ivec2 chunk_info; // # horizontal chunks, # vertica
 layout(location = 4) uniform vec3  player_light;
 layout(location = 5) uniform vec3  enemy_light;
 
-
 layout(std430, binding = 1) buffer VertexPositions { // Contains the vertices of all visible tringles
     vec4 parsed_positions[];
 };
@@ -35,6 +34,10 @@ layout(std430, binding = 6) buffer TopLefts {
     vec2 toplefts[];
 };
 
+layout(std430, binding = 7) buffer ChunkDimensions {
+    vec4 chunk_dimensions[];
+};
+
 ivec2 pixel_coords;
 ivec2 dimensions;
 vec4 debugcolor;
@@ -49,11 +52,11 @@ vec3 discriminant(vec3 ray, vec3 source, vec3 target, float sphere_radius) {
     return vec3(b, c, (b * b - c));
 }
 
-bool intersectsBoundingSphere(vec3 origin, vec3 ray, vec3 top_left) {
-    vec3 center = top_left + vec3(1.5, 0.5, 1.5);
+bool intersectsBoundingSphere(vec3 origin, vec3 ray, vec3 top_left, vec3 chunk_size) {
+
+    vec3 center = top_left + 0.5 * chunk_size;
     float radius = length(center - top_left);
     vec3 disc = discriminant(ray, origin, center, radius);
-    float distance = min(-disc.x + sqrt(disc.z), -disc.x - sqrt(disc.z));
 
     if (disc.z < 0) {
         return false;
@@ -90,7 +93,8 @@ vec4 shadowBounce(vec3 origin, vec3 light_source) {
 
     for (int j = 0; j < chunk_info.x * chunk_info.y; j++) {
         for (int i = offsets[j]; i < offsets[j + 1]; i++) {
-            if (!(intersectsBoundingSphere(origin, direction, vec3(toplefts[j].x, 0.0, toplefts[j].y)))) break;
+            if (chunk_dimensions[j].y < 0.5) break;
+            if (!(intersectsBoundingSphere(origin, direction, vec3(toplefts[j].x, 0.0, toplefts[j].y), chunk_dimensions[j].xyz))) break;
 
             v01  = parsed_positions[indices[(i * 3) + 1]].xyz - parsed_positions[indices[(i * 3) + 0]].xyz;
             v02  = parsed_positions[indices[(i * 3) + 2]].xyz - parsed_positions[indices[(i * 3) + 0]].xyz;
@@ -153,7 +157,7 @@ vec4 trace() {
 
     for (int j = 0; j < chunk_info.x * chunk_info.y; j++) {
         for (int i = offsets[j]; i < offsets[j + 1]; i++) {
-            if (!(intersectsBoundingSphere(camera, ray, vec3(toplefts[j].x, 0.0, toplefts[j].y)))) break;
+            if (!(intersectsBoundingSphere(camera, ray, vec3(toplefts[j].x, 0.0, toplefts[j].y), chunk_dimensions[j].xyz))) break;
             v01  = parsed_positions[indices[(i * 3) + 1]].xyz - parsed_positions[indices[(i * 3) + 0]].xyz;
             v02  = parsed_positions[indices[(i * 3) + 2]].xyz - parsed_positions[indices[(i * 3) + 0]].xyz;
             pvec = cross(ray, v02);
@@ -192,22 +196,18 @@ vec4 trace() {
             normal = normalize(cross(v01, v02));
             player_distance = length(player_light - intersection);
 
-            if (enemy_distance < enemy_light_range) {
-                enemy_contribution += phong(intersection, normal, enemy_light, base_color, 5.0);
-                enemy_contribution *= (enemy_light_range - enemy_distance) / sqrt(enemy_light_range);
-                enemy_contribution *= vec4(1.0, 0.6, 0.2, 1.0) * 0.7;
-                enemy_contribution *= shadowBounce(intersection + 0.0001 * normal, enemy_light);
-            }
+            enemy_contribution += phong(intersection, normal, enemy_light, base_color, 5.0);
+            //enemy_contribution *= sqrt(enemy_light_range - enemy_distance) / sqrt(enemy_light_range);
+            enemy_contribution *= vec4(1.0, 0.6, 0.2, 1.0) * 0.8;
+            enemy_contribution *= shadowBounce(intersection + 0.0001 * normal, enemy_light);
 
-            if (player_distance < view_distance) {
-                player_contribution += phong(intersection, normal, player_light, base_color, 5.0);
-                player_contribution *= (view_distance - player_distance) / sqrt(view_distance + 5.0);
-                player_contribution *= vec4(1.0, 1.0, 1.0, 1.0) * 0.72;
-            }
+            player_contribution += phong(intersection, normal, player_light, base_color, 5.0);
+            //player_contribution *= sqrt(view_distance - player_distance) / sqrt(view_distance);
+
 
             color = player_contribution + enemy_contribution;
             color *= shadowBounce(intersection + 0.0001 * normal, player_light - vec3(0.0, 0.5, 0.0));
-            color = pow(color, vec4(1.02));
+            //color = pow(color, vec4(1.02));
         }
     }
 

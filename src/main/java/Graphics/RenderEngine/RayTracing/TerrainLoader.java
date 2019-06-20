@@ -25,6 +25,7 @@ public class TerrainLoader {
         Stream<Float> coordinate_stream = Stream.of();
         Stream<Integer> index_stream = Stream.of();
         Stream<Float> color_stream = Stream.of();
+        Stream<Float> chunk_dimensions = Stream.of();
         List<Integer> offsets = new ArrayList<>();
         Stream<Float> top_lefts = Stream.of();
         offsets.add(0);
@@ -46,18 +47,19 @@ public class TerrainLoader {
             top_lefts = Stream.concat(top_lefts, Arrays.stream(ArrayUtils.toObject(chunk.getTopLeft())));
             coordinate_stream = Stream.concat(coordinate_stream, Arrays.stream(ArrayUtils.toObject(chunk.getCoordinateStream())));
             color_stream = Stream.concat(color_stream, Arrays.stream(ArrayUtils.toObject(chunk.getColorStream())));
+            chunk_dimensions = Stream.concat(chunk_dimensions, Arrays.stream(ArrayUtils.toObject(chunk.getChunkDimensions())));
             index_stream = Stream.concat(index_stream, Arrays.stream(indices));
         }
+        offsets.add(index_counter); // To find the last chunk
 
         int vertexSSBO = loadDataToBuffer(ArrayUtils.toPrimitive(coordinate_stream.toArray(Float[]::new)));
         int colorSSBO = loadDataToBuffer(ArrayUtils.toPrimitive(color_stream.toArray(Float[]::new)));
         int indexSSBO = loadDataToBuffer(ArrayUtils.toPrimitive(index_stream.toArray(Integer[]::new)));
-        float[] testarray = ArrayUtils.toPrimitive(top_lefts.toArray(Float[]::new));
-        int topLeftSSBO = loadDataToBuffer(testarray);
-        offsets.add(index_counter); // To find the last chunk
-        int[] offsets_ = ArrayUtils.toPrimitive(offsets.toArray(new Integer[0]));
-        int offsetSSBO = loadDataToBuffer(offsets_);
-        return new int[] {vertexSSBO, colorSSBO, indexSSBO, offsetSSBO, topLeftSSBO};
+        int chunkdimSSBO = loadDataToBuffer(ArrayUtils.toPrimitive(chunk_dimensions.toArray(Float[]::new)));
+        int topLeftSSBO = loadDataToBuffer(ArrayUtils.toPrimitive(top_lefts.toArray(Float[]::new)));
+        int offsetSSBO = loadDataToBuffer(ArrayUtils.toPrimitive(offsets.toArray(new Integer[0])));
+
+        return new int[] {vertexSSBO, colorSSBO, indexSSBO, offsetSSBO, topLeftSSBO, chunkdimSSBO};
     }
 
     /**

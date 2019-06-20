@@ -1,13 +1,16 @@
 package Graphics.Models;
 
 import GameState.Tile;
+import GameState.TileType;
 
 public class TerrainModel extends BaseModel { // Note: could be more efficient with interfaces + composition instead of inheritance
     private static final float SIZE = 1;   //scale for the size of map
     private float x, y; // Location on the map in tile coordinates.
+    private Tile tile;
 
     public TerrainModel(Tile tile, BaseModel base) {
         super(base);
+        this.tile = tile;
         this.x = tile.getPosition().x * SIZE;
         this.y = tile.getPosition().y * SIZE;
 
@@ -27,6 +30,10 @@ public class TerrainModel extends BaseModel { // Note: could be more efficient w
 
     public float getY() {
         return y;
+    }
+
+    public float getHeight() {
+        return this.tile.getType() == TileType.TREE ? 1 : 0;
     }
 
     /**
